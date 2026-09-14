@@ -6,6 +6,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import React from "react";
 import type { Theme } from "../../src/types/theme";
+import capabilities from "../../src-tauri/capabilities/default.json";
 
 vi.mock("@tauri-apps/api/core");
 vi.mock("@tauri-apps/api/event");
@@ -724,6 +725,11 @@ describe("ThemeProvider", () => {
       });
     };
 
+    it("grants native theme changes to the application's main window", () => {
+      expect(capabilities.windows).toContain("main");
+      expect(capabilities.permissions).toContain("core:window:allow-set-theme");
+    });
+
     it("uses the Linux portal instead of GTK or media-query theme and tracks changes", async () => {
       vi.spyOn(navigator, "userAgent", "get").mockReturnValue("X11; Linux x86_64");
       let portalTheme: "dark" | "light" | null = "dark";
@@ -735,6 +741,11 @@ describe("ThemeProvider", () => {
       });
       systemIsDark = false;
       mediaSystemIsDark = false;
+      // GTK and WebKit report the application's forced theme after setTheme.
+      tauriWindow.setTheme.mockImplementation(async (theme: "dark" | "light" | null) => {
+        systemIsDark = theme === "dark";
+        mediaSystemIsDark = systemIsDark;
+      });
       vi.mocked(invoke).mockImplementation(async (cmd) => {
         if (cmd === "get_linux_system_theme") return portalTheme;
         if (cmd === "get_config") return { followSystemTheme: true, theme: "tabularis-light" };
@@ -747,14 +758,30 @@ describe("ThemeProvider", () => {
       await waitFor(() => expect(portalChanged).toBeDefined());
       expect(result.current.currentTheme.id).toBe("tabularis-dark");
       expect(tauriWindow.setTheme).toHaveBeenLastCalledWith("dark");
+      expect(systemIsDark).toBe(true);
+      expect(mediaSystemIsDark).toBe(true);
+      // The backend resolves portal 0 (no preference) to light, never null.
       await act(async () => { portalTheme = "light"; portalChanged?.(); });
       await waitFor(() => expect(result.current.currentTheme.id).toBe("tabularis-light"));
       expect(tauriWindow.setTheme).toHaveBeenLastCalledWith("light");
+      expect(tauriWindow.theme).not.toHaveBeenCalled();
+      // Null is reserved for an unavailable/unsupported portal response.
       await act(async () => { portalTheme = null; systemIsDark = true; portalChanged?.(); });
       await waitFor(() => expect(result.current.currentTheme.id).toBe("tabularis-dark"));
       unmount();
       expect(stopPortal).toHaveBeenCalled();
       expect(mediaListeners).toHaveLength(0);
+    });
+
+    it("falls back to the native theme when the Linux portal command fails", async () => {
+      vi.spyOn(navigator, "userAgent", "get").mockReturnValue("X11; Linux x86_64");
+      systemIsDark = true;
+      mediaSystemIsDark = false;
+      stubConfig({ followSystemTheme: true, theme: "tabularis-light" });
+      const { result } = renderHook(() => useTheme(), { wrapper });
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      expect(result.current.currentTheme.id).toBe("tabularis-dark");
+      expect(tauriWindow.theme).toHaveBeenCalled();
     });
 
     it("re-resolves a null native theme event through the media fallback", async () => {

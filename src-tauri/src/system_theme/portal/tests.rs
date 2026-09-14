@@ -16,7 +16,7 @@ impl FakeSettings {
 fn decodes_portal_preferences_without_assuming_unknown_is_light() {
     assert_eq!(theme(1), Some("dark"));
     assert_eq!(theme(2), Some("light"));
-    assert_eq!(theme(0), None);
+    assert_eq!(theme(0), Some("light"));
     assert_eq!(theme(99), None);
 }
 
@@ -25,6 +25,9 @@ fn reads_both_portal_variant_shapes_and_rejects_wrong_types() {
     assert_eq!(decode(OwnedValue::from(1_u32)).unwrap(), Some("dark"));
     let legacy = OwnedValue::try_from(Value::Value(Box::new(Value::U32(2)))).unwrap();
     assert_eq!(decode(legacy).unwrap(), Some("light"));
+    assert_eq!(decode(OwnedValue::from(0_u32)).unwrap(), Some("light"));
+    let legacy_default = OwnedValue::try_from(Value::Value(Box::new(Value::U32(0)))).unwrap();
+    assert_eq!(decode(legacy_default).unwrap(), Some("light"));
     assert!(decode(OwnedValue::from(true)).is_err());
 }
 
@@ -73,7 +76,7 @@ async fn reads_and_watches_the_settings_portal() {
     );
     assert_eq!(
         tokio::time::timeout(wait, rx.recv()).await.unwrap(),
-        Some(None)
+        Some(Some("light"))
     );
     watcher.abort();
     assert!(watcher.await.unwrap_err().is_cancelled());

@@ -1,5 +1,4 @@
 pub mod ai;
-mod system_theme;
 pub mod ai_activity;
 #[cfg(test)]
 pub mod ai_activity_tests;
@@ -92,6 +91,7 @@ pub mod ssh_tunnel;
 pub mod sqlite_database;
 #[cfg(test)]
 pub mod sqlite_database_tests;
+mod system_theme;
 pub mod task_manager;
 pub mod theme_commands;
 pub mod theme_models;

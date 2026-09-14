@@ -10,7 +10,8 @@ const KEY: &str = "color-scheme";
 fn theme(value: u32) -> Option<&'static str> {
     match value {
         1 => Some("dark"),
-        2 => Some("light"),
+        // No preference must not fall back to GTK's last app-forced theme.
+        0 | 2 => Some("light"),
         _ => None,
     }
 }
