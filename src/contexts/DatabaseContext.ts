@@ -1,6 +1,6 @@
 import { createContext } from 'react';
-import type { DriverCapabilities } from '../types/plugins';
 import type { ProxyOverride } from '../types/proxy';
+import type { ConnectionMetadata, DriverCapabilities } from '../types/plugins';
 
 export interface TableInfo {
   name: string;
@@ -104,6 +104,8 @@ export interface SchemaData {
 export interface ConnectionData {
   driver: string;
   capabilities: DriverCapabilities | null;
+  metadata?: ConnectionMetadata;
+  usesConnectionMetadata?: boolean;
   connectionName: string;
   databaseName: string;
   tables: TableInfo[];

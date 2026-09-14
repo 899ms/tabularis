@@ -54,7 +54,12 @@ pub mod heartbeat;
 pub mod heartbeat_tests;
 pub mod json_viewer;
 pub mod keychain_utils;
+#[cfg(test)]
+pub mod keychain_utils_tests;
 pub mod results_window;
+pub mod sandbox;
+#[cfg(test)]
+pub mod sandbox_tests;
 pub mod k8s_tunnel;
 pub mod log_commands;
 pub mod logger;
@@ -92,6 +97,7 @@ pub mod ssh_tunnel;
 pub mod sqlite_database;
 #[cfg(test)]
 pub mod sqlite_database_tests;
+mod system_theme;
 pub mod task_manager;
 pub mod theme_commands;
 pub mod theme_models;
@@ -260,6 +266,8 @@ pub fn run() {
         .manage(results_window::ResultsWindowStore::default())
         .manage(query_history::QueryHistoryState::default())
         .setup(move |app| {
+            #[cfg(target_os = "linux")]
+            system_theme::watch(app.handle().clone());
             // The asset protocol scope in tauri.conf.json only covers the
             // default data directory; when the user moved the storage folder
             // the connection icons live there instead.
@@ -347,13 +355,26 @@ pub fn run() {
             // entry pointing at the current binary so Firefox & friends can
             // route `tabularis://...` to us. The call is a no-op on macOS
             // (handled by Info.plist) and idempotent across restarts.
+            //
+            // Inside Snap/Flatpak the exported `.desktop` entry already
+            // carries `MimeType=x-scheme-handler/tabularis`, and the sandbox
+            // has neither `xdg-mime` nor write access to the host's
+            // mimeapps.list — so skip the call instead of logging a failure.
             {
                 use tauri_plugin_deep_link::DeepLinkExt;
                 let handle = app.handle().clone();
                 let deep_link = app.deep_link();
                 #[cfg(any(target_os = "linux", all(debug_assertions, target_os = "windows")))]
-                if let Err(e) = deep_link.register("tabularis") {
-                    log::warn!("Failed to register tabularis:// scheme: {}", e);
+                match crate::sandbox::current() {
+                    Some(sandbox) => log::info!(
+                        "Skipping tabularis:// scheme registration: handled by the {} desktop entry",
+                        sandbox.name()
+                    ),
+                    None => {
+                        if let Err(e) = deep_link.register("tabularis") {
+                            log::warn!("Failed to register tabularis:// scheme: {}", e);
+                        }
+                    }
                 }
                 deep_link.on_open_url({
                     let handle = handle.clone();
@@ -426,11 +447,13 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            system_theme::get_linux_system_theme,
             is_debug_mode,
             open_devtools,
             close_devtools,
             commands::get_registered_drivers,
             commands::get_driver_manifest,
+            commands::get_connection_metadata,
             commands::get_keybindings,
             commands::save_keybindings,
             commands::test_connection,
