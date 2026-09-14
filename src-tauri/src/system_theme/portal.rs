@@ -6,6 +6,9 @@ use zbus::{
 
 const NAMESPACE: &str = "org.freedesktop.appearance";
 const KEY: &str = "color-scheme";
+// Command reads share a connection; the long-lived watcher has its own peer.
+static READ_CONNECTION: tokio::sync::Mutex<Option<Connection>> =
+    tokio::sync::Mutex::const_new(None);
 
 fn theme(value: u32) -> Option<&'static str> {
     match value {
@@ -50,8 +53,21 @@ async fn read_setting(proxy: &Proxy<'_>) -> zbus::Result<Option<&'static str>> {
 }
 
 pub async fn read() -> zbus::Result<Option<&'static str>> {
-    let connection = Connection::session().await?;
-    read_setting(&settings(&connection).await?).await
+    let mut cached = READ_CONNECTION.lock().await;
+    let connection = match &*cached {
+        Some(connection) => connection.clone(),
+        None => {
+            let connection = Connection::session().await?;
+            *cached = Some(connection.clone());
+            connection
+        }
+    };
+    let result = async { read_setting(&settings(&connection).await?).await }.await;
+    if result.is_err() {
+        // Retry with a fresh connection after a failed read, including bus loss.
+        *cached = None;
+    }
+    result
 }
 
 pub async fn watch(mut on_change: impl FnMut(Option<&'static str>)) -> zbus::Result<()> {
@@ -71,5 +87,4 @@ pub async fn watch(mut on_change: impl FnMut(Option<&'static str>)) -> zbus::Res
 }
 
 #[cfg(test)]
-#[path = "portal/tests.rs"]
 mod tests;

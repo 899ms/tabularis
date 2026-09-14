@@ -1,14 +1,44 @@
 use super::{decode, theme};
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc, Mutex,
+};
 use zbus::zvariant::{OwnedValue, Value};
 
-struct FakeSettings;
+#[derive(Default)]
+struct FakeSettings {
+    senders: Mutex<Vec<String>>,
+    fail: AtomicBool,
+    hold: AtomicBool,
+    entered: tokio::sync::Notify,
+    release: tokio::sync::Notify,
+}
+
+struct SettingsService(Arc<FakeSettings>);
 
 #[zbus::interface(name = "org.freedesktop.portal.Settings")]
-impl FakeSettings {
-    fn read_one(&self, namespace: &str, key: &str) -> OwnedValue {
+impl SettingsService {
+    async fn read_one(
+        &self,
+        namespace: &str,
+        key: &str,
+        #[zbus(header)] header: zbus::message::Header<'_>,
+    ) -> zbus::fdo::Result<OwnedValue> {
         assert_eq!(namespace, super::NAMESPACE);
         assert_eq!(key, super::KEY);
-        OwnedValue::from(1_u32)
+        self.0
+            .senders
+            .lock()
+            .unwrap()
+            .push(header.sender().unwrap().to_string());
+        if self.0.hold.load(Ordering::SeqCst) {
+            self.0.entered.notify_one();
+            self.0.release.notified().await;
+        }
+        if self.0.fail.load(Ordering::SeqCst) {
+            return Err(zbus::fdo::Error::Failed("temporary portal failure".into()));
+        }
+        Ok(OwnedValue::from(1_u32))
     }
 }
 
@@ -34,11 +64,15 @@ fn reads_both_portal_variant_shapes_and_rejects_wrong_types() {
 #[tokio::test]
 #[ignore = "run under dbus-run-session with a private session bus"]
 async fn reads_and_watches_the_settings_portal() {
+    let settings = Arc::new(FakeSettings::default());
     let service = zbus::connection::Builder::session()
         .unwrap()
         .name("org.freedesktop.portal.Desktop")
         .unwrap()
-        .serve_at("/org/freedesktop/portal/desktop", FakeSettings)
+        .serve_at(
+            "/org/freedesktop/portal/desktop",
+            SettingsService(settings.clone()),
+        )
         .unwrap()
         .build()
         .await
@@ -80,4 +114,72 @@ async fn reads_and_watches_the_settings_portal() {
     );
     watcher.abort();
     assert!(watcher.await.unwrap_err().is_cancelled());
+
+    // Concurrent and subsequent invokes must share one authenticated bus peer.
+    settings.senders.lock().unwrap().clear();
+    for result in futures::future::join_all((0..8).map(|_| super::read())).await {
+        assert_eq!(result.unwrap(), Some("dark"));
+    }
+    assert_eq!(super::read().await.unwrap(), Some("dark"));
+    let senders = settings.senders.lock().unwrap().clone();
+    assert_eq!(senders.len(), 9);
+    assert!(
+        senders.iter().all(|sender| sender == &senders[0]),
+        "read invokes opened distinct bus connections: {senders:?}"
+    );
+
+    // A portal error must not leave a permanently cached unusable connection.
+    settings.fail.store(true, Ordering::SeqCst);
+    assert!(super::read().await.is_err());
+    settings.fail.store(false, Ordering::SeqCst);
+    assert_eq!(super::read().await.unwrap(), Some("dark"));
+    assert_ne!(
+        settings.senders.lock().unwrap().last().unwrap(),
+        &senders[0]
+    );
+
+    // Cancellation releases the cache lock, including a timed-out lock waiter.
+    settings.hold.store(true, Ordering::SeqCst);
+    let pending = tokio::spawn(super::read());
+    tokio::time::timeout(wait, settings.entered.notified())
+        .await
+        .unwrap();
+    assert!(
+        tokio::time::timeout(std::time::Duration::from_millis(10), super::read())
+            .await
+            .is_err()
+    );
+    pending.abort();
+    assert!(pending.await.unwrap_err().is_cancelled());
+    settings.hold.store(false, Ordering::SeqCst);
+    settings.release.notify_one();
+    assert_eq!(
+        tokio::time::timeout(wait, super::read())
+            .await
+            .unwrap()
+            .unwrap(),
+        Some("dark")
+    );
+
+    // A real transport disconnect is cleared on error and can reconnect.
+    let disconnected = super::READ_CONNECTION
+        .lock()
+        .await
+        .as_ref()
+        .unwrap()
+        .clone();
+    let old_name = disconnected.unique_name().unwrap().to_string();
+    disconnected.close().await.unwrap();
+    assert!(tokio::time::timeout(wait, super::read())
+        .await
+        .unwrap()
+        .is_err());
+    assert_eq!(
+        tokio::time::timeout(wait, super::read())
+            .await
+            .unwrap()
+            .unwrap(),
+        Some("dark")
+    );
+    assert_ne!(settings.senders.lock().unwrap().last().unwrap(), &old_name);
 }
