@@ -1,4 +1,5 @@
 import { render, fireEvent, screen, waitFor } from "@testing-library/react";
+import { invoke } from "@tauri-apps/api/core";
 import { useState } from "react";
 import { vi } from "vitest";
 import { DataGrid } from "../../../src/components/ui/DataGrid";
@@ -110,6 +111,61 @@ describe("DataGrid layout", () => {
   });
 });
 
+describe("DataGrid read-only cell viewers (#654)", () => {
+  beforeEach(() => {
+    vi.mocked(invoke).mockReset();
+    vi.mocked(invoke).mockResolvedValue("json-viewer-session");
+  });
+
+  const payload = { status: "ok" };
+
+  const renderReadOnlyJsonGrid = () =>
+    render(
+      <DataGrid
+        columns={["payload"]}
+        data={[[payload]]}
+        tableName={null}
+        pkColumns={null}
+        selectedRows={new Set()}
+        onSelectionChange={vi.fn()}
+        readonly
+      />,
+    );
+
+  const cell = (container: HTMLElement) =>
+    container.querySelector('td[data-col-index="0"]')!;
+
+  const expectReadOnlyViewer = async () => {
+    await waitFor(() =>
+      expect(invoke).toHaveBeenCalledWith("open_json_viewer_window", {
+        value: payload,
+        originalValue: payload,
+        colName: "payload",
+        rowLabel: "Row 1",
+        readOnly: true,
+        cellKey: null,
+      }),
+    );
+  };
+
+  it("opens structured query results on double-click", async () => {
+    const { container } = renderReadOnlyJsonGrid();
+
+    fireEvent.doubleClick(cell(container));
+
+    await expectReadOnlyViewer();
+  });
+
+  it("opens structured query results from the keyboard", async () => {
+    const { container } = renderReadOnlyJsonGrid();
+    const grid = container.querySelector('div[tabindex="0"]')!;
+
+    fireEvent.click(cell(container));
+    fireEvent.keyDown(grid, { key: "Enter" });
+
+    await expectReadOnlyViewer();
+  });
+});
 
 describe("DataGrid keyboard navigation", () => {
   // The row virtualizer sizes its viewport from offsetWidth/offsetHeight, which

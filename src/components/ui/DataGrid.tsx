@@ -889,10 +889,46 @@ export const DataGrid = React.memo(
 
     const handleCellDoubleClick = useCallback(
       (rowIndex: number, colIndex: number, value: unknown) => {
-      if (!tableName || readonlyProp) return;
-
       const mergedRow = mergedRows[rowIndex];
       if (!mergedRow) return;
+
+      const colName = columns[colIndex];
+
+      if (generatedColumns?.has(colName.toLowerCase())) {
+        return;
+      }
+
+      const colType = columnTypeMap?.get(colName);
+
+      if (
+        colType &&
+        (isBlobColumn(colType, columnLengthMap?.get(colName)) ||
+          isBlobWireFormat(value))
+      ) {
+        openInSidebar(rowIndex, colName);
+        return;
+      }
+
+      // Open the dedicated viewer for structured cells before checking whether
+      // the grid is editable, so query and notebook results remain inspectable.
+      const rawCellValue = mergedRow.rowData[colIndex];
+      if (isJsonCellTarget(colType, rawCellValue) || Array.isArray(rawCellValue)) {
+        const isInsertion = mergedRow.type === "insertion";
+        openJsonViewerWindow(
+          value,
+          rawCellValue,
+          colName,
+          mergedRow.rowData,
+          rowIndex,
+          isInsertion,
+          mergedRow.tempId,
+          readonlyProp ?? false,
+        );
+        return;
+      }
+
+      if (!tableName || readonlyProp) return;
+
       // No usable row identity (no primary key and no safe all-columns
       // fallback, see resolveRowIdentity) → explain instead of silently
       // ignoring the double-click (#598).
@@ -908,12 +944,6 @@ export const DataGrid = React.memo(
           }),
           { title: t("common.error"), kind: "warning" },
         );
-        return;
-      }
-
-      const colName = columns[colIndex];
-
-      if (generatedColumns?.has(colName.toLowerCase())) {
         return;
       }
 
@@ -959,37 +989,6 @@ export const DataGrid = React.memo(
             return;
           }
         }
-      }
-
-      const colType = columnTypeMap?.get(colName);
-
-      if (
-        colType &&
-        (isBlobColumn(colType, columnLengthMap?.get(colName)) ||
-          isBlobWireFormat(value))
-      ) {
-        openInSidebar(rowIndex, colName);
-        return;
-      }
-
-      // Open the dedicated viewer for structured cells instead of the inline
-      // textarea, which would stringify an array into a cramped, comma-joined
-      // box. Array values always qualify (like json/jsonb columns); JSON found
-      // inside text columns still follows the detect-json-in-text setting.
-      const rawCellValue = mergedRow.rowData[colIndex];
-      if (isJsonCellTarget(colType, rawCellValue) || Array.isArray(rawCellValue)) {
-        const isInsertion = mergedRow.type === "insertion";
-        openJsonViewerWindow(
-          value,
-          rawCellValue,
-          colName,
-          mergedRow.rowData,
-          rowIndex,
-          isInsertion,
-          mergedRow.tempId,
-          readonlyProp ?? false,
-        );
-        return;
       }
 
       let editValue = value;
