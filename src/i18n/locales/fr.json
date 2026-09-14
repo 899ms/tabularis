@@ -257,6 +257,11 @@
       "activity": "Activité",
       "safety": "Sécurité"
     },
+    "output": {
+      "title": "Sortie des outils",
+      "formatLabel": "Format de sortie par défaut",
+      "formatDescription": "Utilisé lorsqu'un appel d'outil MCP ne précise pas output_format. JSON préserve la compatibilité ; TOON peut réduire l'utilisation de jetons."
+    },
     "safety": {
       "readOnlyTitle": "Mode lecture seule",
       "readOnlyDefault": "Mettre toutes les requêtes MCP en lecture seule",

@@ -257,6 +257,11 @@
       "activity": "アクティビティ",
       "safety": "セーフティ"
     },
+    "output": {
+      "title": "ツール出力",
+      "formatLabel": "既定の出力形式",
+      "formatDescription": "MCP ツール呼び出しで output_format が指定されていない場合に使用されます。JSON は互換性を維持し、TOON はトークン使用量を削減できます。"
+    },
     "safety": {
       "readOnlyTitle": "読み取り専用モード",
       "readOnlyDefault": "MCP クエリをすべて読み取り専用にする",

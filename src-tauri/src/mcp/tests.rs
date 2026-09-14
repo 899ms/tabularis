@@ -6,7 +6,8 @@ use serde_json::{json, Map, Value};
 
 #[test]
 fn every_tool_advertises_optional_json_or_toon_output() {
-    let result = handle_list_tools().expect("tool discovery should succeed");
+    let result =
+        handle_list_tools(&AppConfig::default()).expect("tool discovery should succeed");
     let tools = result["tools"].as_array().expect("tools must be an array");
 
     assert_eq!(tools.len(), 5);
@@ -48,6 +49,39 @@ async fn invalid_output_format_fails_before_tool_execution() {
         "Invalid output_format: expected 'json' or 'toon'"
     );
     assert_eq!(audit.connection_id, None);
+}
+
+#[test]
+fn tool_schema_advertises_configured_output_preference() {
+    let config = AppConfig {
+        mcp_output_format: Some("toon".to_string()),
+        ..AppConfig::default()
+    };
+    let result = handle_list_tools(&config).expect("tool discovery should succeed");
+
+    for tool in result["tools"].as_array().unwrap() {
+        assert_eq!(
+            tool["inputSchema"]["properties"]["output_format"]["default"],
+            "toon"
+        );
+    }
+}
+
+#[test]
+fn call_argument_overrides_app_output_preference() {
+    let config = AppConfig {
+        mcp_output_format: Some("toon".to_string()),
+        ..AppConfig::default()
+    };
+    let args = serde_json::from_value::<serde_json::Map<String, Value>>(json!({
+        "output_format": "json"
+    }))
+    .unwrap();
+
+    assert_eq!(
+        requested_output_format(Some(&args), &config).unwrap(),
+        ToolOutputFormat::Json
+    );
 }
 
 /// `list_databases` with no arguments object should surface the JSON-RPC

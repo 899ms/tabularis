@@ -450,7 +450,7 @@ async fn handle_request(req: JsonRpcRequest) -> Option<JsonRpcResponse> {
         "initialize" => handle_initialize(req.params),
         "resources/list" => handle_list_resources().await,
         "resources/read" => handle_read_resource(req.params).await,
-        "tools/list" => handle_list_tools(),
+        "tools/list" => handle_list_tools(&config::load_config_from_disk()),
         "tools/call" => handle_call_tool(req.params).await,
         _ => Err(JsonRpcError {
             code: -32601,
@@ -621,7 +621,8 @@ async fn handle_read_resource(params: Option<Value>) -> Result<Value, JsonRpcErr
     })
 }
 
-fn handle_list_tools() -> Result<Value, JsonRpcError> {
+fn handle_list_tools(config: &AppConfig) -> Result<Value, JsonRpcError> {
+    let default_output_format = ToolOutputFormat::from_config(config).as_str();
     let tools = vec![
         Tool {
             name: "list_connections".to_string(),
@@ -629,7 +630,7 @@ fn handle_list_tools() -> Result<Value, JsonRpcError> {
             input_schema: json!({
                 "type": "object",
                 "properties": {
-                    "output_format": output_format_schema()
+                    "output_format": output_format_schema(default_output_format)
                 }
             }),
         },
@@ -640,7 +641,7 @@ fn handle_list_tools() -> Result<Value, JsonRpcError> {
                 "type": "object",
                 "properties": {
                     "connection_id": { "type": "string", "description": "The ID or name of the connection" },
-                    "output_format": output_format_schema()
+                    "output_format": output_format_schema(default_output_format)
                 },
                 "required": ["connection_id"]
             }),
@@ -653,7 +654,7 @@ fn handle_list_tools() -> Result<Value, JsonRpcError> {
                 "properties": {
                     "connection_id": { "type": "string", "description": "The ID or name of the connection" },
                     "schema": { "type": "string", "description": "Schema name (optional, defaults to 'public' for PostgreSQL)" },
-                    "output_format": output_format_schema()
+                    "output_format": output_format_schema(default_output_format)
                 },
                 "required": ["connection_id"]
             }),
@@ -669,7 +670,7 @@ fn handle_list_tools() -> Result<Value, JsonRpcError> {
                     "connection_id": { "type": "string", "description": "The ID or name of the connection" },
                     "table_name": { "type": "string", "description": "The name of the table to describe" },
                     "schema": { "type": "string", "description": "Schema name (optional, defaults to 'public' for PostgreSQL)" },
-                    "output_format": output_format_schema()
+                    "output_format": output_format_schema(default_output_format)
                 },
                 "required": ["connection_id", "table_name"]
             }),
@@ -683,7 +684,7 @@ fn handle_list_tools() -> Result<Value, JsonRpcError> {
                     "connection_id": { "type": "string", "description": "The ID or name of the connection" },
                     "query": { "type": "string", "description": "The SQL query to execute" },
                     "limit": { "type": "integer", "description": "Maximum number of rows to return (default: 100). If the query already contains a LIMIT clause smaller than this value, the query's LIMIT takes precedence." },
-                    "output_format": output_format_schema()
+                    "output_format": output_format_schema(default_output_format)
                 },
                 "required": ["connection_id", "query"]
             }),
@@ -800,27 +801,27 @@ async fn dispatch_tool(
 ) -> Result<Value, JsonRpcError> {
     match name {
         "list_connections" => {
-            let format = requested_output_format(args)?;
+            let format = requested_output_format(args, config)?;
             tool_list_connections(audit, format).await
         }
         "list_databases" => {
             let args = require_args(args)?;
-            let format = requested_output_format(Some(args))?;
+            let format = requested_output_format(Some(args), config)?;
             tool_list_databases(args, audit, format).await
         }
         "list_tables" => {
             let args = require_args(args)?;
-            let format = requested_output_format(Some(args))?;
+            let format = requested_output_format(Some(args), config)?;
             tool_list_tables(args, audit, format).await
         }
         "describe_table" => {
             let args = require_args(args)?;
-            let format = requested_output_format(Some(args))?;
+            let format = requested_output_format(Some(args), config)?;
             tool_describe_table(args, audit, format).await
         }
         "run_query" => {
             let args = require_args(args)?;
-            let format = requested_output_format(Some(args))?;
+            let format = requested_output_format(Some(args), config)?;
             tool_run_query(args, config, session_id, audit, format).await
         }
         _ => Err(JsonRpcError {
@@ -841,22 +842,25 @@ fn require_args(
     })
 }
 
-fn output_format_schema() -> Value {
+fn output_format_schema(default: &str) -> Value {
     json!({
         "type": "string",
         "enum": ["json", "toon"],
-        "default": "json",
+        "default": default,
         "description": "Text output encoding. JSON is the backward-compatible default; TOON is optimized for LLM token usage."
     })
 }
 
 fn requested_output_format(
     args: Option<&serde_json::Map<String, Value>>,
+    config: &AppConfig,
 ) -> Result<ToolOutputFormat, JsonRpcError> {
-    ToolOutputFormat::from_arguments(args).map_err(|_| JsonRpcError {
-        code: -32602,
-        message: "Invalid output_format: expected 'json' or 'toon'".to_string(),
-        data: None,
+    ToolOutputFormat::from_arguments(args, ToolOutputFormat::from_config(config)).map_err(|_| {
+        JsonRpcError {
+            code: -32602,
+            message: "Invalid output_format: expected 'json' or 'toon'".to_string(),
+            data: None,
+        }
     })
 }
 

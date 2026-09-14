@@ -3,6 +3,7 @@
 //! MCP itself continues to use JSON-RPC. This module only controls the text
 //! carried by a successful tool result's `content` item.
 
+use crate::config::{AppConfig, DEFAULT_MCP_OUTPUT_FORMAT};
 use serde::Serialize;
 use serde_json::{Map, Value};
 
@@ -22,11 +23,30 @@ pub(super) enum OutputFormatError {
 }
 
 impl ToolOutputFormat {
+    pub(super) fn as_str(self) -> &'static str {
+        match self {
+            Self::Json => "json",
+            Self::Toon => "toon",
+        }
+    }
+
+    pub(super) fn from_config(config: &AppConfig) -> Self {
+        match config
+            .mcp_output_format
+            .as_deref()
+            .unwrap_or(DEFAULT_MCP_OUTPUT_FORMAT)
+        {
+            "toon" => Self::Toon,
+            _ => Self::Json,
+        }
+    }
+
     pub(super) fn from_arguments(
         arguments: Option<&Map<String, Value>>,
+        default: Self,
     ) -> Result<Self, OutputFormatError> {
         let Some(value) = arguments.and_then(|args| args.get(OUTPUT_FORMAT_ARGUMENT)) else {
-            return Ok(Self::Json);
+            return Ok(default);
         };
 
         match value.as_str() {

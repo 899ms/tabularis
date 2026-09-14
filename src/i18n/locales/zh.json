@@ -243,6 +243,11 @@
       "activity": "活动",
       "safety": "安全"
     },
+    "output": {
+      "title": "工具输出",
+      "formatLabel": "默认输出格式",
+      "formatDescription": "当 MCP 工具调用未指定 output_format 时使用。JSON 保持兼容性；TOON 可以减少令牌用量。"
+    },
     "safety": {
       "readOnlyTitle": "只读模式",
       "readOnlyDefault": "将所有 MCP 查询设为只读",

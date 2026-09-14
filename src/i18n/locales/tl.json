@@ -257,6 +257,11 @@
       "activity": "Aktibidad",
       "safety": "Kaligtasan"
     },
+    "output": {
+      "title": "Output ng tool",
+      "formatLabel": "Default na format ng output",
+      "formatDescription": "Ginagamit kapag hindi tinukoy ng MCP tool call ang output_format. Pinapanatili ng JSON ang compatibility; maaaring bawasan ng TOON ang paggamit ng token."
+    },
     "safety": {
       "readOnlyTitle": "Read-only mode",
       "readOnlyDefault": "Gawing read-only ang lahat ng MCP query",
