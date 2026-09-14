@@ -1581,6 +1581,7 @@
     "colType": "Uri",
     "colNullable": "Nullable",
     "colKey": "Key",
+    "colDescription": "Paglalarawan",
     "yes": "OO",
     "no": "HINDI"
   },

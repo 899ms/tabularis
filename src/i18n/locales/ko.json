@@ -1525,6 +1525,7 @@
     "colType": "타입",
     "colNullable": "NULL 허용",
     "colKey": "키",
+    "colDescription": "설명",
     "yes": "예",
     "no": "아니오"
   },

@@ -1589,6 +1589,7 @@
     "colType": "Type",
     "colNullable": "Nullable",
     "colKey": "Clé",
+    "colDescription": "Description",
     "yes": "OUI",
     "no": "NON"
   },

@@ -1600,6 +1600,7 @@
     "colType": "Type",
     "colNullable": "Nullable",
     "colKey": "Key",
+    "colDescription": "Description",
     "yes": "YES",
     "no": "NO"
   },

@@ -1556,6 +1556,7 @@
     "colType": "Тип",
     "colNullable": "Nullable",
     "colKey": "Ключ",
+    "colDescription": "Описание",
     "yes": "Да",
     "no": "Нет"
   },
