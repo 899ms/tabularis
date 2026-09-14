@@ -54,7 +54,12 @@ pub mod heartbeat;
 pub mod heartbeat_tests;
 pub mod json_viewer;
 pub mod keychain_utils;
+#[cfg(test)]
+pub mod keychain_utils_tests;
 pub mod results_window;
+pub mod sandbox;
+#[cfg(test)]
+pub mod sandbox_tests;
 pub mod k8s_tunnel;
 pub mod log_commands;
 pub mod logger;
@@ -100,6 +105,8 @@ pub mod window_decorations;
 pub mod drivers {
     pub mod common;
     pub mod driver_trait;
+    #[cfg(test)]
+    pub mod driver_trait_tests;
     pub mod mysql;
     pub mod postgres;
     pub mod registry;
@@ -303,6 +310,26 @@ pub fn run() {
                     .await;
             });
 
+            // Ensure replacement plugins are installed for any built-in
+            // driver a saved connection still depends on (e.g. install the
+            // `postgresql` plugin when a `postgres` connection exists). Spawned,
+            // not `block_on`, so a slow or failed registry fetch never delays
+            // window creation — same pattern as the health-check spawn below.
+            // See `.github/planning/postgres-plugin-force-install.md`.
+            for (builtin_id, plugin_id) in crate::plugins::force_install::MIGRATABLE_DRIVERS {
+                let handle = app.handle().clone();
+                let builtin_id = builtin_id.to_string();
+                let plugin_id = plugin_id.to_string();
+                tauri::async_runtime::spawn(async move {
+                    crate::plugins::force_install::ensure_plugin_installed_if_needed(
+                        &handle,
+                        &builtin_id,
+                        &plugin_id,
+                    )
+                    .await;
+                });
+            }
+
             // Start connection health-check ping loop.
             {
                 let config = crate::config::load_config_internal(&app.handle());
@@ -327,13 +354,26 @@ pub fn run() {
             // entry pointing at the current binary so Firefox & friends can
             // route `tabularis://...` to us. The call is a no-op on macOS
             // (handled by Info.plist) and idempotent across restarts.
+            //
+            // Inside Snap/Flatpak the exported `.desktop` entry already
+            // carries `MimeType=x-scheme-handler/tabularis`, and the sandbox
+            // has neither `xdg-mime` nor write access to the host's
+            // mimeapps.list — so skip the call instead of logging a failure.
             {
                 use tauri_plugin_deep_link::DeepLinkExt;
                 let handle = app.handle().clone();
                 let deep_link = app.deep_link();
                 #[cfg(any(target_os = "linux", all(debug_assertions, target_os = "windows")))]
-                if let Err(e) = deep_link.register("tabularis") {
-                    log::warn!("Failed to register tabularis:// scheme: {}", e);
+                match crate::sandbox::current() {
+                    Some(sandbox) => log::info!(
+                        "Skipping tabularis:// scheme registration: handled by the {} desktop entry",
+                        sandbox.name()
+                    ),
+                    None => {
+                        if let Err(e) = deep_link.register("tabularis") {
+                            log::warn!("Failed to register tabularis:// scheme: {}", e);
+                        }
+                    }
                 }
                 deep_link.on_open_url({
                     let handle = handle.clone();
