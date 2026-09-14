@@ -163,20 +163,34 @@ describe("VisualExplainModal legacy execution", () => {
     });
   });
 
-  it("retains legacy execution on Analyze change and explicit rerun", async () => {
+  it("only records an Analyze change until explicit rerun", async () => {
     render(<VisualExplainModal {...defaults} schema="reporting" />);
     await settle();
     await act(async () => { fireEvent.click(screen.getByRole("checkbox")); });
+    await settle();
+    expect(screen.getByRole("checkbox")).not.toBeChecked();
+    expect(mockInvoke).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "editor.visualExplain.rerun" }));
+    });
     expect(mockInvoke).toHaveBeenCalledTimes(2);
     expect(mockInvoke).toHaveBeenLastCalledWith("explain_query_plan", {
       connectionId: "connection-1", query: defaults.query, analyze: false, schema: "reporting",
     });
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "editor.visualExplain.rerun" }));
-    });
-    expect(mockInvoke).toHaveBeenCalledTimes(3);
+  });
+
+  it("runs a source change with the Analyze choice recorded for that source", async () => {
+    const { rerender } = render(<VisualExplainModal {...defaults} isOpen={false} />);
+    await settle();
+    await act(async () => { rerender(<VisualExplainModal {...defaults} />); });
+    await settle();
+    await act(async () => { fireEvent.click(screen.getByRole("checkbox")); });
+    await act(async () => { rerender(<VisualExplainModal {...defaults} isOpen={false} />); });
+    await act(async () => { rerender(<VisualExplainModal {...defaults} />); });
+    await settle();
+    expect(mockInvoke).toHaveBeenCalledTimes(2);
     expect(mockInvoke).toHaveBeenLastCalledWith("explain_query_plan", {
-      connectionId: "connection-1", query: defaults.query, analyze: false, schema: "reporting",
+      connectionId: "connection-1", query: defaults.query, analyze: false, schema: null,
     });
   });
 

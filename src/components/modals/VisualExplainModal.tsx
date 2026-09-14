@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   X,
@@ -77,6 +77,13 @@ export const VisualExplainModal = ({
       ? `${databaseLabel} / ${schemaLabel}`
       : databaseLabel;
 
+  // Ticking Analyze only records the choice; ANALYZE executes the statement, so
+  // it must not run until the source changes or the user clicks Re-run.
+  const analyzeRef = useRef(analyze);
+  useEffect(() => {
+    analyzeRef.current = analyze;
+  });
+
   useEffect(() => {
     if (!isOpen || hasExternalPlan) return;
     let cancelled = false;
@@ -85,14 +92,14 @@ export const VisualExplainModal = ({
       await Promise.resolve();
       if (cancelled) return;
       setViewMode("graph");
-      await runExplain({ connectionId, query, analyze, schema });
+      await runExplain({ connectionId, query, analyze: analyzeRef.current, schema });
     };
     void explain();
     return () => {
       cancelled = true;
       invalidate();
     };
-  }, [isOpen, hasExternalPlan, query, connectionId, analyze, schema, runExplain, setViewMode, invalidate]);
+  }, [isOpen, hasExternalPlan, query, connectionId, schema, runExplain, setViewMode, invalidate]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
