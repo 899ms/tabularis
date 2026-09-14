@@ -96,6 +96,7 @@ pub mod ssh_tunnel;
 pub mod sqlite_database;
 #[cfg(test)]
 pub mod sqlite_database_tests;
+mod system_theme;
 pub mod task_manager;
 pub mod theme_commands;
 pub mod theme_models;
@@ -264,6 +265,8 @@ pub fn run() {
         .manage(results_window::ResultsWindowStore::default())
         .manage(query_history::QueryHistoryState::default())
         .setup(move |app| {
+            #[cfg(target_os = "linux")]
+            system_theme::watch(app.handle().clone());
             // The asset protocol scope in tauri.conf.json only covers the
             // default data directory; when the user moved the storage folder
             // the connection icons live there instead.
@@ -443,6 +446,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            system_theme::get_linux_system_theme,
             is_debug_mode,
             open_devtools,
             close_devtools,
