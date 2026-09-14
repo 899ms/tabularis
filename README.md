@@ -342,6 +342,8 @@ Once connected, your AI agent can:
 | `describe_table` | Get full schema: columns, indexes, foreign keys |
 | `run_query` | Execute any SQL query and return results |
 
+Every tool accepts an optional `output_format` argument. It defaults to `json`, preserving the existing response format for all clients. Set it to `toon` to return [TOON](https://toonformat.dev/) text, which is especially compact for tabular query results passed to an LLM. MCP transport remains JSON-RPC in either mode; only the text inside the tool result changes.
+
 #### Example prompts
 
 > "Show me all tables in my production database and describe the `orders` table"

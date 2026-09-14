@@ -1,8 +1,54 @@
-//! Dispatch-level tests for the MCP tool router, focused on the argument and
-//! connection-resolution error paths of `list_databases`.
+//! Dispatch-level tests for MCP tool discovery, argument validation, and
+//! connection-resolution error paths.
 
 use super::*;
 use serde_json::{json, Map, Value};
+
+#[test]
+fn every_tool_advertises_optional_json_or_toon_output() {
+    let result = handle_list_tools().expect("tool discovery should succeed");
+    let tools = result["tools"].as_array().expect("tools must be an array");
+
+    assert_eq!(tools.len(), 5);
+    for tool in tools {
+        let output_format = &tool["inputSchema"]["properties"]["output_format"];
+        assert_eq!(output_format["type"], "string");
+        assert_eq!(output_format["enum"], json!(["json", "toon"]));
+        assert_eq!(output_format["default"], "json");
+        assert!(tool["inputSchema"]["required"]
+            .as_array()
+            .map_or(true, |required| !required
+                .iter()
+                .any(|name| name == "output_format")));
+    }
+}
+
+#[tokio::test]
+async fn invalid_output_format_fails_before_tool_execution() {
+    let config = AppConfig::default();
+    let mut audit = CallAudit::for_tool("run_query");
+    let args = json!({
+        "connection_id": "does-not-matter",
+        "query": "SELECT 1",
+        "output_format": "xml"
+    });
+    let err = dispatch_tool(
+        "run_query",
+        args.as_object(),
+        &config,
+        "test-session",
+        &mut audit,
+    )
+    .await
+    .expect_err("unsupported output formats must be rejected");
+
+    assert_eq!(err.code, -32602);
+    assert_eq!(
+        err.message,
+        "Invalid output_format: expected 'json' or 'toon'"
+    );
+    assert_eq!(audit.connection_id, None);
+}
 
 /// `list_databases` with no arguments object should surface the JSON-RPC
 /// "Missing arguments" error (-32602) before any connection lookup happens.
