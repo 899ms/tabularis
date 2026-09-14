@@ -900,15 +900,6 @@ export const DataGrid = React.memo(
 
       const colType = columnTypeMap?.get(colName);
 
-      if (
-        colType &&
-        (isBlobColumn(colType, columnLengthMap?.get(colName)) ||
-          isBlobWireFormat(value))
-      ) {
-        openInSidebar(rowIndex, colName);
-        return;
-      }
-
       // Open the dedicated viewer for structured cells before checking whether
       // the grid is editable, so query and notebook results remain inspectable.
       const rawCellValue = mergedRow.rowData[colIndex];
@@ -989,6 +980,15 @@ export const DataGrid = React.memo(
             return;
           }
         }
+      }
+
+      if (
+        colType &&
+        (isBlobColumn(colType, columnLengthMap?.get(colName)) ||
+          isBlobWireFormat(value))
+      ) {
+        openInSidebar(rowIndex, colName);
+        return;
       }
 
       let editValue = value;

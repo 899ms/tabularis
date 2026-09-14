@@ -17,7 +17,10 @@ vi.mock("../../../src/hooks/useAlert", () => ({
   useAlert: () => ({ showAlert: vi.fn() }),
 }));
 
-const { showToastMock } = vi.hoisted(() => ({ showToastMock: vi.fn() }));
+const { showToastMock, openRowEditorMock } = vi.hoisted(() => ({
+  showToastMock: vi.fn(),
+  openRowEditorMock: vi.fn(),
+}));
 
 vi.mock("../../../src/hooks/useToast", () => ({
   useToast: () => ({ showToast: showToastMock }),
@@ -33,7 +36,7 @@ vi.mock("../../../src/hooks/useRightSidebar", () => ({
     activePanel: null,
     rowEditorData: null,
     isPinned: false,
-    openRowEditor: vi.fn(),
+    openRowEditor: openRowEditorMock,
     updateRowEditorData: vi.fn(),
     close: vi.fn(),
     toggle: vi.fn(),
@@ -115,6 +118,7 @@ describe("DataGrid read-only cell viewers (#654)", () => {
   beforeEach(() => {
     vi.mocked(invoke).mockReset();
     vi.mocked(invoke).mockResolvedValue("json-viewer-session");
+    openRowEditorMock.mockReset();
   });
 
   const payload = { status: "ok" };
@@ -164,6 +168,34 @@ describe("DataGrid read-only cell viewers (#654)", () => {
     fireEvent.keyDown(grid, { key: "Enter" });
 
     await expectReadOnlyViewer();
+  });
+
+  it("does not open the editable row sidebar for read-only blob cells", () => {
+    const { container } = render(
+      <DataGrid
+        columns={["payload"]}
+        data={[["BLOB:3:application/octet-stream:AQID"]]}
+        columnMetadata={[
+          {
+            name: "payload",
+            data_type: "bytea",
+            is_pk: false,
+            is_nullable: true,
+            is_auto_increment: false,
+          },
+        ]}
+        tableName="events"
+        pkColumns={["id"]}
+        selectedRows={new Set()}
+        onSelectionChange={vi.fn()}
+        readonly
+      />,
+    );
+
+    fireEvent.doubleClick(cell(container));
+
+    expect(openRowEditorMock).not.toHaveBeenCalled();
+    expect(invoke).not.toHaveBeenCalled();
   });
 });
 
