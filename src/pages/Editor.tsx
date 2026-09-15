@@ -3852,7 +3852,23 @@ export const Editor = ({ commandScopeId }: EditorProps) => {
                   }}
                 />
               )}
-              {tab.type === "table" ? (
+              {tab.isLoading ? (
+                // Running indicator: the type icon gives way to a spinner so
+                // the tab whose query is executing stands out even when it is
+                // not the active one.
+                <span
+                  className="flex shrink-0"
+                  title={t("editor.executingQuery")}
+                  aria-label={t("editor.executingQuery")}
+                  role="status"
+                >
+                  <Loader2
+                    size={12}
+                    className="animate-spin"
+                    style={{ color: tabAccentColor }}
+                  />
+                </span>
+              ) : tab.type === "table" ? (
                 <TableIcon size={12} className="text-accent shrink-0" />
               ) : tab.type === "query_builder" ? (
                 <Network size={12} className="text-accent-secondary shrink-0" />
