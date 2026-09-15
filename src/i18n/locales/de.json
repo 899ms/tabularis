@@ -2347,6 +2347,10 @@
       "summary": "SSH-Tunnel fehlgeschlagen",
       "recovery": "Die Einstellungen im SSH-Tab prüfen."
     },
+    "ssm": {
+      "summary": "AWS-SSM-Sitzung fehlgeschlagen",
+      "recovery": "Öffnen Sie die Details für den genauen AWS-Fehler. Prüfen Sie, ob die AWS CLI und das Session-Manager-Plugin installiert sind, ob Ihre Anmeldedaten aktuell sind und ob der verwaltete Knoten online ist."
+    },
     "db-auth": {
       "summary": "Datenbank-Authentifizierung fehlgeschlagen",
       "recovery": "Benutzername und Passwort der Datenbank prüfen."

@@ -2404,6 +2404,10 @@
       "summary": "Falha no túnel SSH",
       "recovery": "Verifique as configurações na aba SSH."
     },
+    "ssm": {
+      "summary": "Falha na sessão do AWS SSM",
+      "recovery": "Abra os detalhes para ver o erro exato da AWS. Verifique se a CLI da AWS e o plugin Session Manager estão instalados, se suas credenciais estão válidas e se o nó gerenciado está on-line."
+    },
     "db-auth": {
       "summary": "Falha na autenticação do banco de dados",
       "recovery": "Verifique o nome de usuário e a senha do banco de dados."

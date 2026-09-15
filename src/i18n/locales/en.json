@@ -2439,6 +2439,10 @@
       "summary": "SSH tunnel failed",
       "recovery": "Check the settings in the SSH tab."
     },
+    "ssm": {
+      "summary": "AWS SSM session failed",
+      "recovery": "Open the details for the exact AWS error. Check that the AWS CLI and the Session Manager plugin are installed, that your credentials are current, and that the managed node is online."
+    },
     "db-auth": {
       "summary": "Database authentication failed",
       "recovery": "Check the database username and password."

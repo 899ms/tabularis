@@ -2360,6 +2360,10 @@
       "summary": "Tunnel SSH fallito",
       "recovery": "Controlla le impostazioni nella scheda SSH."
     },
+    "ssm": {
+      "summary": "Sessione AWS SSM non riuscita",
+      "recovery": "Apri i dettagli per l'errore AWS esatto. Verifica che la CLI di AWS e il plugin Session Manager siano installati, che le credenziali siano valide e che il nodo gestito sia online."
+    },
     "db-auth": {
       "summary": "Autenticazione al database fallita",
       "recovery": "Controlla nome utente e password del database."

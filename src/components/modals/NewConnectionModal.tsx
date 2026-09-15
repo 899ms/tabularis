@@ -2171,6 +2171,7 @@ export const NewConnectionModal = ({
         setStatus("error");
         const classified = classifyConnectionError(toErrorMessage(err), {
           sshEnabled: formData.ssh_enabled === true,
+          ssmEnabled: formData.ssm_enabled === true,
         });
         setMessage("");
         setErrorFeedback(classified);
@@ -2428,6 +2429,7 @@ export const NewConnectionModal = ({
           setStatus("error");
           const classified = classifyConnectionError(toErrorMessage(err), {
             sshEnabled: formData.ssh_enabled === true,
+            ssmEnabled: formData.ssm_enabled === true,
           });
           setMessage("");
           setErrorFeedback(

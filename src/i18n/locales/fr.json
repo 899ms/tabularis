@@ -2428,6 +2428,10 @@
       "summary": "Échec du tunnel SSH",
       "recovery": "Vérifiez les paramètres dans l’onglet SSH."
     },
+    "ssm": {
+      "summary": "Échec de la session AWS SSM",
+      "recovery": "Ouvrez les détails pour voir l'erreur AWS exacte. Vérifiez que l'AWS CLI et le plugin Session Manager sont installés, que vos identifiants sont à jour et que le nœud géré est en ligne."
+    },
     "db-auth": {
       "summary": "Échec de l’authentification à la base de données",
       "recovery": "Vérifiez le nom d’utilisateur et le mot de passe de la base de données."

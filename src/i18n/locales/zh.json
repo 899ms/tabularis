@@ -2287,6 +2287,10 @@
       "summary": "SSH 隧道失败",
       "recovery": "请检查 SSH 标签页中的设置。"
     },
+    "ssm": {
+      "summary": "AWS SSM 会话失败",
+      "recovery": "展开详情查看具体的 AWS 错误。请确认已安装 AWS CLI 和 Session Manager 插件、凭证仍然有效，并且托管节点处于在线状态。"
+    },
     "db-auth": {
       "summary": "数据库认证失败",
       "recovery": "请检查数据库用户名和密码。"

@@ -2321,6 +2321,10 @@
       "summary": "Nabigo ang SSH tunnel",
       "recovery": "Suriin ang mga setting sa tab na SSH."
     },
+    "ssm": {
+      "summary": "Nabigo ang AWS SSM session",
+      "recovery": "Buksan ang mga detalye para sa eksaktong error ng AWS. Tiyaking naka-install ang AWS CLI at ang Session Manager plugin, kasalukuyan pa ang iyong mga kredensyal, at online ang managed node."
+    },
     "db-auth": {
       "summary": "Nabigo ang authentication sa database",
       "recovery": "Suriin ang username at password ng database."
