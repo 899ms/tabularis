@@ -82,6 +82,7 @@ pub mod pool_manager;
 #[cfg(test)]
 pub mod pool_manager_tests;
 pub mod preferences;
+pub mod proxy;
 pub mod query_history;
 #[cfg(test)]
 pub mod query_history_tests;
@@ -452,6 +453,7 @@ pub fn run() {
             close_devtools,
             commands::get_registered_drivers,
             commands::get_driver_manifest,
+            commands::get_connection_metadata,
             commands::get_keybindings,
             commands::save_keybindings,
             commands::test_connection,
@@ -590,6 +592,9 @@ pub fn run() {
             config::delete_ai_key,
             config::check_ai_key,
             config::check_ai_key_status,
+            proxy::set_proxy_password,
+            proxy::proxy_password_is_set,
+            proxy::delete_proxy_password,
             config::get_system_prompt,
             config::save_system_prompt,
             config::reset_system_prompt,
@@ -744,6 +749,7 @@ pub fn run() {
                 backup::run_exit_backup(app_handle);
                 log::info!("Application exiting, stopping all active SSH tunnels...");
                 crate::ssh_tunnel::stop_all_tunnels();
+                crate::proxy::stop_all_forwards();
             }
         });
 }

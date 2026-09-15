@@ -1,6 +1,10 @@
 import { createContext } from "react";
 import type { AppLanguage } from "../i18n/config";
 import { DEFAULT_MASKING_PATTERNS } from "../utils/columnMasking";
+import type {
+  GlobalProxySettings,
+  ProxyOverride,
+} from "../types/proxy";
 
 export type { AppLanguage };
 export type CopyFormat = "csv" | "json" | "sql-insert" | "markdown";
@@ -54,6 +58,8 @@ export interface Settings {
   resultTypeColors?: Record<string, string>;
   /** Keep the result grid's column headers pinned to the top while scrolling. Default: true. */
   stickyColumnHeaders?: boolean;
+  /** Font used for query result cells. A font name from AVAILABLE_FONTS, a custom family, or RESULT_FONT_INHERIT to follow the interface font. Default: "JetBrains Mono". */
+  resultFontFamily?: string;
   aiEnabled: boolean;
   aiProvider: AiProvider | null;
   aiModel: string | null;
@@ -164,6 +170,10 @@ export interface Settings {
   /** Per built-in driver id → migration mode. Defaults to "opt-in" when unset;
    * flipping an entry to "forced" is a separate, later decision. */
   migrationModeByDriver?: Record<string, MigrationMode>;
+  /** Global HTTP/SOCKS5 proxy and opt-in traffic scopes. */
+  proxy?: GlobalProxySettings;
+  /** Per AI-provider proxy overrides. */
+  aiProviderProxies?: Partial<Record<AiProvider, ProxyOverride>>;
 }
 
 export interface SettingsContextType {
@@ -204,6 +214,7 @@ export const DEFAULT_SETTINGS: Settings = {
   resultColorByType: false,
   resultTypeColors: {},
   stickyColumnHeaders: true,
+  resultFontFamily: "JetBrains Mono",
   aiEnabled: false,
   aiProvider: null,
   aiModel: null,
