@@ -9,8 +9,6 @@ import {
   importTheme,
   exportTheme,
   migrateThemeFromLocalStorage,
-  detectSystemTheme,
-  getDefaultThemeIdForSystem,
   findThemeById,
   filterPresetThemes,
   filterCustomThemes,
@@ -264,58 +262,6 @@ describe('themeManagement', () => {
       
       expect(result.migrated).toBe(false);
       consoleSpy.mockRestore();
-    });
-  });
-
-  describe('detectSystemTheme', () => {
-    it('should return dark when system prefers dark', () => {
-      vi.stubGlobal('window', {
-        matchMedia: vi.fn().mockReturnValue({ matches: true }),
-      });
-      
-      const result = detectSystemTheme();
-      
-      expect(result).toBe('dark');
-    });
-
-    it('should return light when system prefers light', () => {
-      vi.stubGlobal('window', {
-        matchMedia: vi.fn().mockReturnValue({ matches: false }),
-      });
-      
-      const result = detectSystemTheme();
-      
-      expect(result).toBe('light');
-    });
-
-    it('should default to dark on server', () => {
-      vi.stubGlobal('window', undefined);
-      
-      const result = detectSystemTheme();
-      
-      expect(result).toBe('dark');
-    });
-  });
-
-  describe('getDefaultThemeIdForSystem', () => {
-    it('should return tabularis-dark for dark mode', () => {
-      vi.stubGlobal('window', {
-        matchMedia: vi.fn().mockReturnValue({ matches: true }),
-      });
-      
-      const result = getDefaultThemeIdForSystem();
-      
-      expect(result).toBe('tabularis-dark');
-    });
-
-    it('should return tabularis-light for light mode', () => {
-      vi.stubGlobal('window', {
-        matchMedia: vi.fn().mockReturnValue({ matches: false }),
-      });
-      
-      const result = getDefaultThemeIdForSystem();
-      
-      expect(result).toBe('tabularis-light');
     });
   });
 

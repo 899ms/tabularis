@@ -28,6 +28,50 @@ async fn driver_for(
         .ok_or_else(|| format!("Unsupported driver: {}", id))
 }
 
+async fn driver_for_params(
+    params: &ConnectionParams,
+) -> Result<Arc<dyn crate::drivers::driver_trait::DatabaseDriver>, String> {
+    crate::drivers::registry::get_connection_driver(params).await
+}
+
+/// Pure SQL builders still need no credentials for static drivers. Only
+/// discovery-enabled plugins resolve credentials and tunnels here.
+async fn driver_for_saved<R: Runtime>(
+    app: &AppHandle<R>,
+    saved: &SavedConnection,
+) -> Result<Arc<dyn crate::drivers::driver_trait::DatabaseDriver>, String> {
+    let driver = driver_for(&saved.params.driver).await?;
+    if !driver.has_connection_metadata() {
+        return Ok(driver);
+    }
+    let expanded = expand_ssh_connection_params(app, &saved.params).await?;
+    let expanded = expand_k8s_connection_params(app, &expanded).await?;
+    let params = resolve_connection_params_with_id(&expanded, &saved.id)?;
+    driver_for_params(&params).await
+}
+
+#[tauri::command]
+pub async fn get_connection_metadata<R: Runtime>(
+    app: AppHandle<R>,
+    connection_id: String,
+) -> Result<Option<crate::plugins::connection_metadata::ConnectionMetadata>, String> {
+    let saved = find_connection_by_id(&app, &connection_id)?;
+    if !driver_for(&saved.params.driver)
+        .await?
+        .has_connection_metadata()
+    {
+        return Ok(None);
+    }
+    let driver = driver_for_saved(&app, &saved).await?;
+    Ok(Some(
+        crate::plugins::connection_metadata::ConnectionMetadata {
+            capabilities: driver.manifest().capabilities.clone(),
+            data_types: driver.get_data_types(),
+            type_mappings: driver.manifest().type_mappings.clone(),
+        },
+    ))
+}
+
 const DEFAULT_MYSQL_PORT: u16 = 3306;
 const DEFAULT_POSTGRES_PORT: u16 = 5432;
 
@@ -376,71 +420,140 @@ pub fn resolve_connection_params(params: &ConnectionParams) -> Result<Connection
         );
     }
 
-    // Handle K8s tunnel
+    // Handle K8s tunnel — result is already on localhost; do not re-proxy.
     if params.k8s_enabled.unwrap_or(false) {
         return resolve_k8s_params(params);
     }
 
-    // Handle SSH tunnel (existing logic)
-    if !params.ssh_enabled.unwrap_or(false) {
-        return Ok(params.clone());
+    let connection_id = params.connection_id.as_deref();
+    let proxy_override = params.proxy.as_ref();
+
+    // Handle SSH tunnel (existing logic), optionally via an SSH-scope proxy.
+    if params.ssh_enabled.unwrap_or(false) {
+        let ssh_host = params.ssh_host.as_deref().ok_or("Missing SSH Host")?;
+        let ssh_port = params.ssh_port.unwrap_or(22);
+        let ssh_user = params.ssh_user.as_deref().ok_or("Missing SSH User")?;
+        let remote_host = params.host.as_deref().unwrap_or("localhost");
+        let remote_port = params.port.unwrap_or(DEFAULT_MYSQL_PORT);
+
+        let proxy = crate::proxy::resolve_for_connection(
+            crate::proxy::SCOPE_SSH_TUNNEL,
+            connection_id,
+            proxy_override,
+        );
+        let base_key =
+            build_tunnel_map_key(ssh_user, ssh_host, ssh_port, remote_host, remote_port);
+        let map_key = match &proxy {
+            Some(p) => {
+                let proto = match p.protocol {
+                    crate::proxy::ProxyProtocol::Http => "http",
+                    crate::proxy::ProxyProtocol::Socks5 => "socks5",
+                };
+                let user = p.username.as_deref().unwrap_or("");
+                format!(
+                    "{base_key}|px:{proto}:{}:{}:{user}",
+                    p.host.trim(),
+                    p.port
+                )
+            }
+            None => base_key,
+        };
+
+        // Check for existing tunnel
+        {
+            let tunnels = get_tunnels().lock().unwrap();
+            if let Some(tunnel) = tunnels.get(&map_key) {
+                log::debug!("Reusing existing SSH tunnel on port {}", tunnel.local_port);
+                let mut new_params = params.clone();
+                new_params.host = Some("127.0.0.1".to_string());
+                new_params.port = Some(tunnel.local_port);
+                return Ok(new_params);
+            }
+        }
+
+        let (tcp_host, tcp_port) = if let Some(proxy) = proxy {
+            let fwd_port = crate::proxy::ensure_forward(&proxy, ssh_host, ssh_port)?;
+            log::info!(
+                "SSH bastion {}:{} reached via proxy forward on 127.0.0.1:{}",
+                ssh_host,
+                ssh_port,
+                fwd_port
+            );
+            (Some("127.0.0.1".to_string()), Some(fwd_port))
+        } else {
+            (None, None)
+        };
+
+        log::info!(
+            "Creating new SSH tunnel for {}@{}:{}",
+            ssh_user,
+            ssh_host,
+            ssh_port
+        );
+        let tunnel = SshTunnel::new_with_tcp_override(
+            ssh_host,
+            ssh_port,
+            ssh_user,
+            params.ssh_password.as_deref(),
+            params.ssh_key_file.as_deref(),
+            params.ssh_key_passphrase.as_deref(),
+            params.ssh_allow_passphrase_prompt.unwrap_or(false),
+            remote_host,
+            remote_port,
+            tcp_host.as_deref(),
+            tcp_port,
+        )
+        .map_err(|e| {
+            eprintln!("[Connection Error] SSH Tunnel setup failed: {}", e);
+            e
+        })?;
+
+        let local_port = tunnel.local_port;
+        log::info!("SSH tunnel created successfully on port {}", local_port);
+
+        {
+            let mut tunnels = get_tunnels().lock().unwrap();
+            tunnels.insert(map_key, tunnel);
+        }
+
+        let mut new_params = params.clone();
+        new_params.host = Some("127.0.0.1".to_string());
+        new_params.port = Some(local_port);
+        return Ok(new_params);
     }
 
-    let ssh_host = params.ssh_host.as_deref().ok_or("Missing SSH Host")?;
-    let ssh_port = params.ssh_port.unwrap_or(22);
-    let ssh_user = params.ssh_user.as_deref().ok_or("Missing SSH User")?;
-    let remote_host = params.host.as_deref().unwrap_or("localhost");
-    let remote_port = params.port.unwrap_or(DEFAULT_MYSQL_PORT);
-
-    let map_key = build_tunnel_map_key(ssh_user, ssh_host, ssh_port, remote_host, remote_port);
-
-    // Check for existing tunnel
-    {
-        let tunnels = get_tunnels().lock().unwrap();
-        if let Some(tunnel) = tunnels.get(&map_key) {
-            log::debug!("Reusing existing SSH tunnel on port {}", tunnel.local_port);
-            let mut new_params = params.clone();
-            new_params.host = Some("127.0.0.1".to_string());
-            new_params.port = Some(tunnel.local_port);
-            return Ok(new_params);
+    // Direct DB connection — apply database-scope proxy when configured.
+    let mut resolved = params.clone();
+    if let Some(proxy) = crate::proxy::resolve_for_connection(
+        crate::proxy::SCOPE_DATABASE,
+        connection_id,
+        proxy_override,
+    ) {
+        let host = resolved
+            .host
+            .as_deref()
+            .unwrap_or("localhost")
+            .to_string();
+        let port = resolved.port.unwrap_or(DEFAULT_MYSQL_PORT);
+        if !is_loopback_host(&host) {
+            let fwd_port = crate::proxy::ensure_forward(&proxy, &host, port)?;
+            log::info!(
+                "Database {}:{} reached via proxy forward on 127.0.0.1:{}",
+                host,
+                port,
+                fwd_port
+            );
+            resolved.host = Some("127.0.0.1".to_string());
+            resolved.port = Some(fwd_port);
         }
     }
 
-    // Create new tunnel
-    log::info!(
-        "Creating new SSH tunnel for {}@{}:{}",
-        ssh_user,
-        ssh_host,
-        ssh_port
-    );
-    let tunnel = SshTunnel::new(
-        ssh_host,
-        ssh_port,
-        ssh_user,
-        params.ssh_password.as_deref(),
-        params.ssh_key_file.as_deref(),
-        params.ssh_key_passphrase.as_deref(),
-        params.ssh_allow_passphrase_prompt.unwrap_or(false),
-        remote_host,
-        remote_port,
-    )
-    .map_err(|e| {
-        eprintln!("[Connection Error] SSH Tunnel setup failed: {}", e);
-        e
-    })?;
+    Ok(resolved)
+}
 
-    let local_port = tunnel.local_port;
-    log::info!("SSH tunnel created successfully on port {}", local_port);
-
-    {
-        let mut tunnels = get_tunnels().lock().unwrap();
-        tunnels.insert(map_key, tunnel);
-    }
-
-    let mut new_params = params.clone();
-    new_params.host = Some("127.0.0.1".to_string());
-    new_params.port = Some(local_port);
-    Ok(new_params)
+fn is_loopback_host(host: &str) -> bool {
+    let h = host.trim().to_ascii_lowercase();
+    h == "localhost" || h == "127.0.0.1" || h == "::1" || h == "[::1]"
 }
 
 /// Resolve connection params and set connection_id for stable pooling
@@ -448,9 +561,9 @@ pub fn resolve_connection_params_with_id(
     params: &ConnectionParams,
     connection_id: &str,
 ) -> Result<ConnectionParams, String> {
-    let mut resolved = resolve_connection_params(params)?;
-    resolved.connection_id = Some(connection_id.to_string());
-    Ok(resolved)
+    let mut with_id = params.clone();
+    with_id.connection_id = Some(connection_id.to_string());
+    resolve_connection_params(&with_id)
 }
 
 pub fn get_config_path<R: Runtime>(_app: &AppHandle<R>) -> Result<PathBuf, String> {
@@ -734,7 +847,7 @@ pub async fn get_schemas<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.get_schemas(&params).await
 }
 
@@ -753,7 +866,7 @@ pub async fn get_available_databases<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.get_databases(&params).await
 }
 
@@ -807,7 +920,7 @@ pub async fn get_routines<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv.get_routines(&params, schema.as_deref()).await;
     let database = schema.as_deref().unwrap_or_else(|| params.database.primary());
 
@@ -837,7 +950,7 @@ pub async fn get_routine_parameters<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.get_routine_parameters(&params, &routine_name, schema.as_deref())
         .await
 }
@@ -862,7 +975,7 @@ pub async fn get_routine_definition<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.get_routine_definition(&params, &routine_name, &routine_type, schema.as_deref())
         .await
 }
@@ -881,7 +994,7 @@ pub async fn build_routine_call_sql<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.build_routine_call_sql(
         &params,
         &routine_name,
@@ -900,7 +1013,7 @@ pub async fn get_routine_create_template<R: Runtime>(
     schema: Option<String>,
 ) -> Result<String, String> {
     let saved_conn = find_connection_by_id(&app, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_saved(&app, &saved_conn).await?;
     drv.routine_create_template(&routine_type, schema.as_deref())
         .await
 }
@@ -918,7 +1031,7 @@ pub async fn get_routine_edit_script<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.get_routine_edit_script(&params, &routine_name, &routine_type, schema.as_deref())
         .await
 }
@@ -943,7 +1056,7 @@ pub async fn drop_routine<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.drop_routine(&params, &routine_name, &routine_type, schema.as_deref())
         .await
 }
@@ -958,7 +1071,7 @@ pub async fn get_schema_snapshot<R: Runtime>(
     let expanded_params = expand_ssh_connection_params(&app, &saved_conn.params).await?;
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.get_schema_snapshot(&params, schema.as_deref()).await
 }
 
@@ -972,7 +1085,7 @@ pub async fn get_ai_schema_context<R: Runtime>(
     let expanded_params = expand_ssh_connection_params(&app, &saved_conn.params).await?;
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
-    let driver = driver_for(&saved_conn.params.driver).await?;
+    let driver = driver_for_params(&params).await?;
     let identifier_quote = driver.manifest().capabilities.identifier_quote.as_str();
     let context = driver
         .get_ai_schema_context(
@@ -1145,7 +1258,8 @@ pub async fn update_connection<R: Runtime>(
         .unwrap_or(false);
     // A stored URI belongs to the driver that produced it. Switching drivers
     // must drop it rather than hand one driver's credentials to another.
-    let same_driver = conn_file.connections[conn_idx].params.driver == params.driver;
+    let previous_driver_id = conn_file.connections[conn_idx].params.driver.clone();
+    let same_driver = previous_driver_id == params.driver;
     let connection_uri = runtime_connection_uri(&params).map(str::to_owned);
     // The frontend sends the URI back only when the user retyped it. An edit
     // that leaves the field untouched must keep the stored secret; an edit that
@@ -1226,6 +1340,22 @@ pub async fn update_connection<R: Runtime>(
     persist_connection_uri_change(&cache, &id, existing_uri_in_keychain, uri_change, || {
         save_connections_and_invalidate(&app, &path, &conn_file)
     })?;
+
+    let mut metadata_changed = false;
+    for driver_id in [&previous_driver_id, &updated.params.driver] {
+        if let Some(driver) = crate::drivers::registry::get_driver(driver_id).await {
+            if driver.has_connection_metadata() {
+                driver.invalidate_connection_metadata(Some(&id)).await;
+                metadata_changed = true;
+            }
+        }
+    }
+    if metadata_changed {
+        let _ = app.emit(
+            "connection-metadata-invalidated",
+            serde_json::json!({"connectionId": id}),
+        );
+    }
 
     // On single→multi transition, associate existing favorites/history (with no
     // database set) to the original single database name.
@@ -2432,6 +2562,9 @@ pub async fn test_connection<R: Runtime>(
         );
         emit_test_failure(&app, progress_id, "dbConnect", e)
     })?;
+
+    drv.invalidate_connection_metadata(resolved_params.connection_id.as_deref())
+        .await;
 
     emit_test_progress(&app, progress_id, "dbConnect", "ok", None);
     log::info!(
@@ -3693,7 +3826,7 @@ pub async fn get_tables<R: Runtime>(
         params.database
     );
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv.get_tables(&params, schema.as_deref()).await;
 
     match &result {
@@ -3715,7 +3848,7 @@ pub async fn get_columns<R: Runtime>(
     let expanded_params = expand_ssh_connection_params(&app, &saved_conn.params).await?;
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.get_columns(&params, &table_name, schema.as_deref())
         .await
 }
@@ -3731,7 +3864,7 @@ pub async fn get_foreign_keys<R: Runtime>(
     let expanded_params = expand_ssh_connection_params(&app, &saved_conn.params).await?;
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.get_foreign_keys(&params, &table_name, schema.as_deref())
         .await
 }
@@ -3747,7 +3880,7 @@ pub async fn get_indexes<R: Runtime>(
     let expanded_params = expand_ssh_connection_params(&app, &saved_conn.params).await?;
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.get_indexes(&params, &table_name, schema.as_deref())
         .await
 }
@@ -3774,7 +3907,7 @@ pub async fn delete_record<R: Runtime>(
     if let Some(db) = database {
         params.database = crate::models::DatabaseSelection::Single(db);
     }
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.delete_record(&params, &table, &pk_map, schema.as_deref())
         .await
 }
@@ -3806,7 +3939,7 @@ pub async fn update_record<R: Runtime>(
         params.database = crate::models::DatabaseSelection::Single(db);
     }
     let max_blob_size = crate::config::get_max_blob_size(&app);
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.update_record(
         &params,
         &table,
@@ -3833,7 +3966,7 @@ pub async fn save_blob_to_file<R: Runtime>(
     let expanded_params = expand_ssh_connection_params(&app, &saved_conn.params).await?;
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.save_blob_to_file(
         &params,
         &table,
@@ -3860,7 +3993,7 @@ pub async fn fetch_blob_as_data_url<R: Runtime>(
     let expanded_params = expand_ssh_connection_params(&app, &saved_conn.params).await?;
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let wire = drv
         .fetch_blob_as_data_url(
             &params,
@@ -4059,7 +4192,7 @@ pub async fn insert_record<R: Runtime>(
         params.database = crate::models::DatabaseSelection::Single(db);
     }
     let max_blob_size = crate::config::get_max_blob_size(&app);
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.insert_record(&params, &table, data, schema.as_deref(), max_blob_size)
         .await
 }
@@ -4150,7 +4283,7 @@ pub async fn execute_query<R: Runtime>(
     // Cheap: only allocates when the statement really is a DROP DATABASE.
     let dropped = crate::sql_database_statements::dropped_database(&sanitized_query);
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let task = tokio::spawn(async move {
         drv.execute_query(
             &params,
@@ -4248,7 +4381,7 @@ pub async fn execute_query_batch<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
 
     // Build a Tauri-agnostic progress sink the driver invokes per statement.
     // Each invocation emits one event so result tabs resolve as they finish.
@@ -4352,7 +4485,7 @@ pub async fn explain_query_plan<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let task = tokio::spawn(async move {
         drv.explain_query(&params, &sanitized_query, analyze, schema.as_deref())
             .await
@@ -4399,7 +4532,7 @@ pub async fn count_query<R: Runtime>(
 
     let count_q = format!("SELECT COUNT(*) FROM ({}) as count_wrapper", sanitized);
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv
         .execute_query(&params, &count_q, None, 1, schema.as_deref())
         .await?;
@@ -4693,7 +4826,7 @@ pub async fn get_views<R: Runtime>(
         params.database
     );
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv.get_views(&params, schema.as_deref()).await;
 
     match &result {
@@ -4722,7 +4855,7 @@ pub async fn get_view_definition<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv
         .get_view_definition(&params, &view_name, schema.as_deref())
         .await;
@@ -4754,7 +4887,7 @@ pub async fn create_view<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv
         .create_view(&params, &view_name, &definition, schema.as_deref())
         .await;
@@ -4786,7 +4919,7 @@ pub async fn alter_view<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv
         .alter_view(&params, &view_name, &definition, schema.as_deref())
         .await;
@@ -4817,7 +4950,7 @@ pub async fn drop_view<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv.drop_view(&params, &view_name, schema.as_deref()).await;
 
     match &result {
@@ -4846,7 +4979,7 @@ pub async fn get_view_columns<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv
         .get_view_columns(&params, &view_name, schema.as_deref())
         .await;
@@ -4872,7 +5005,7 @@ pub async fn get_materialized_views<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv.get_materialized_views(&params, schema.as_deref()).await;
 
     match &result {
@@ -4909,7 +5042,7 @@ pub async fn get_materialized_view_columns<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv
         .get_materialized_view_columns(&params, &view_name, schema.as_deref())
         .await;
@@ -4948,7 +5081,7 @@ pub async fn get_materialized_view_definition<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv
         .get_materialized_view_definition(&params, &view_name, schema.as_deref())
         .await;
@@ -4986,7 +5119,7 @@ pub async fn refresh_materialized_view<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv
         .refresh_materialized_view(&params, &view_name, schema.as_deref())
         .await;
@@ -5012,7 +5145,7 @@ pub async fn get_triggers<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv.get_triggers(&params, schema.as_deref()).await;
 
     match &result {
@@ -5042,7 +5175,7 @@ pub async fn get_trigger_definition<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.get_trigger_definition(&params, &trigger_name, &table_name, schema.as_deref())
         .await
 }
@@ -5061,7 +5194,7 @@ pub async fn create_trigger<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv
         .create_trigger(&params, &trigger_sql, schema.as_deref())
         .await;
@@ -5093,7 +5226,7 @@ pub async fn drop_trigger<R: Runtime>(
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv
         .drop_trigger(&params, &trigger_name, &table_name, schema.as_deref())
         .await;
@@ -5123,7 +5256,7 @@ async fn user_mgmt_context<R: Runtime>(
     let expanded_params = expand_ssh_connection_params(app, &saved_conn.params).await?;
     let expanded_params = expand_k8s_connection_params(app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     Ok((drv, params))
 }
 
@@ -5133,7 +5266,7 @@ pub async fn get_db_privilege_catalog<R: Runtime>(
     connection_id: String,
 ) -> Result<crate::models::DbPrivilegeCatalog, String> {
     let saved_conn = find_connection_by_id(&app, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_saved(&app, &saved_conn).await?;
     drv.get_db_privilege_catalog().await
 }
 
@@ -5283,6 +5416,11 @@ pub async fn disconnect_connection<R: Runtime>(
     crate::health_check::unregister_connection(&connection_id).await;
 
     let saved_conn = find_connection_by_id(&app, &connection_id)?;
+    if let Some(driver) = crate::drivers::registry::get_driver(&saved_conn.params.driver).await {
+        driver
+            .invalidate_connection_metadata(Some(&connection_id))
+            .await;
+    }
     let expanded_params = expand_ssh_connection_params(&app, &saved_conn.params).await?;
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
@@ -5315,11 +5453,21 @@ pub async fn get_data_types(driver: String) -> Result<crate::models::DataTypeReg
 /// Maps generic inferred types (emitted by the clipboard parser) to
 /// driver-specific type names. Returns names in the same order as `kinds`.
 #[tauri::command]
-pub async fn map_inferred_column_types(
+pub async fn map_inferred_column_types<R: Runtime>(
+    app: AppHandle<R>,
     driver: String,
     kinds: Vec<String>,
+    connection_id: Option<String>,
 ) -> Result<Vec<String>, String> {
-    let drv = driver_for(&driver).await?;
+    let drv = if let Some(id) = connection_id {
+        let saved = find_connection_by_id(&app, &id)?;
+        if saved.params.driver != driver {
+            return Err("Connection driver does not match the requested driver".into());
+        }
+        driver_for_saved(&app, &saved).await?
+    } else {
+        driver_for(&driver).await?
+    };
     Ok(kinds.iter().map(|k| drv.map_inferred_type(k)).collect())
 }
 
@@ -5334,7 +5482,7 @@ pub async fn get_create_table_sql<R: Runtime>(
     schema: Option<String>,
 ) -> Result<Vec<String>, String> {
     let saved_conn = find_connection_by_id(&app, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_saved(&app, &saved_conn).await?;
     drv.get_create_table_sql(&table_name, columns, schema.as_deref())
         .await
 }
@@ -5348,7 +5496,7 @@ pub async fn get_add_column_sql<R: Runtime>(
     schema: Option<String>,
 ) -> Result<Vec<String>, String> {
     let saved_conn = find_connection_by_id(&app, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_saved(&app, &saved_conn).await?;
     drv.get_add_column_sql(&table, column, schema.as_deref())
         .await
 }
@@ -5363,7 +5511,7 @@ pub async fn get_alter_column_sql<R: Runtime>(
     schema: Option<String>,
 ) -> Result<Vec<String>, String> {
     let saved_conn = find_connection_by_id(&app, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_saved(&app, &saved_conn).await?;
     drv.get_alter_column_sql(&table, old_column, new_column, schema.as_deref())
         .await
 }
@@ -5379,7 +5527,7 @@ pub async fn get_create_index_sql<R: Runtime>(
     schema: Option<String>,
 ) -> Result<Vec<String>, String> {
     let saved_conn = find_connection_by_id(&app, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_saved(&app, &saved_conn).await?;
     drv.get_create_index_sql(&table, &index_name, columns, is_unique, schema.as_deref())
         .await
 }
@@ -5398,7 +5546,7 @@ pub async fn get_create_foreign_key_sql<R: Runtime>(
     schema: Option<String>,
 ) -> Result<Vec<String>, String> {
     let saved_conn = find_connection_by_id(&app, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_saved(&app, &saved_conn).await?;
     drv.get_create_foreign_key_sql(
         &saved_conn.params,
         &table,
@@ -5425,7 +5573,7 @@ pub async fn drop_index_action<R: Runtime>(
     let expanded_params = expand_ssh_connection_params(&app, &saved_conn.params).await?;
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.drop_index(&params, &table, &index_name, schema.as_deref())
         .await
 }
@@ -5442,7 +5590,7 @@ pub async fn drop_foreign_key_action<R: Runtime>(
     let expanded_params = expand_ssh_connection_params(&app, &saved_conn.params).await?;
     let expanded_params = expand_k8s_connection_params(&app, &expanded_params).await?;
     let params = resolve_connection_params_with_id(&expanded_params, &connection_id)?;
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     drv.drop_foreign_key(&params, &table, &fk_name, schema.as_deref())
         .await
 }
@@ -5478,10 +5626,15 @@ pub async fn save_keybindings<R: Runtime>(
 #[tauri::command]
 pub async fn get_driver_manifest(
     driver_id: String,
-) -> Option<crate::drivers::driver_trait::PluginManifest> {
+) -> Option<crate::plugins::connection_metadata::DriverManifestDetails> {
     crate::drivers::registry::get_driver(&driver_id)
         .await
-        .map(|d| d.manifest().clone())
+        .map(
+            |d| crate::plugins::connection_metadata::DriverManifestDetails {
+                manifest: d.manifest().clone(),
+                connection_metadata: d.has_connection_metadata().then_some(true),
+            },
+        )
 }
 
 // ==================== Connection Groups Management ====================
@@ -5843,7 +5996,7 @@ pub async fn get_server_now<R: Runtime>(
         _ => "SELECT NOW()",
     };
 
-    let drv = driver_for(&saved_conn.params.driver).await?;
+    let drv = driver_for_params(&params).await?;
     let result = drv.execute_query(&params, query, Some(1), 1, None).await?;
 
     result
