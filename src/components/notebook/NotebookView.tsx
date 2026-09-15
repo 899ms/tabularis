@@ -334,7 +334,7 @@ export function NotebookView({
     [updateNotebook],
   );
 
-  const runCell = useCallback(
+  const runCellInner = useCallback(
     async (cellId: string) => {
       const cell = cellsRef.current.find((c) => c.id === cellId);
       if (!cell || cell.type !== "sql" || !cell.content.trim()) return;
@@ -460,6 +460,29 @@ export function NotebookView({
       variableOptions,
       guardQueryExecution,
     ],
+  );
+
+  // Number of cells currently executing. The tab's `isLoading` flag drives the
+  // running indicator on the editor tab strip, so it must stay on while any
+  // cell is still running and go off only when the last one finishes.
+  const runningCellsRef = useRef(0);
+
+  const runCell = useCallback(
+    async (cellId: string) => {
+      runningCellsRef.current += 1;
+      if (runningCellsRef.current === 1) {
+        updateTab(tab.id, { isLoading: true });
+      }
+      try {
+        await runCellInner(cellId);
+      } finally {
+        runningCellsRef.current -= 1;
+        if (runningCellsRef.current === 0) {
+          updateTab(tab.id, { isLoading: false });
+        }
+      }
+    },
+    [runCellInner, tab.id, updateTab],
   );
 
   useEffect(() => {
