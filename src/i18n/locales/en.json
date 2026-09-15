@@ -1023,6 +1023,17 @@
     "configError": "Please configure AI provider in Settings and enter a prompt."
   },
   "newConnection": {
+    "ssmForwardHint": "Resolves to {{document}} - forwards to {{host}}:{{port}} through the managed node. Change the target address on the General tab; a loopback host means the node itself.",
+    "ssmIamHint": "Requires ssm:StartSession on the target and on the resolved document.",
+    "ssmNotAvailable": "AWS SSM is not available for this driver.",
+    "ssmPortRequired": "Set a valid port on the General tab first.",
+    "ssmProfile": "AWS Profile",
+    "ssmRegion": "AWS Region",
+    "ssmTarget": "Managed Node",
+    "ssmTargetRequired": "Enter the managed node to connect through.",
+    "testSsm": "Test SSM",
+    "testSsmHint": "Opens a real port-forwarding session and closes it again, without connecting to the database.",
+    "useSsm": "Use AWS SSM Port Forwarding",
     "titleNew": "New Connection",
     "titleEdit": "Edit Connection",
     "subtitle": "Configure database connection settings",
@@ -2464,6 +2475,11 @@
         "start": "Starting Kubernetes port-forward",
         "ok": "Port-forward ready",
         "error": "Kubernetes port-forward failed"
+      },
+      "ssmForward": {
+        "start": "Starting AWS SSM port forwarding",
+        "ok": "Port forwarding ready",
+        "error": "AWS SSM port forwarding failed"
       },
       "dbConnect": {
         "start": "Connecting to the database",
