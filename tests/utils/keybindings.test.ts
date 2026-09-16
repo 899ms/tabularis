@@ -381,6 +381,23 @@ describe('matchesReservedShortcut', () => {
     expect(matchesReservedShortcut('select_column', match, true)).toBe(false);
     expect(matchesReservedShortcut('open_settings', match, true)).toBe(false);
   });
+
+  it.each([
+    { platform: 'macOS', isMac: true },
+    { platform: 'Windows', isMac: false },
+  ])(
+    'does not reserve a shortcut with both primary modifiers on $platform',
+    ({ isMac }) => {
+      const match: KeyMatch = {
+        ctrlKey: true,
+        metaKey: true,
+        key: 'ArrowRight',
+        code: 'ArrowRight',
+      };
+
+      expect(matchesReservedShortcut('jump_to_edge', match, isMac)).toBe(false);
+    },
+  );
 });
 
 // ─── mergeShortcuts ────────────────────────────────────────────────────────────
