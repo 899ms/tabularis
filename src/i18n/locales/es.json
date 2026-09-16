@@ -1669,6 +1669,22 @@
     "failGetDefinition": "Error al obtener la definición: ",
     "confirmAlter": "¿Estás seguro de que deseas modificar la vista \"{{view}}\"?"
   },
+  "whatsNew": {
+    "title": "Novedades",
+    "subtitle": "Versión {{version}}",
+    "features": "Nuevas funciones",
+    "bugFixes": "Correcciones de errores",
+    "breakingChanges": "Cambios incompatibles",
+    "readMore": "Leer más",
+    "dismiss": "Entendido",
+    "supportTitle": "Hola, soy Andrea, el creador de Tabularis",
+    "supportStarAction": "Dar una estrella en GitHub",
+    "supportDescription": "He creado Tabularis con un objetivo: mantenerlo como proyecto de código abierto para siempre. Si te resulta útil, incluso una pequeña donación en GitHub Sponsors me ayuda a dedicar tiempo a nuevas funciones y a mejorarlo para todos.",
+    "supportThanks": "¡Gracias por formar parte de este proyecto!",
+    "supportNeverShow": "No volver a mostrar",
+    "supportHideError": "No se pudo guardar tu preferencia. Inténtalo de nuevo.",
+    "supportAction": "Apoyar en GitHub Sponsors"
+  },
   "dump": {
     "title": "Exportar Base de Datos",
     "dumpDatabase": "Exportar Base de Datos",

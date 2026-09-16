@@ -1777,6 +1777,13 @@
     "dismiss": "Baka mamaya"
   },
   "whatsNew": {
+    "supportTitle": "Kumusta, ako si Andrea, ang lumikha ng Tabularis",
+    "supportStarAction": "Magbigay ng star sa GitHub",
+    "supportDescription": "Nilikha ko ang Tabularis na may isang layunin: panatilihin itong open source magpakailanman. Kung kapaki-pakinabang ito sa iyo, kahit maliit na donasyon sa GitHub Sponsors ay tumutulong sa akin na maglaan ng oras sa mga bagong feature at pagbutihin ito para sa lahat.",
+    "supportThanks": "Salamat sa pagiging bahagi ng proyektong ito!",
+    "supportNeverShow": "Huwag nang ipakita muli",
+    "supportHideError": "Hindi ma-save ang iyong kagustuhan. Pakisubukang muli.",
+    "supportAction": "Sumuporta sa GitHub Sponsors",
     "title": "Ano ang Bago",
     "subtitle": "Bersyon {{version}}",
     "features": "Mga Bagong Feature",

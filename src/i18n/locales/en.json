@@ -1799,6 +1799,13 @@
     "dismiss": "Maybe later"
   },
   "whatsNew": {
+    "supportTitle": "Hi, I'm Andrea, the creator of Tabularis",
+    "supportStarAction": "Star on GitHub",
+    "supportDescription": "I created Tabularis with one goal: to keep it open source forever. If you find it useful, even a small donation on GitHub Sponsors helps me spend time on new features and make it better for everyone.",
+    "supportThanks": "Thanks for being part of this project!",
+    "supportNeverShow": "Never show this again",
+    "supportHideError": "Couldn't save your preference. Please try again.",
+    "supportAction": "Support on GitHub Sponsors",
     "title": "What's New",
     "subtitle": "Version {{version}}",
     "features": "New Features",
