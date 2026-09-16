@@ -893,10 +893,8 @@ export const DataGrid = React.memo(
       if (!mergedRow) return;
 
       const colName = columns[colIndex];
-
-      if (generatedColumns?.has(colName.toLowerCase())) {
-        return;
-      }
+      const isGeneratedColumn =
+        generatedColumns?.has(colName.toLowerCase()) ?? false;
 
       const colType = columnTypeMap?.get(colName);
 
@@ -913,8 +911,12 @@ export const DataGrid = React.memo(
           rowIndex,
           isInsertion,
           mergedRow.tempId,
-          readonlyProp ?? false,
+          (readonlyProp ?? false) || isGeneratedColumn,
         );
+        return;
+      }
+
+      if (isGeneratedColumn) {
         return;
       }
 

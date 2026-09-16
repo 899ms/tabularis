@@ -170,6 +170,52 @@ describe("DataGrid read-only cell viewers (#654)", () => {
     await expectReadOnlyViewer();
   });
 
+  it("opens generated JSON columns in the read-only viewer", async () => {
+    const { container } = render(
+      <DataGrid
+        columns={["id", "payload"]}
+        data={[[1, payload]]}
+        columnMetadata={[
+          {
+            name: "id",
+            data_type: "integer",
+            is_pk: true,
+            is_nullable: false,
+            is_auto_increment: false,
+          },
+          {
+            name: "payload",
+            data_type: "jsonb",
+            is_pk: false,
+            is_nullable: true,
+            is_auto_increment: false,
+            is_generated: true,
+          },
+        ]}
+        tableName="events"
+        pkColumns={["id"]}
+        selectedRows={new Set()}
+        onSelectionChange={vi.fn()}
+      />,
+    );
+
+    fireEvent.doubleClick(
+      container.querySelector('td[data-col-index="1"]')!,
+    );
+
+    await waitFor(() =>
+      expect(invoke).toHaveBeenCalledWith("open_json_viewer_window", {
+        value: payload,
+        originalValue: payload,
+        colName: "payload",
+        rowLabel: "id=1",
+        readOnly: true,
+        cellKey: 'pk:{"id":1}:payload',
+      }),
+    );
+    expect(openRowEditorMock).not.toHaveBeenCalled();
+  });
+
   it("does not open the editable row sidebar for read-only blob cells", () => {
     const { container } = render(
       <DataGrid
