@@ -1752,6 +1752,13 @@
     "dismiss": "Может быть позже"
   },
   "whatsNew": {
+    "supportTitle": "Привет, я Andrea, создатель Tabularis",
+    "supportStarAction": "Поставить звезду на GitHub",
+    "supportDescription": "Я создал Tabularis с одной целью: навсегда сохранить его открытый исходный код. Если он вам полезен, даже небольшое пожертвование через GitHub Sponsors помогает мне уделять время новым функциям и делать проект лучше для всех.",
+    "supportThanks": "Спасибо, что вы — часть этого проекта!",
+    "supportNeverShow": "Больше никогда не показывать",
+    "supportHideError": "Не удалось сохранить настройку. Попробуйте ещё раз.",
+    "supportAction": "Поддержать на GitHub Sponsors",
     "title": "Что нового",
     "subtitle": "Версия {{version}}",
     "features": "Новые функции",

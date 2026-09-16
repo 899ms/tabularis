@@ -1758,6 +1758,13 @@
     "dismiss": "あとで"
   },
   "whatsNew": {
+    "supportTitle": "こんにちは、Tabularisの生みの親、Andreaです",
+    "supportStarAction": "GitHubでスターを付ける",
+    "supportDescription": "いつまでもオープンソースで提供し続けることを目標に、Tabularisを作りました。お役に立てているなら、GitHub Sponsorsでの少額のご寄付でも、新機能の開発に時間を充て、すべての人のために改善を続ける力になります。",
+    "supportThanks": "このプロジェクトに参加してくださり、ありがとうございます！",
+    "supportNeverShow": "今後表示しない",
+    "supportHideError": "設定を保存できませんでした。もう一度お試しください。",
+    "supportAction": "GitHub Sponsorsで支援する",
     "title": "新機能",
     "subtitle": "バージョン {{version}}",
     "features": "新機能",

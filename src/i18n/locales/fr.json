@@ -1785,6 +1785,13 @@
     "dismiss": "Peut-être plus tard"
   },
   "whatsNew": {
+    "supportTitle": "Bonjour, je suis Andrea, le créateur de Tabularis",
+    "supportStarAction": "Ajouter une étoile sur GitHub",
+    "supportDescription": "J’ai créé Tabularis avec un objectif : le garder open source pour toujours. S’il vous est utile, même un petit don sur GitHub Sponsors m’aide à consacrer du temps aux nouvelles fonctionnalités et à l’améliorer pour tout le monde.",
+    "supportThanks": "Merci de faire partie de ce projet !",
+    "supportNeverShow": "Ne plus jamais afficher",
+    "supportHideError": "Impossible d’enregistrer votre préférence. Veuillez réessayer.",
+    "supportAction": "Soutenir sur GitHub Sponsors",
     "title": "Nouveautés",
     "subtitle": "Version {{version}}",
     "features": "Nouvelles fonctionnalités",

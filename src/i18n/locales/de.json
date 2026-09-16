@@ -1719,6 +1719,13 @@
     "dismiss": "Vielleicht später"
   },
   "whatsNew": {
+    "supportTitle": "Hallo, ich bin Andrea, der Schöpfer von Tabularis",
+    "supportStarAction": "Stern auf GitHub vergeben",
+    "supportDescription": "Ich habe Tabularis mit einem Ziel geschaffen: Es soll für immer Open Source bleiben. Wenn es dir hilft, ermöglicht mir schon eine kleine Spende über GitHub Sponsors, Zeit in neue Funktionen zu investieren und es für alle zu verbessern.",
+    "supportThanks": "Danke, dass du Teil dieses Projekts bist!",
+    "supportNeverShow": "Nie wieder anzeigen",
+    "supportHideError": "Deine Einstellung konnte nicht gespeichert werden. Bitte versuche es erneut.",
+    "supportAction": "Auf GitHub Sponsors unterstützen",
     "title": "Neuigkeiten",
     "subtitle": "Version {{version}}",
     "features": "Neue Funktionen",

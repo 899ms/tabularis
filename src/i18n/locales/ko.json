@@ -1721,6 +1721,13 @@
     "dismiss": "다음에 하기"
   },
   "whatsNew": {
+    "supportTitle": "안녕하세요, Tabularis를 만든 Andrea입니다",
+    "supportStarAction": "GitHub에서 스타 남기기",
+    "supportDescription": "영원히 오픈 소스로 유지하겠다는 목표로 Tabularis를 만들었습니다. 유용하게 사용하고 계신다면 GitHub Sponsors를 통한 작은 후원도 새로운 기능 개발에 시간을 들이고 모두를 위해 개선하는 데 큰 힘이 됩니다.",
+    "supportThanks": "이 프로젝트와 함께해 주셔서 감사합니다!",
+    "supportNeverShow": "다시 표시하지 않기",
+    "supportHideError": "설정을 저장하지 못했습니다. 다시 시도해 주세요.",
+    "supportAction": "GitHub Sponsors에서 후원하기",
     "title": "새로운 기능",
     "subtitle": "버전 {{version}}",
     "features": "새 기능",

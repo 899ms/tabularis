@@ -1663,6 +1663,13 @@
     "dismiss": "稍后再说"
   },
   "whatsNew": {
+    "supportTitle": "你好，我是 Andrea，Tabularis 的创造者",
+    "supportStarAction": "在 GitHub 上点亮星标",
+    "supportDescription": "我创造 Tabularis 时怀着一个目标：让它永远保持开源。如果它对您有帮助，哪怕通过 GitHub Sponsors 捐助一小笔，也能让我投入更多时间开发新功能，为所有人持续改进。",
+    "supportThanks": "感谢您成为这个项目的一部分！",
+    "supportNeverShow": "永不再显示",
+    "supportHideError": "无法保存您的偏好设置，请重试。",
+    "supportAction": "在 GitHub Sponsors 上支持我们",
     "title": "新功能",
     "subtitle": "版本 {{version}}",
     "features": "新功能",
