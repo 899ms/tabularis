@@ -55,6 +55,43 @@ describe("QueryModal", () => {
     expect(screen.getByText("Save Query")).toBeInTheDocument();
   });
 
+  it("uses theme-aware text for the title and query name", () => {
+    render(
+      <QueryModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onSave={mockOnSave}
+        initialName="My saved query"
+      />,
+    );
+
+    const title = screen.getByRole("heading", { name: "Save Query" });
+    const nameInput = screen.getByDisplayValue("My saved query");
+
+    for (const element of [title, nameInput]) {
+      expect(element).toHaveClass("text-primary");
+      expect(element).not.toHaveClass("text-white");
+    }
+  });
+
+  it("uses theme-aware hover text for secondary actions but keeps the save button white", () => {
+    render(
+      <QueryModal isOpen={true} onClose={mockOnClose} onSave={mockOnSave} />,
+    );
+
+    const closeButton = screen.getAllByRole("button")[0];
+    const cancelButton = screen.getByRole("button", { name: "Cancel" });
+
+    for (const button of [closeButton, cancelButton]) {
+      expect(button).toHaveClass("text-secondary", "hover:text-primary");
+      expect(button).not.toHaveClass("hover:text-white");
+    }
+    expect(screen.getByRole("button", { name: "Save" })).toHaveClass(
+      "bg-blue-600",
+      "text-white",
+    );
+  });
+
   it("renders with custom title", () => {
     render(
       <QueryModal

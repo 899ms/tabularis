@@ -66,8 +66,8 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
     <Modal isOpen={isOpen} onClose={onClose} overlayClassName="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="bg-elevated border border-default rounded-xl shadow-2xl w-full max-w-2xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
-          <button onClick={onClose} className="text-secondary hover:text-white transition-colors">
+          <h3 className="text-lg font-semibold text-primary">{title}</h3>
+          <button onClick={onClose} className="text-secondary hover:text-primary transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -79,7 +79,7 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-base border border-strong rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-base border border-strong rounded px-3 py-2 text-primary focus:outline-none focus:border-blue-500"
               placeholder="My Query"
               autoFocus
             />
@@ -127,7 +127,7 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-secondary hover:text-white hover:bg-surface-secondary rounded transition-colors"
+              className="px-4 py-2 text-secondary hover:text-primary hover:bg-surface-secondary rounded transition-colors"
             >
               Cancel
             </button>
