@@ -4,7 +4,7 @@ use tempfile::tempdir;
 
 use super::install_cancellation::{begin, cancel, INSTALL_CANCELLED_ERROR};
 use super::installer::{has_manifest, migrate_plugins_between, read_plugin_info_from_dir};
-use super::manager::ConfigManifest;
+use super::manager::{should_skip_rescan, ConfigManifest};
 use super::runtime_version::{
     check_min_runtime_version, evaluate_min_runtime_version, push_runtime_warning,
     take_runtime_warnings, RuntimeVersionVerdict,
@@ -373,4 +373,30 @@ fn runtime_warnings_are_returned_exactly_once() {
 
     let again = take_runtime_warnings();
     assert!(again.iter().all(|w| w.plugin_id != "queue-test-plugin"));
+}
+
+/// A plugin already registered gets skipped by a rescan — this is what
+/// keeps `reload_plugins_from_disk_config` (issue #783) from spawning a
+/// duplicate driver process for a plugin it already loaded.
+#[test]
+fn should_skip_rescan_skips_an_already_registered_plugin() {
+    assert!(should_skip_rescan("postgresql", true));
+}
+
+#[test]
+fn should_skip_rescan_does_not_skip_a_plugin_not_yet_registered() {
+    assert!(!should_skip_rescan("postgresql", false));
+}
+
+/// Regression: built-in ids (mysql/postgres/sqlite) are registered before any
+/// plugin directory is ever scanned, so they always read as "already
+/// registered". Without this exclusion, a plugin manifest that claims one of
+/// those ids would be silently skipped here instead of reaching
+/// `load_plugin_from_dir`'s explicit collision refusal — turning a logged,
+/// actionable `PluginLoadError` into nothing happening at all.
+#[test]
+fn should_skip_rescan_never_skips_a_builtin_id_even_when_registered() {
+    assert!(!should_skip_rescan("mysql", true));
+    assert!(!should_skip_rescan("postgres", true));
+    assert!(!should_skip_rescan("sqlite", true));
 }

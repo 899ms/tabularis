@@ -356,8 +356,12 @@ async fn resolve_db_driver(
     // #783). The GUI hot-registers such changes in-process, but this
     // standalone subprocess has no way to observe them — rescan installed
     // plugins against the latest on-disk config once and retry before
-    // giving up.
-    plugins::manager::reload_plugins_from_disk_config().await;
+    // giving up. Rate-limited so a connection whose driver id is genuinely
+    // wrong (typo, never-installed plugin) can't force a filesystem scan on
+    // every single call from a tight retry loop.
+    if reload_cooldown_elapsed() {
+        plugins::manager::reload_plugins_from_disk_config().await;
+    }
     let driver = driver_registry::get_connection_driver(&db_params)
         .await
         .map_err(|message| JsonRpcError {
@@ -366,6 +370,40 @@ async fn resolve_db_driver(
             data: None,
         })?;
     Ok((conn, db_params, driver))
+}
+
+/// Minimum time between plugin-directory rescans triggered by a registry
+/// miss in [`resolve_db_driver`].
+const RELOAD_COOLDOWN: std::time::Duration = std::time::Duration::from_secs(2);
+static LAST_RELOAD_ATTEMPT: once_cell::sync::Lazy<std::sync::Mutex<Option<std::time::Instant>>> =
+    once_cell::sync::Lazy::new(|| std::sync::Mutex::new(None));
+
+/// Returns `true` at most once per [`RELOAD_COOLDOWN`], recording `now` as
+/// the new last-attempt time whenever it does.
+fn reload_cooldown_elapsed() -> bool {
+    let mut last = LAST_RELOAD_ATTEMPT
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
+    let now = std::time::Instant::now();
+    let elapsed = cooldown_elapsed(*last, now, RELOAD_COOLDOWN);
+    if elapsed {
+        *last = Some(now);
+    }
+    elapsed
+}
+
+/// Pure core of [`reload_cooldown_elapsed`]: whether `cooldown` has passed
+/// since `last` (or `last` is `None`, meaning no attempt has been recorded
+/// yet), as of `now`.
+fn cooldown_elapsed(
+    last: Option<std::time::Instant>,
+    now: std::time::Instant,
+    cooldown: std::time::Duration,
+) -> bool {
+    match last {
+        Some(t) => now.duration_since(t) >= cooldown,
+        None => true,
+    }
 }
 
 /// Resolves the schema to pass to a metadata fetch, defaulting to `"public"`

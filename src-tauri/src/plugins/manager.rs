@@ -80,6 +80,13 @@ pub struct ConfigManifest {
     pub type_mappings: HashMap<String, String>,
 }
 
+/// Driver ids owned by the built-in drivers. A plugin manifest claiming one
+/// of these is always routed through `load_plugin_from_dir`'s explicit
+/// refusal (never silently skipped by the registered-plugin fast path below)
+/// so the collision is still surfaced as a logged `PluginLoadError`, not
+/// swallowed because the built-in of the same id is already registered.
+const BUILTIN_DRIVER_IDS: [&str; 3] = ["mysql", "postgres", "sqlite"];
+
 /// Load installed plugins at startup.
 ///
 /// `enabled_ids` controls which plugins are started:
@@ -154,10 +161,14 @@ pub async fn load_plugins_with_configs(
         // Skip plugins already registered (driver or UI-only manifest) so a
         // rescan — e.g. `reload_plugins_from_disk_config`'s lazy reload on a
         // registry miss — doesn't spawn a duplicate driver process for a
-        // plugin it already loaded.
+        // plugin it already loaded. Built-in ids are excluded: they are
+        // always "already registered", so skipping them here would silently
+        // swallow a plugin that claims one instead of routing it through
+        // `load_plugin_from_dir`'s explicit collision refusal below.
         if let Ok(config) = crate::plugins::installer::read_manifest::<ConfigManifest>(&path) {
             let plugin_id = config.id.unwrap_or(config.name);
-            if crate::drivers::registry::is_registered(&plugin_id).await {
+            let already_registered = crate::drivers::registry::is_registered(&plugin_id).await;
+            if should_skip_rescan(&plugin_id, already_registered) {
                 continue;
             }
         }
@@ -189,6 +200,16 @@ pub async fn load_plugins_with_configs(
     }
 }
 
+/// Whether `load_plugins_with_configs`'s rescan should skip loading a plugin
+/// directory outright, given whether `plugin_id` is already registered.
+/// Never skips a built-in id (issue #783 follow-up): those are always
+/// "already registered" by the time any plugin is scanned, so skipping them
+/// here would silently swallow a plugin that claims one instead of letting
+/// `load_plugin_from_dir` refuse it explicitly and log a `PluginLoadError`.
+pub(crate) fn should_skip_rescan(plugin_id: &str, already_registered: bool) -> bool {
+    already_registered && !BUILTIN_DRIVER_IDS.contains(&plugin_id)
+}
+
 pub async fn load_plugin_from_dir(
     path: &Path,
     interpreter_override: Option<String>,
@@ -201,7 +222,6 @@ pub async fn load_plugin_from_dir(
     // "sqlite" would shadow the built-in driver and receive existing
     // connections' resolved credentials.
     let plugin_id = config.id.clone().unwrap_or_else(|| config.name.clone());
-    const BUILTIN_DRIVER_IDS: [&str; 3] = ["mysql", "postgres", "sqlite"];
     if BUILTIN_DRIVER_IDS.contains(&plugin_id.as_str()) {
         return Err(format!(
             "Plugin id '{}' collides with a built-in driver and was refused",
