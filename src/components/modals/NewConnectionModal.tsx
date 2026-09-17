@@ -2223,7 +2223,12 @@ export const NewConnectionModal = ({
       try {
         let savedConnectionId: string;
         if (initialConnection) {
-          if (!params.password?.trim()) delete params.password;
+          // An omitted password means "keep the stored one". While a plugin
+          // hides the login inputs the empty password is deliberate: it is
+          // sent as-is so the backend drops the keychain entry too.
+          if (!params.password?.trim() && !credentialFieldsHidden) {
+            delete params.password;
+          }
           if (!params.ssh_password?.trim()) delete params.ssh_password;
           await invoke("update_connection", {
             id: initialConnection.id,
@@ -2365,21 +2370,34 @@ export const NewConnectionModal = ({
         parsedDriver?.capabilities,
       );
 
+      const driverChanged = newDriver !== driver;
       const parsedFields: Partial<ConnectionParams> = {
         driver: newDriver,
         host: parsed.host || "localhost",
         port: parsed.port,
-        username: parsed.username || "",
         database: parsed.database || "",
         connection_uri: parsed.connection_uri,
         connection_uri_in_keychain: false,
       };
 
-      // A passthrough URI carries its own credentials, so the password field is
-      // left untouched rather than blanked — writing "" here would overwrite the
-      // password already stored for this connection.
-      if (!parsed.connection_uri) {
-        parsedFields.password = parsed.password || "";
+      // Plugin-owned extra fields belong to the driver that produced them, so
+      // an import that switches driver drops them like the catalogue does.
+      if (driverChanged) {
+        parsedFields.extra = undefined;
+      }
+
+      // While a plugin hides the host login inputs, an imported login would sit
+      // in invisible fields and reach a driver that rejects it, so the
+      // username/password of the string are ignored. A driver switch resets
+      // that flag, so the login is applied as usual.
+      if (driverChanged || !credentialFieldsHidden) {
+        parsedFields.username = parsed.username || "";
+        // A passthrough URI carries its own credentials, so the password field
+        // is left untouched rather than blanked — writing "" here would
+        // overwrite the password already stored for this connection.
+        if (!parsed.connection_uri) {
+          parsedFields.password = parsed.password || "";
+        }
       }
 
       if (parsedIsMultiDb) {
@@ -2394,7 +2412,7 @@ export const NewConnectionModal = ({
         }
       }
 
-      if (newDriver !== driver) {
+      if (driverChanged) {
         setDriver(newDriver);
         setCredentialFieldsHiddenState(false);
       }

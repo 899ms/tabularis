@@ -85,8 +85,10 @@ export type SlotContextMap = {
     /**
      * Hide (or show again) the host username/password inputs. Hiding also
      * clears both values. Use it for drivers that authenticate without a
-     * database login (e.g. Windows integrated authentication). The host
-     * resets it whenever the driver changes.
+     * database login (e.g. Windows integrated authentication). While hidden,
+     * the host ignores the login part of an imported connection string and
+     * saves an explicit empty password, dropping any secret stored for the
+     * connection. The host resets the flag whenever the driver changes.
      */
     setCredentialFieldsHidden: (hidden: boolean) => void;
   };

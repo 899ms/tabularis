@@ -342,7 +342,7 @@ Add an optional `ui_extensions` array to your manifest:
 | `settings.plugin.actions` | Per-plugin actions in Settings modal | `targetPluginId` | Diagnostics, re-auth buttons |
 | `settings.plugin.before_settings` | Content above plugin settings form | `targetPluginId` | OAuth panels, status banners |
 | `connection-modal.connection_content` | Inside the connection form | `driver` | Custom connection fields |
-| `connection-modal.extra_fields` | Below host/port in the connection form | `driver`, `extra`, `setExtraField`, `credentialFieldsHidden`, `setCredentialFieldsHidden` | Plugin-specific connection fields (e.g. AWS region). `setCredentialFieldsHidden(true)` hides and clears the host username/password inputs for drivers that authenticate without a login |
+| `connection-modal.extra_fields` | Below host/port in the connection form | `driver`, `extra`, `setExtraField`, `credentialFieldsHidden`, `setCredentialFieldsHidden` | Plugin-specific connection fields (e.g. AWS region). `setCredentialFieldsHidden(true)` hides and clears the host username/password inputs for drivers that authenticate without a login; while hidden the host also ignores the login of an imported connection string and drops the stored password on save |
 
 ### SlotContext
 
