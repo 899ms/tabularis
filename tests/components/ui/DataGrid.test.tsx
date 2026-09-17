@@ -111,56 +111,6 @@ describe("DataGrid layout", () => {
   });
 });
 
-describe("DataGrid JSON context menu", () => {
-  beforeEach(() => {
-    vi.mocked(invoke).mockReset();
-    vi.mocked(invoke).mockResolvedValue("json-viewer-session");
-  });
-
-  it("opens JSON cells from read-only result menus", async () => {
-    const payload = { status: "ok" };
-    const { container } = render(
-      <DataGrid
-        columns={["payload"]}
-        data={[[payload]]}
-        columnMetadata={[
-          {
-            name: "payload",
-            data_type: "jsonb",
-            is_pk: false,
-            is_nullable: true,
-            is_auto_increment: false,
-          },
-        ]}
-        tableName={null}
-        pkColumns={null}
-        selectedRows={new Set()}
-        onSelectionChange={vi.fn()}
-        readonly
-      />,
-    );
-
-    fireEvent.contextMenu(
-      container.querySelector('td[data-col-index="0"]')!,
-    );
-    const openJsonItem = await screen.findByText("contextMenu.openJsonEditor");
-    expect(screen.queryByText("dataGrid.setNull")).toBeNull();
-    expect(screen.queryByText("contextMenu.openSidebar")).toBeNull();
-    fireEvent.click(openJsonItem);
-
-    await waitFor(() =>
-      expect(invoke).toHaveBeenCalledWith("open_json_viewer_window", {
-        value: payload,
-        originalValue: payload,
-        colName: "payload",
-        rowLabel: "Row 1",
-        readOnly: true,
-        cellKey: null,
-      }),
-    );
-  });
-});
-
 describe("DataGrid keyboard navigation", () => {
   // The row virtualizer sizes its viewport from offsetWidth/offsetHeight, which
   // JSDOM always reports as zero — without a height no rows would be rendered.
@@ -943,6 +893,56 @@ describe("DataGrid cell range selection", () => {
     const copied = writeText.mock.calls[0][0] as string;
     expect(copied).toContain("Alice,Portland");
     expect(copied).not.toContain("Cara");
+  });
+});
+
+describe("DataGrid JSON context menu", () => {
+  beforeEach(() => {
+    vi.mocked(invoke).mockReset();
+    vi.mocked(invoke).mockResolvedValue("json-viewer-session");
+  });
+
+  it("opens JSON cells from read-only result menus", async () => {
+    const payload = { status: "ok" };
+    const { container } = render(
+      <DataGrid
+        columns={["payload"]}
+        data={[[payload]]}
+        columnMetadata={[
+          {
+            name: "payload",
+            data_type: "jsonb",
+            is_pk: false,
+            is_nullable: true,
+            is_auto_increment: false,
+          },
+        ]}
+        tableName={null}
+        pkColumns={null}
+        selectedRows={new Set()}
+        onSelectionChange={vi.fn()}
+        readonly
+      />,
+    );
+
+    fireEvent.contextMenu(
+      container.querySelector('td[data-col-index="0"]')!,
+    );
+    const openJsonItem = await screen.findByText("contextMenu.openJsonEditor");
+    expect(screen.queryByText("dataGrid.setNull")).toBeNull();
+    expect(screen.queryByText("contextMenu.openSidebar")).toBeNull();
+    fireEvent.click(openJsonItem);
+
+    await waitFor(() =>
+      expect(invoke).toHaveBeenCalledWith("open_json_viewer_window", {
+        value: payload,
+        originalValue: payload,
+        colName: "payload",
+        rowLabel: "Row 1",
+        readOnly: true,
+        cellKey: null,
+      }),
+    );
   });
 });
 
