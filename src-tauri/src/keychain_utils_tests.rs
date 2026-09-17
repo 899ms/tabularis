@@ -1,4 +1,6 @@
-use crate::keychain_utils::{describe_error, SNAP_KEYCHAIN_HINT};
+use crate::keychain_utils::{
+    describe_error, stored_password_change, StoredPasswordChange, SNAP_KEYCHAIN_HINT,
+};
 use crate::sandbox::Sandbox;
 
 fn platform_failure() -> keyring::Error {
@@ -38,4 +40,30 @@ fn non_platform_errors_never_get_the_hint() {
         assert_eq!(message, err.to_string());
         assert!(!message.contains(SNAP_KEYCHAIN_HINT));
     }
+}
+
+#[test]
+fn omitted_password_keeps_the_stored_secret() {
+    assert_eq!(stored_password_change(None), StoredPasswordChange::Keep);
+}
+
+#[test]
+fn explicit_empty_password_deletes_the_stored_secret() {
+    assert_eq!(
+        stored_password_change(Some("")),
+        StoredPasswordChange::Delete
+    );
+}
+
+#[test]
+fn non_empty_password_is_stored_verbatim() {
+    assert_eq!(
+        stored_password_change(Some("s3cret")),
+        StoredPasswordChange::Store("s3cret")
+    );
+    // Whitespace is a legitimate secret, only the empty string means "none".
+    assert_eq!(
+        stored_password_change(Some(" ")),
+        StoredPasswordChange::Store(" ")
+    );
 }

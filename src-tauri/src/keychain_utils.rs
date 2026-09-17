@@ -35,6 +35,32 @@ pub fn describe_error(err: &keyring::Error, sandbox: Option<Sandbox>) -> String 
     }
 }
 
+/// What `save_connection` / `update_connection` must do with the keychain
+/// entry of a password-like field, given the value the frontend sent.
+///
+/// * `None`: the edit dialog omits a password the user did not touch, so the
+///   stored secret is kept.
+/// * `Some("")`: an explicit "no password" (a plugin hid the login inputs, or
+///   the field was cleared on purpose). Any stored secret must go, otherwise
+///   the next connect would hand a stale login to the driver. Storing the
+///   empty string instead is not an option: the Linux keyutils store rejects
+///   empty secrets.
+/// * anything else is stored as-is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StoredPasswordChange<'a> {
+    Keep,
+    Delete,
+    Store(&'a str),
+}
+
+pub fn stored_password_change(password: Option<&str>) -> StoredPasswordChange<'_> {
+    match password {
+        None => StoredPasswordChange::Keep,
+        Some("") => StoredPasswordChange::Delete,
+        Some(value) => StoredPasswordChange::Store(value),
+    }
+}
+
 pub fn set_db_password(connection_id: &str, password: &str) -> Result<(), String> {
     eprintln!("[Keychain] Setting DB password for {}", connection_id);
     let entry =
