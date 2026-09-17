@@ -5,6 +5,7 @@ import type { ConnectionMetadata, DriverCapabilities } from '../types/plugins';
 export interface TableInfo {
   name: string;
   schema?: string; // database/schema the table belongs to (populated in multiDb mode)
+  comment?: string | null;
 }
 
 export interface ViewInfo {

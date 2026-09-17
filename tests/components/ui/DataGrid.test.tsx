@@ -95,6 +95,7 @@ describe("DataGrid layout", () => {
             is_pk: false,
             is_nullable: false,
             is_auto_increment: false,
+            comment: "Customer display name",
           },
         ]}
         selectedRows={new Set()}
@@ -111,6 +112,7 @@ describe("DataGrid layout", () => {
     expect(tooltips[0]).toHaveClass("hidden", "left-0");
     expect(tooltips[1]).toHaveClass("hidden", "right-0");
     expect(tooltips[1]).not.toHaveClass("left-0");
+    expect(tooltips[1]).toHaveTextContent("Customer display name");
   });
 });
 
