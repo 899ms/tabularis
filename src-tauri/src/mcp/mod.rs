@@ -317,10 +317,7 @@ async fn register_drivers_for_mcp() {
     driver_registry::register_driver(postgres::PostgresDriver::new()).await;
     driver_registry::register_driver(sqlite::SqliteDriver::new()).await;
 
-    let app_config = config::load_config_from_disk();
-    let plugin_configs = app_config.plugins.unwrap_or_default();
-    let enabled_ids = app_config.active_external_drivers;
-    plugins::manager::load_plugins_with_configs(plugin_configs, enabled_ids.as_deref()).await;
+    plugins::manager::reload_plugins_from_disk_config().await;
 
     // Must run after driver registration above — the migration resolves each
     // connection's driver dialect via the same registry, so it needs plugin
@@ -336,7 +333,8 @@ async fn register_drivers_for_mcp() {
 /// Resolve the driver for an MCP-known connection. Returns the connection,
 /// the resolved DB params, and the registered driver. Errors with a JSON-RPC
 /// "Unsupported driver" payload when no driver matches the connection's
-/// `driver` id (e.g. the plugin failed to load).
+/// `driver` id even after a reload (e.g. the plugin failed to load, or was
+/// never installed).
 async fn resolve_db_driver(
     conn_id: &str,
 ) -> Result<
@@ -348,6 +346,18 @@ async fn resolve_db_driver(
     JsonRpcError,
 > {
     let (conn, db_params) = resolve_db_params(conn_id).await?;
+    if let Ok(driver) = driver_registry::get_connection_driver(&db_params).await {
+        return Ok((conn, db_params, driver));
+    }
+
+    // Not found in the in-memory registry populated at startup: this
+    // subprocess may have been running since before the plugin was
+    // installed/enabled, or before a connection was migrated to it (issue
+    // #783). The GUI hot-registers such changes in-process, but this
+    // standalone subprocess has no way to observe them — rescan installed
+    // plugins against the latest on-disk config once and retry before
+    // giving up.
+    plugins::manager::reload_plugins_from_disk_config().await;
     let driver = driver_registry::get_connection_driver(&db_params)
         .await
         .map_err(|message| JsonRpcError {

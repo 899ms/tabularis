@@ -92,6 +92,23 @@ pub async fn load_plugins<R: tauri::Runtime>(app: &AppHandle<R>, enabled_ids: Op
     load_plugins_with_configs(plugin_configs, enabled_ids).await;
 }
 
+/// Re-scans installed plugins against the latest on-disk config and registers
+/// any that are missing from the driver registry. Idempotent — plugins
+/// already registered are skipped by `load_plugins_with_configs`, so this can
+/// be called repeatedly without spawning duplicate driver processes.
+///
+/// Lets the standalone MCP subprocess self-heal a stale registry (issue
+/// #783): unlike the GUI, which hot-registers a plugin the moment it's
+/// installed/enabled via the Tauri command handling that action, the
+/// subprocess has no way to observe plugin changes made in the other
+/// process. Callers retry a registry lookup after this returns.
+pub async fn reload_plugins_from_disk_config() {
+    let app_config = crate::config::load_config_from_disk();
+    let plugin_configs = app_config.plugins.unwrap_or_default();
+    let enabled_ids = app_config.active_external_drivers;
+    load_plugins_with_configs(plugin_configs, enabled_ids.as_deref()).await;
+}
+
 /// Variant of [`load_plugins`] that takes plugin configs directly. Used by the
 /// standalone `--mcp` subprocess which has no Tauri `AppHandle` but needs to
 /// register the same drivers so MCP tools can reach plugin-driven connections.
@@ -131,6 +148,17 @@ pub async fn load_plugins_with_configs(
                     log::info!("Skipping disabled plugin: {}", dir_name);
                     continue;
                 }
+            }
+        }
+
+        // Skip plugins already registered (driver or UI-only manifest) so a
+        // rescan — e.g. `reload_plugins_from_disk_config`'s lazy reload on a
+        // registry miss — doesn't spawn a duplicate driver process for a
+        // plugin it already loaded.
+        if let Ok(config) = crate::plugins::installer::read_manifest::<ConfigManifest>(&path) {
+            let plugin_id = config.id.unwrap_or(config.name);
+            if crate::drivers::registry::is_registered(&plugin_id).await {
+                continue;
             }
         }
 
