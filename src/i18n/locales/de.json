@@ -1592,6 +1592,7 @@
     "colType": "Typ",
     "colNullable": "Nullable",
     "colKey": "Schlüssel",
+    "colDescription": "Beschreibung",
     "yes": "JA",
     "no": "NEIN"
   },

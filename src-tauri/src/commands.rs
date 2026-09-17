@@ -1122,9 +1122,15 @@ pub async fn save_connection<R: Runtime>(
 
     if params.save_in_keychain.unwrap_or(false) {
         log::debug!("Storing passwords in keychain for connection: {}", name);
-        if let Some(pwd) = &params.password {
-            keychain_utils::set_db_password(&id, pwd)?;
-            credential_cache::set_db_password_cached(&cache, &id, pwd);
+        match keychain_utils::stored_password_change(params.password.as_deref()) {
+            keychain_utils::StoredPasswordChange::Store(pwd) => {
+                keychain_utils::set_db_password(&id, pwd)?;
+                credential_cache::set_db_password_cached(&cache, &id, pwd);
+            }
+            // A fresh id has nothing to delete; an empty password is simply
+            // not stored (keyutils would reject it anyway).
+            keychain_utils::StoredPasswordChange::Keep
+            | keychain_utils::StoredPasswordChange::Delete => {}
         }
         if params.ssh_enabled.unwrap_or(false) {
             if let Some(ssh_pwd) = &params.ssh_password {
@@ -1279,9 +1285,19 @@ pub async fn update_connection<R: Runtime>(
 
     let cache = app.state::<std::sync::Arc<crate::credential_cache::CredentialCache>>();
     if params.save_in_keychain.unwrap_or(false) {
-        if let Some(pwd) = &params.password {
-            keychain_utils::set_db_password(&id, pwd)?;
-            credential_cache::set_db_password_cached(&cache, &id, pwd);
+        match keychain_utils::stored_password_change(params.password.as_deref()) {
+            keychain_utils::StoredPasswordChange::Store(pwd) => {
+                keychain_utils::set_db_password(&id, pwd)?;
+                credential_cache::set_db_password_cached(&cache, &id, pwd);
+            }
+            // The frontend sends an explicit empty password when a plugin hid
+            // the login inputs. The previous secret must not survive, or the
+            // next connect would hand a stale login to the driver.
+            keychain_utils::StoredPasswordChange::Delete => {
+                keychain_utils::delete_db_password(&id)?;
+                credential_cache::invalidate_db_password(&cache, &id);
+            }
+            keychain_utils::StoredPasswordChange::Keep => {}
         }
         if params.ssh_enabled.unwrap_or(false) {
             if let Some(ssh_pwd) = &params.ssh_password {

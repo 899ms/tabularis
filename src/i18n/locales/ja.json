@@ -1603,6 +1603,7 @@
     "colType": "タイプ",
     "colNullable": "NULL 許可",
     "colKey": "キー",
+    "colDescription": "説明",
     "yes": "はい",
     "no": "いいえ"
   },

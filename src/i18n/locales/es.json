@@ -1555,6 +1555,7 @@
     "colType": "Tipo",
     "colNullable": "Nullable",
     "colKey": "Clave",
+    "colDescription": "Descripción",
     "yes": "SÍ",
     "no": "NO"
   },

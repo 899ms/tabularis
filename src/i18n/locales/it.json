@@ -1622,6 +1622,7 @@
     "colType": "Tipo",
     "colNullable": "Nullable",
     "colKey": "Chiave",
+    "colDescription": "Descrizione",
     "yes": "SÌ",
     "no": "NO"
   },
