@@ -526,12 +526,12 @@ describe('connections', () => {
 
     it('should return active class when connId matches activeConnectionId', () => {
       const cls = getCardClass('conn-1', 'conn-1', isOpen);
-      expect(cls).toContain('border-blue-500/40');
+      expect(cls).toContain('border-accent-primary/40');
     });
 
     it('should return open class when connection is open but not active', () => {
       const cls = getCardClass('open-conn', 'other', isOpen);
-      expect(cls).toContain('border-green-500/35');
+      expect(cls).toContain('border-accent-success/35');
     });
 
     it('should return default class when connection is neither active nor open', () => {
@@ -542,8 +542,8 @@ describe('connections', () => {
     it('should prioritize active over open when both could apply', () => {
       const isOpenAndActive = (id: string) => id === 'conn-1';
       const cls = getCardClass('conn-1', 'conn-1', isOpenAndActive);
-      expect(cls).toContain('border-blue-500/40');
-      expect(cls).not.toContain('border-green-500/35');
+      expect(cls).toContain('border-accent-primary/40');
+      expect(cls).not.toContain('border-accent-success/35');
     });
 
     it('should return default class when activeConnectionId is null', () => {
