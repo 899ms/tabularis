@@ -81,6 +81,39 @@ describe("SettingsProvider", () => {
     expect(result.current.settings.aiModel).toBe("user-choice");
   });
 
+  it("persists per-plugin notification versions through other setting changes and reloads", async () => {
+    let persisted: Partial<Settings> = {
+      language: "en",
+      notifiedPluginVersions: { redis: "3.0.0" },
+    };
+    vi.mocked(invoke).mockImplementation(async (cmd, args) => {
+      if (cmd === "get_config") return persisted;
+      if (cmd === "save_config") {
+        persisted = (args as { config: Settings }).config;
+        return;
+      }
+      throw new Error(`Unexpected command: ${cmd}`);
+    });
+    const wrapper = ({ children }: { children: React.ReactNode }) =>
+      React.createElement(SettingsProvider, null, children);
+    const first = renderHook(() => useSettings(), { wrapper });
+    await waitFor(() => expect(first.result.current.isLoading).toBe(false));
+    await act(async () => {
+      await first.result.current.updateSetting("notifiedPluginVersions", (previous) => ({
+        ...previous,
+        postgresql: "2.0.0",
+      }));
+    });
+    await act(async () => {
+      await first.result.current.updateSetting("fontSize", 16);
+    });
+    expect(persisted.notifiedPluginVersions).toEqual({ redis: "3.0.0", postgresql: "2.0.0" });
+    first.unmount();
+    const second = renderHook(() => useSettings(), { wrapper });
+    await waitFor(() => expect(second.result.current.isLoading).toBe(false));
+    expect(second.result.current.settings.notifiedPluginVersions).toEqual(persisted.notifiedPluginVersions);
+  });
+
   it("should provide default settings when backend is empty", async () => {
     const wrapper = ({ children }: { children: React.ReactNode }) =>
       React.createElement(SettingsProvider, null, children);

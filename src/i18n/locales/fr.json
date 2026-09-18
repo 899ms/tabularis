@@ -742,6 +742,7 @@
       "loadingRegistry": "Chargement du registre des plugins...",
       "registryError": "Échec de chargement du registre",
       "installed": "Installé",
+      "latest": "Dernière",
       "by": "par",
       "platformNotSupported": "Indisponible sur votre plateforme",
       "update": "Mettre à jour",
@@ -952,6 +953,24 @@
     }
   },
   "update": {
+    "badges": {
+      "morePlugins": "{{count}} de plus — ouvrez Plugins pour voir toutes les mises à jour",
+      "driverUpdate": "Mise à jour du pilote disponible",
+      "tag": "Mise à jour",
+      "driverTooltip": "{{name}} {{version}} est disponible. Ce plugin est partagé par vos connexions. Ouvrez Plugins → Mises à jour pour le gérer.",
+      "core_one": "{{count}} mise à jour du cœur disponible",
+      "core_other": "{{count}} mises à jour du cœur disponibles",
+      "plugins_one": "{{count}} mise à jour de plugin disponible",
+      "plugins_other": "{{count}} mises à jour de plugins disponibles",
+      "coreDetails": "Tabularis {{version}} est disponible. Ouvrez Informations pour consulter la mise à jour du cœur.",
+      "pluginDetails_one": "Mise à jour disponible pour : {{plugins}}",
+      "pluginDetails_other": "Mises à jour disponibles pour : {{plugins}}",
+      "toastTitle": "Mises à jour de plugins disponibles",
+      "openPlugins": "Ouvrir les plugins",
+      "core_many": "{{count}} mises à jour du cœur disponibles",
+      "plugins_many": "{{count}} mises à jour de plugins disponibles",
+      "pluginDetails_many": "Mises à jour disponibles pour : {{plugins}}"
+    },
     "newVersionAvailable": "Nouvelle version disponible",
     "version": "Version",
     "releaseNotes": "Notes de version",

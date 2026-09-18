@@ -687,6 +687,7 @@
       "loadingRegistry": "플러그인 레지스트리를 불러오는 중...",
       "registryError": "레지스트리를 불러오지 못했습니다",
       "installed": "설치됨",
+      "latest": "최신",
       "by": "제작:",
       "platformNotSupported": "현재 플랫폼에서는 사용할 수 없습니다",
       "update": "업데이트",
@@ -893,6 +894,21 @@
     }
   },
   "update": {
+    "badges": {
+      "morePlugins": "{{count}}개 더 — 모든 업데이트를 보려면 플러그인을 여세요",
+      "driverUpdate": "드라이버 업데이트 사용 가능",
+      "tag": "업데이트",
+      "driverTooltip": "{{name}} {{version}}을(를) 사용할 수 있습니다. 이 플러그인은 여러 연결에서 공유됩니다. 플러그인 → 업데이트에서 관리하세요.",
+      "core_one": "코어 업데이트 {{count}}개 사용 가능",
+      "core_other": "코어 업데이트 {{count}}개 사용 가능",
+      "plugins_one": "플러그인 업데이트 {{count}}개 사용 가능",
+      "plugins_other": "플러그인 업데이트 {{count}}개 사용 가능",
+      "coreDetails": "Tabularis {{version}}을 사용할 수 있습니다. 정보를 열어 코어 업데이트를 확인하세요.",
+      "pluginDetails_one": "업데이트 가능: {{plugins}}",
+      "pluginDetails_other": "업데이트 가능: {{plugins}}",
+      "toastTitle": "플러그인 업데이트 사용 가능",
+      "openPlugins": "플러그인 열기"
+    },
     "newVersionAvailable": "새 버전이 있습니다",
     "version": "버전",
     "releaseNotes": "릴리스 노트",

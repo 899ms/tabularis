@@ -70,6 +70,10 @@ vi.mock("../../src/hooks/useDrivers", () => ({
   useDrivers: () => ({ drivers: mocks.drivers, allDrivers: mocks.drivers, installedPlugins: [] }),
 }));
 
+vi.mock("../../src/hooks/usePluginRegistry", () => ({
+  usePluginRegistry: () => ({ plugins: [], updates: [], loading: false, error: null, refresh: vi.fn() }),
+}));
+
 vi.mock("../../src/hooks/useSettings", () => ({
   useSettings: () => ({ settings: mocks.settings, isLoading: mocks.isSettingsLoading }),
 }));
