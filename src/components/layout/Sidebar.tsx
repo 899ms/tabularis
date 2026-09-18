@@ -27,9 +27,12 @@ import { canAddToSplit, isConnectionGrouped } from "../../utils/connectionLayout
 import { rectContains, startPointerDrag } from "../../utils/pointerDrag";
 import { useDrivers } from "../../hooks/useDrivers";
 import { useKeybindings } from "../../hooks/useKeybindings";
+import { useAvailableUpdates } from "../../hooks/useAvailableUpdates";
+import { UpdateBadge } from "../ui/UpdateBadge";
 
 export const Sidebar = () => {
   const { t } = useTranslation();
+  const updates = useAvailableUpdates();
   const { currentTheme } = useTheme();
   const isDarkTheme = !currentTheme?.id?.includes("-light");
   const {
@@ -325,6 +328,14 @@ export const Sidebar = () => {
             to="/settings"
             icon={Settings}
             label={t("sidebar.settings")}
+            tooltip={updates.summary}
+            badge={
+              <UpdateBadge
+                count={updates.totalCount}
+                tooltip={updates.summary}
+                className="absolute right-0 top-0"
+              />
+            }
           />
 
           <SlotAnchor

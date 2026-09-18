@@ -934,6 +934,20 @@
     }
   },
   "update": {
+    "badges": {
+      "core_one": "{{count}} atualização do núcleo disponível",
+      "core_other": "{{count}} atualizações do núcleo disponíveis",
+      "plugins_one": "{{count}} atualização de plugin disponível",
+      "plugins_other": "{{count}} atualizações de plugins disponíveis",
+      "coreDetails": "Tabularis {{version}} está disponível. Abra Informações para consultar a atualização do núcleo.",
+      "pluginDetails_one": "Atualização disponível para: {{plugins}}",
+      "pluginDetails_other": "Atualizações disponíveis para: {{plugins}}",
+      "toastTitle": "Atualizações de plugins disponíveis",
+      "openPlugins": "Abrir Plugins",
+      "core_many": "{{count}} atualizações do núcleo disponíveis",
+      "plugins_many": "{{count}} atualizações de plugins disponíveis",
+      "pluginDetails_many": "Atualizações disponíveis para: {{plugins}}"
+    },
     "newVersionAvailable": "Nova Versão Disponível",
     "version": "Versão",
     "releaseNotes": "Notas de Lançamento",

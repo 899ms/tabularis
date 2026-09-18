@@ -9,6 +9,8 @@ export interface ToastAction {
 }
 
 export interface ToastOptions {
+  /** Optional action when the toast message is clicked. */
+  onClick?: () => void;
   title?: string;
   kind?: ToastKind;
   /** Auto-dismiss delay in ms. Pass 0 to keep the toast until dismissed. */

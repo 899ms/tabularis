@@ -911,6 +911,23 @@
     }
   },
   "update": {
+    "badges": {
+      "core_one": "Доступно {{count}} обновление ядра",
+      "core_other": "Доступно {{count}} обновлений ядра",
+      "plugins_one": "Доступно {{count}} обновление плагина",
+      "plugins_other": "Доступно {{count}} обновлений плагинов",
+      "coreDetails": "Доступен Tabularis {{version}}. Откройте раздел «О программе», чтобы посмотреть обновление ядра.",
+      "pluginDetails_one": "Доступно обновление для: {{plugins}}",
+      "pluginDetails_other": "Доступны обновления для: {{plugins}}",
+      "toastTitle": "Доступны обновления плагинов",
+      "openPlugins": "Открыть плагины",
+      "core_few": "Доступно {{count}} обновления ядра",
+      "core_many": "Доступно {{count}} обновлений ядра",
+      "plugins_few": "Доступно {{count}} обновления плагинов",
+      "plugins_many": "Доступно {{count}} обновлений плагинов",
+      "pluginDetails_few": "Доступны обновления для: {{plugins}}",
+      "pluginDetails_many": "Доступны обновления для: {{plugins}}"
+    },
     "newVersionAvailable": "Доступна новая версия",
     "version": "Версия",
     "releaseNotes": "Что нового",

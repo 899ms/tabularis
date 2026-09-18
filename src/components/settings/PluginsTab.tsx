@@ -37,6 +37,7 @@ import clsx from "clsx";
 import { useSettings } from "../../hooks/useSettings";
 import { useDrivers } from "../../hooks/useDrivers";
 import { usePluginRegistry } from "../../hooks/usePluginRegistry";
+import { useSearchParams } from "react-router-dom";
 import { useDatabase } from "../../hooks/useDatabase";
 import { canUpdateToLatest, parseAuthor, versionGte } from "../../utils/plugins";
 import { removePluginConfig } from "../../utils/pluginConfig";
@@ -570,6 +571,7 @@ export function PluginsTab({
   } = useDrivers();
   const {
     plugins: registryPlugins,
+    updates: pluginUpdates,
     loading: registryLoading,
     error: registryError,
     refresh: refreshRegistry,
@@ -604,7 +606,20 @@ export function PluginsTab({
     onConfirm: () => Promise<void>;
   } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<AvailableFilter>("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filterParam = searchParams.get("filter");
+  const activeFilter: AvailableFilter =
+    filterParam === "updates" || filterParam === "installed" ? filterParam : "all";
+  const setActiveFilter = (filter: AvailableFilter) => {
+    setSearchParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        next.set("filter", filter);
+        return next;
+      },
+      { replace: true },
+    );
+  };
   const [readmePlugin, setReadmePlugin] = useState<{
     slug: string;
     name: string;
@@ -628,10 +643,7 @@ export function PluginsTab({
     () => allDrivers.filter((driver) => driver.is_builtin !== true),
     [allDrivers],
   );
-  const updateCount = useMemo(
-    () => registryPlugins.filter((plugin) => plugin.update_available).length,
-    [registryPlugins],
-  );
+  const updateCount = pluginUpdates.length;
 
   const filteredPlugins = useMemo(() => {
     let list = registryPlugins;
@@ -640,7 +652,7 @@ export function PluginsTab({
     } else if (activeFilter === "installed") {
       list = list.filter((p) => !!p.installed_version);
     } else if (activeFilter === "updates") {
-      list = list.filter((p) => p.update_available);
+      list = pluginUpdates;
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -652,17 +664,14 @@ export function PluginsTab({
       );
     }
     return list;
-  }, [registryPlugins, activeFilter, searchQuery]);
+  }, [registryPlugins, pluginUpdates, activeFilter, searchQuery]);
 
-  // Refresh the catalogue + drivers when a deep-link install succeeds at
-  // app level — without this the user has to manually click Refresh after
-  // the confirm modal closes.
+  // The shared registry refreshes itself; refresh this tab's driver list too.
   useEffect(() => {
     let cleanup: UnlistenFn | null = null;
     let mounted = true;
     listen("tabularis://plugin-installed", () => {
       if (!mounted) return;
-      refreshRegistry();
       refreshDrivers();
     })
       .then((u) => {
@@ -676,7 +685,7 @@ export function PluginsTab({
       mounted = false;
       cleanup?.();
     };
-  }, [refreshRegistry, refreshDrivers]);
+  }, [refreshDrivers]);
 
   useEffect(() => {
     invoke<Array<{ plugin_id: string; error: string }>>(

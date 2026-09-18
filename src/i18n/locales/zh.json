@@ -886,6 +886,17 @@
     "safetyConfirmationDelayDesc": "对于破坏性查询和生产环境写入，将确认按钮禁用五秒。"
   },
   "update": {
+    "badges": {
+      "core_one": "有 {{count}} 个核心更新可用",
+      "core_other": "有 {{count}} 个核心更新可用",
+      "plugins_one": "有 {{count}} 个插件更新可用",
+      "plugins_other": "有 {{count}} 个插件更新可用",
+      "coreDetails": "Tabularis {{version}} 已发布。打开“关于”以查看核心更新。",
+      "pluginDetails_one": "以下插件有更新：{{plugins}}",
+      "pluginDetails_other": "以下插件有更新：{{plugins}}",
+      "toastTitle": "插件更新可用",
+      "openPlugins": "打开插件"
+    },
     "newVersionAvailable": "有新版本可用",
     "version": "版本",
     "releaseNotes": "发布说明",

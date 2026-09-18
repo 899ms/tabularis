@@ -932,6 +932,17 @@
     }
   },
   "update": {
+    "badges": {
+      "core_one": "コアの更新が {{count}} 件あります",
+      "core_other": "コアの更新が {{count}} 件あります",
+      "plugins_one": "プラグインの更新が {{count}} 件あります",
+      "plugins_other": "プラグインの更新が {{count}} 件あります",
+      "coreDetails": "Tabularis {{version}} が利用可能です。「情報」を開いてコアの更新を確認してください。",
+      "pluginDetails_one": "更新可能：{{plugins}}",
+      "pluginDetails_other": "更新可能：{{plugins}}",
+      "toastTitle": "プラグインの更新があります",
+      "openPlugins": "プラグインを開く"
+    },
     "newVersionAvailable": "新しいバージョンが利用可能",
     "version": "バージョン",
     "releaseNotes": "リリースノート",

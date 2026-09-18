@@ -1,6 +1,8 @@
 import { Outlet, useLocation } from "react-router-dom";
 
 import { CommandPaletteProvider } from "../../contexts/CommandPaletteProvider";
+import { PluginRegistryProvider } from "../../contexts/PluginRegistryProvider";
+import { PluginUpdateToast } from "../plugins/PluginUpdateToast";
 import { useAutoConnectFromUrl } from "../../hooks/useAutoConnectFromUrl";
 import { useConnectionLayoutContext } from "../../hooks/useConnectionLayoutContext";
 import { useConnectionWindowLifecycle } from "../../hooks/useConnectionWindowLifecycle";
@@ -52,7 +54,10 @@ const MainLayoutContent = () => {
 };
 
 export const MainLayout = () => (
-  <CommandPaletteProvider>
-    <MainLayoutContent />
-  </CommandPaletteProvider>
+  <PluginRegistryProvider>
+    <PluginUpdateToast />
+    <CommandPaletteProvider>
+      <MainLayoutContent />
+    </CommandPaletteProvider>
+  </PluginRegistryProvider>
 );

@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   Settings as SettingsIcon,
@@ -36,6 +37,8 @@ import { InfoTab } from "../components/settings/InfoTab";
 import { PluginSettingsPage } from "../components/settings/PluginSettingsPage";
 import { useDrivers } from "../hooks/useDrivers";
 import { useSettings } from "../hooks/useSettings";
+import { useAvailableUpdates } from "../hooks/useAvailableUpdates";
+import { UpdateBadge } from "../components/ui/UpdateBadge";
 
 type SettingsTab =
   | "general"
@@ -100,6 +103,8 @@ const TAB_COMPONENTS: Partial<Record<SettingsTab, React.ComponentType>> = {
 
 export const Settings = () => {
   const { t } = useTranslation();
+  const updates = useAvailableUpdates();
+  const [searchParams, setSearchParams] = useSearchParams();
   const {
     allDrivers,
     installedPlugins,
@@ -108,7 +113,23 @@ export const Settings = () => {
   const { settings } = useSettings();
   const activeExternalDrivers =
     settings.activeExternalDrivers ?? installedPlugins.map((p) => p.id);
-  const [requestedTab, setRequestedTab] = useState<SettingsTab>("general");
+  const tabParam = searchParams.get("tab");
+  const requestedTab: SettingsTab =
+    tabParam &&
+    (TAB_ITEMS.some(({ id }) => id === tabParam) || tabParam.startsWith("plugin:"))
+      ? (tabParam as SettingsTab)
+      : "general";
+  const setRequestedTab = (tab: SettingsTab) => {
+    setSearchParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        next.set("tab", tab);
+        next.delete("filter");
+        return next;
+      },
+      { replace: true },
+    );
+  };
   const [isConfigJsonModalOpen, setIsConfigJsonModalOpen] = useState(false);
   const [pluginSidebarOverrides, setPluginSidebarOverrides] = useState<
     Record<string, string | null>
@@ -203,10 +224,19 @@ export const Settings = () => {
               >
                 <Icon size={16} />
                 <span className="truncate">{t(labelKey)}</span>
-                {id === "plugins" && pluginTabs.length > 0 && (
-                  <span className="ml-auto rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold text-blue-400 border border-blue-500/20">
-                    {pluginTabs.length}
-                  </span>
+                {id === "plugins" && (
+                  <UpdateBadge
+                    count={updates.pluginCount}
+                    tooltip={updates.pluginsTooltip}
+                    className="ml-auto"
+                  />
+                )}
+                {id === "info" && (
+                  <UpdateBadge
+                    count={updates.coreCount}
+                    tooltip={updates.coreTooltip}
+                    className="ml-auto"
+                  />
                 )}
               </button>
 

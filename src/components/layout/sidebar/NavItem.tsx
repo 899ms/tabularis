@@ -8,11 +8,22 @@ interface NavItemProps {
   icon: React.ElementType;
   label: string;
   isConnected?: boolean;
+  badge?: React.ReactNode;
+  tooltip?: string;
 }
 
-export const NavItem = ({ to, icon: Icon, label, isConnected }: NavItemProps) => (
+export const NavItem = ({
+  to,
+  icon: Icon,
+  label,
+  isConnected,
+  badge,
+  tooltip,
+}: NavItemProps) => (
   <NavLink
     to={to}
+    aria-label={label}
+    title={tooltip}
     className={({ isActive }) =>
       clsx(
         "flex items-center justify-center w-12 h-12 rounded-lg transition-colors mb-2 relative group",
@@ -31,8 +42,9 @@ export const NavItem = ({ to, icon: Icon, label, isConnected }: NavItemProps) =>
             <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-500 border-2 border-elevated"></span>
           )}
         </div>
-        <span className="absolute left-14 bg-surface-secondary text-primary text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 pointer-events-none">
-          {label}
+        {badge}
+        <span className="absolute left-14 bg-surface-secondary text-primary text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity whitespace-nowrap z-30 pointer-events-none">
+          {tooltip || label}
         </span>
       </>
     )}

@@ -918,6 +918,17 @@
     }
   },
   "update": {
+    "badges": {
+      "core_one": "{{count}} Core-Update verfügbar",
+      "core_other": "{{count}} Core-Updates verfügbar",
+      "plugins_one": "{{count}} Plugin-Update verfügbar",
+      "plugins_other": "{{count}} Plugin-Updates verfügbar",
+      "coreDetails": "Tabularis {{version}} ist verfügbar. Öffne Info, um das Core-Update anzusehen.",
+      "pluginDetails_one": "Update verfügbar für: {{plugins}}",
+      "pluginDetails_other": "Updates verfügbar für: {{plugins}}",
+      "toastTitle": "Plugin-Updates verfügbar",
+      "openPlugins": "Plugins öffnen"
+    },
     "newVersionAvailable": "Neue Version verfügbar",
     "version": "Version",
     "releaseNotes": "Release Notes",

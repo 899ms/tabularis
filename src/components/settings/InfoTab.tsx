@@ -41,7 +41,7 @@ export function InfoTab() {
   const {
     checkForUpdates,
     isChecking,
-    updateInfo,
+    availableUpdate: updateInfo,
     error: updateError,
     isUpToDate,
     installationSource,
