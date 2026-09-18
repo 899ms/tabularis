@@ -65,6 +65,7 @@ const NewConnectionModal = lazy(() => import("../components/modals/NewConnection
 const ImportFromAppModal = lazy(() => import("../components/modals/ImportFromAppModal").then((m) => ({ default: m.ImportFromAppModal })));
 const MigrationChecklistModal = lazy(() => import("../components/modals/MigrationChecklistModal").then((m) => ({ default: m.MigrationChecklistModal })));
 
+const windowLabel = getCurrentWindow().label;
 let autoConnectAttempted = false;
 
 export const Connections = () => {
@@ -304,7 +305,6 @@ export const Connections = () => {
   useEffect(() => {
     if (autoConnectAttempted) return;
     // Dedicated connection windows have their own URL-driven restore flow.
-    const windowLabel = getCurrentWindow().label;
     if (windowLabel && windowLabel !== "main") return;
     if (isSettingsLoading) return;
     if (connections.length === 0) return;

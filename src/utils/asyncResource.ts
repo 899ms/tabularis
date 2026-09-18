@@ -23,19 +23,25 @@ export function createAsyncResource<T>(initial: T, fetchData: () => Promise<T>) 
     if (loaded && !dirty) return Promise.resolve();
     // Defer notifications so subscribing during a React commit is safe.
     request = Promise.resolve().then(async () => {
-      do {
-        dirty = false;
-        publish({ ...snapshot, loading: true, error: null });
-        try {
-          const data = await fetchData();
-          publish({ data, loading: false, error: null });
-        } catch (error) {
-          publish({ ...snapshot, loading: false, error: String(error) });
-        }
-        loaded = true;
-        // An activation/refresh during a read must not leave a stale result.
-      } while (dirty);
-    }).finally(() => { request = null; });
+      try {
+        do {
+          dirty = false;
+          publish({ ...snapshot, loading: true, error: null });
+          try {
+            const data = await fetchData();
+            loaded = true;
+            publish({ data, loading: false, error: null });
+          } catch (error) {
+            loaded = false;
+            publish({ ...snapshot, loading: false, error: String(error) });
+          }
+          // An activation/refresh during a read must not leave a stale result.
+        } while (dirty);
+      } finally {
+        // Clear before yielding so a late refresh starts a new request.
+        request = null;
+      }
+    });
     return request;
   };
 
