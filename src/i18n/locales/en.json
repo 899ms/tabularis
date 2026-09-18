@@ -257,6 +257,11 @@
       "activity": "Activity",
       "safety": "Safety"
     },
+    "output": {
+      "title": "Tool output",
+      "formatLabel": "Default output format",
+      "formatDescription": "Used when an MCP tool call does not specify output_format. JSON preserves compatibility; TOON can reduce token usage."
+    },
     "safety": {
       "readOnlyTitle": "Read-only mode",
       "readOnlyDefault": "Make all MCP queries read-only",

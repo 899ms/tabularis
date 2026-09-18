@@ -118,6 +118,7 @@ export interface Settings {
   aiAuditEnabled?: boolean;
   aiAuditMaxEntries?: number;
   aiSessionGapMinutes?: number;
+  mcpOutputFormat?: "json" | "toon";
   mcpReadonlyDefault?: boolean;
   mcpReadonlyConnections?: string[];
   mcpApprovalMode?: "off" | "writes_only" | "all";
@@ -253,6 +254,7 @@ export const DEFAULT_SETTINGS: Settings = {
   aiAuditEnabled: true,
   aiAuditMaxEntries: 5000,
   aiSessionGapMinutes: 10,
+  mcpOutputFormat: "json",
   mcpReadonlyDefault: false,
   mcpReadonlyConnections: [],
   mcpApprovalMode: "writes_only",

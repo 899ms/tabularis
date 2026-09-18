@@ -15,15 +15,20 @@ use crate::models::{ConnectionParams, K8sConnection, SshConnection};
 use crate::paths;
 use crate::persistence;
 use crate::plugins;
+use serde::Serialize;
 use serde_json::{json, Value};
 use std::io::{self, BufRead, Write};
 use std::sync::Arc;
 
 pub mod install;
+mod output;
 pub mod preflight;
 pub mod protocol;
+use output::{OutputFormatError, ToolOutputFormat};
 use protocol::*;
 
+#[cfg(test)]
+mod output_tests;
 #[cfg(test)]
 mod tests;
 
@@ -572,7 +577,7 @@ async fn handle_request(req: JsonRpcRequest) -> Option<JsonRpcResponse> {
         "initialize" => handle_initialize(req.params),
         "resources/list" => handle_list_resources().await,
         "resources/read" => handle_read_resource(req.params).await,
-        "tools/list" => handle_list_tools(),
+        "tools/list" => handle_list_tools(&config::load_config_from_disk()),
         "tools/call" => handle_call_tool(req.params).await,
         _ => Err(JsonRpcError {
             code: -32601,
@@ -744,14 +749,17 @@ async fn handle_read_resource(params: Option<Value>) -> Result<Value, JsonRpcErr
     })
 }
 
-fn handle_list_tools() -> Result<Value, JsonRpcError> {
+fn handle_list_tools(config: &AppConfig) -> Result<Value, JsonRpcError> {
+    let default_output_format = ToolOutputFormat::from_config(config).as_str();
     let tools = vec![
         Tool {
             name: "list_connections".to_string(),
             description: Some("List all saved database connections".to_string()),
             input_schema: json!({
                 "type": "object",
-                "properties": {}
+                "properties": {
+                    "output_format": output_format_schema(default_output_format)
+                }
             }),
         },
         Tool {
@@ -760,7 +768,8 @@ fn handle_list_tools() -> Result<Value, JsonRpcError> {
             input_schema: json!({
                 "type": "object",
                 "properties": {
-                    "connection_id": { "type": "string", "description": "The ID or name of the connection" }
+                    "connection_id": { "type": "string", "description": "The ID or name of the connection" },
+                    "output_format": output_format_schema(default_output_format)
                 },
                 "required": ["connection_id"]
             }),
@@ -772,7 +781,8 @@ fn handle_list_tools() -> Result<Value, JsonRpcError> {
                 "type": "object",
                 "properties": {
                     "connection_id": { "type": "string", "description": "The ID or name of the connection" },
-                    "schema": { "type": "string", "description": "Schema name (optional, defaults to 'public' for PostgreSQL)" }
+                    "schema": { "type": "string", "description": "Schema name (optional, defaults to 'public' for PostgreSQL)" },
+                    "output_format": output_format_schema(default_output_format)
                 },
                 "required": ["connection_id"]
             }),
@@ -787,7 +797,8 @@ fn handle_list_tools() -> Result<Value, JsonRpcError> {
                 "properties": {
                     "connection_id": { "type": "string", "description": "The ID or name of the connection" },
                     "table_name": { "type": "string", "description": "The name of the table to describe" },
-                    "schema": { "type": "string", "description": "Schema name (optional, defaults to 'public' for PostgreSQL)" }
+                    "schema": { "type": "string", "description": "Schema name (optional, defaults to 'public' for PostgreSQL)" },
+                    "output_format": output_format_schema(default_output_format)
                 },
                 "required": ["connection_id", "table_name"]
             }),
@@ -800,7 +811,8 @@ fn handle_list_tools() -> Result<Value, JsonRpcError> {
                 "properties": {
                     "connection_id": { "type": "string", "description": "The ID or name of the connection" },
                     "query": { "type": "string", "description": "The SQL query to execute" },
-                    "limit": { "type": "integer", "description": "Maximum number of rows to return (default: 100). If the query already contains a LIMIT clause smaller than this value, the query's LIMIT takes precedence." }
+                    "limit": { "type": "integer", "description": "Maximum number of rows to return (default: 100). If the query already contains a LIMIT clause smaller than this value, the query's LIMIT takes precedence." },
+                    "output_format": output_format_schema(default_output_format)
                 },
                 "required": ["connection_id", "query"]
             }),
@@ -916,22 +928,29 @@ async fn dispatch_tool(
     audit: &mut CallAudit,
 ) -> Result<Value, JsonRpcError> {
     match name {
-        "list_connections" => tool_list_connections(audit).await,
+        "list_connections" => {
+            let format = requested_output_format(args, config)?;
+            tool_list_connections(audit, format).await
+        }
         "list_databases" => {
             let args = require_args(args)?;
-            tool_list_databases(args, config, audit).await
+            let format = requested_output_format(Some(args), config)?;
+            tool_list_databases(args, config, audit, format).await
         }
         "list_tables" => {
             let args = require_args(args)?;
-            tool_list_tables(args, config, audit).await
+            let format = requested_output_format(Some(args), config)?;
+            tool_list_tables(args, config, audit, format).await
         }
         "describe_table" => {
             let args = require_args(args)?;
-            tool_describe_table(args, config, audit).await
+            let format = requested_output_format(Some(args), config)?;
+            tool_describe_table(args, config, audit, format).await
         }
         "run_query" => {
             let args = require_args(args)?;
-            tool_run_query(args, config, session_id, audit).await
+            let format = requested_output_format(Some(args), config)?;
+            tool_run_query(args, config, session_id, audit, format).await
         }
         _ => Err(JsonRpcError {
             code: -32601,
@@ -951,7 +970,52 @@ fn require_args(
     })
 }
 
-async fn tool_list_connections(_audit: &mut CallAudit) -> Result<Value, JsonRpcError> {
+fn output_format_schema(default: &str) -> Value {
+    json!({
+        "type": "string",
+        "enum": ["json", "toon"],
+        "default": default,
+        "description": "Text output encoding. JSON is the backward-compatible default; TOON is optimized for LLM token usage."
+    })
+}
+
+fn requested_output_format(
+    args: Option<&serde_json::Map<String, Value>>,
+    config: &AppConfig,
+) -> Result<ToolOutputFormat, JsonRpcError> {
+    ToolOutputFormat::from_arguments(args, ToolOutputFormat::from_config(config)).map_err(|_| {
+        JsonRpcError {
+            code: -32602,
+            message: "Invalid output_format: expected 'json' or 'toon'".to_string(),
+            data: None,
+        }
+    })
+}
+
+fn tool_result<T: Serialize>(value: &T, format: ToolOutputFormat) -> Result<Value, JsonRpcError> {
+    let text = format.encode(value).map_err(|error| JsonRpcError {
+        code: -32603,
+        message: match error {
+            OutputFormatError::Encoding(message) => {
+                format!("Failed to encode MCP tool output: {message}")
+            }
+            OutputFormatError::InvalidArgument => "Failed to encode MCP tool output".to_string(),
+        },
+        data: None,
+    })?;
+
+    Ok(json!({
+        "content": [{
+            "type": "text",
+            "text": text
+        }]
+    }))
+}
+
+async fn tool_list_connections(
+    _audit: &mut CallAudit,
+    format: ToolOutputFormat,
+) -> Result<Value, JsonRpcError> {
     let config_path = paths::resolve_connections_path(&paths::get_app_config_dir());
     let connections = persistence::load_connections(&config_path).map_err(|e| JsonRpcError {
         code: -32000,
@@ -972,18 +1036,14 @@ async fn tool_list_connections(_audit: &mut CallAudit) -> Result<Value, JsonRpcE
         })
         .collect();
 
-    Ok(json!({
-        "content": [{
-            "type": "text",
-            "text": serde_json::to_string_pretty(&list).unwrap()
-        }]
-    }))
+    tool_result(&json!(list), format)
 }
 
 async fn tool_list_tables(
     args: &serde_json::Map<String, Value>,
     config: &AppConfig,
     audit: &mut CallAudit,
+    format: ToolOutputFormat,
 ) -> Result<Value, JsonRpcError> {
     let conn_id = args
         .get("connection_id")
@@ -1013,18 +1073,14 @@ async fn tool_list_tables(
 
     let names: Vec<&str> = tables.iter().map(|t| t.name.as_str()).collect();
     audit.rows = Some(names.len());
-    Ok(json!({
-        "content": [{
-            "type": "text",
-            "text": serde_json::to_string_pretty(&names).unwrap()
-        }]
-    }))
+    tool_result(&json!(names), format)
 }
 
 async fn tool_list_databases(
     args: &serde_json::Map<String, Value>,
     config: &AppConfig,
     audit: &mut CallAudit,
+    format: ToolOutputFormat,
 ) -> Result<Value, JsonRpcError> {
     let conn_id = args
         .get("connection_id")
@@ -1051,18 +1107,14 @@ async fn tool_list_databases(
         })?;
 
     audit.rows = Some(databases.len());
-    Ok(json!({
-        "content": [{
-            "type": "text",
-            "text": serde_json::to_string_pretty(&databases).unwrap()
-        }]
-    }))
+    tool_result(&json!(databases), format)
 }
 
 async fn tool_describe_table(
     args: &serde_json::Map<String, Value>,
     config: &AppConfig,
     audit: &mut CallAudit,
+    format: ToolOutputFormat,
 ) -> Result<Value, JsonRpcError> {
     let conn_id = args
         .get("connection_id")
@@ -1105,12 +1157,7 @@ async fn tool_describe_table(
         "indexes": indexes.map_err(|e| JsonRpcError { code: -32000, message: e, data: None })?
     });
 
-    Ok(json!({
-        "content": [{
-            "type": "text",
-            "text": serde_json::to_string_pretty(&result).unwrap()
-        }]
-    }))
+    tool_result(&result, format)
 }
 
 async fn tool_run_query(
@@ -1118,6 +1165,7 @@ async fn tool_run_query(
     config: &AppConfig,
     session_id: &str,
     audit: &mut CallAudit,
+    format: ToolOutputFormat,
 ) -> Result<Value, JsonRpcError> {
     let conn_id = args
         .get("connection_id")
@@ -1338,11 +1386,6 @@ async fn tool_run_query(
 
     audit.rows = Some(result.rows.len());
 
-    Ok(json!({
-        "content": [{
-            "type": "text",
-            "text": serde_json::to_string_pretty(&result).unwrap()
-        }]
-    }))
+    tool_result(&result, format)
 }
 
