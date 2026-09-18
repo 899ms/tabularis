@@ -742,6 +742,7 @@
       "loadingRegistry": "Naglo-load ng plugin registry...",
       "registryError": "Hindi na-load ang registry",
       "installed": "Naka-install",
+      "latest": "Pinakabago",
       "by": "ni",
       "platformNotSupported": "Hindi available para sa iyong platform",
       "update": "I-update",
@@ -949,6 +950,10 @@
   },
   "update": {
     "badges": {
+      "morePlugins": "{{count}} pa — buksan ang Plugins para makita ang lahat ng update",
+      "driverUpdate": "May available na update ng driver",
+      "tag": "Update",
+      "driverTooltip": "Available na ang {{name}} {{version}}. Ibinabahagi ang plugin na ito ng iyong mga koneksyon. Buksan ang Plugins → Updates para pamahalaan ito.",
       "core_one": "May {{count}} update sa core",
       "core_other": "May {{count}} update sa core",
       "plugins_one": "May {{count}} update sa plugin",

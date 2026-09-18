@@ -734,6 +734,7 @@
       "loadingRegistry": "Cargando registro de plugins...",
       "registryError": "Error al cargar el registro",
       "installed": "Instalado",
+      "latest": "Más reciente",
       "by": "por",
       "platformNotSupported": "No disponible para tu plataforma",
       "update": "Actualizar",
@@ -944,6 +945,10 @@
   },
   "update": {
     "badges": {
+      "morePlugins": "{{count}} más — abre Plugins para ver todas las actualizaciones",
+      "driverUpdate": "Actualización del driver disponible",
+      "tag": "Actualización",
+      "driverTooltip": "{{name}} {{version}} está disponible. Este plugin es compartido por tus conexiones. Abre Plugins → Actualizaciones para gestionarlo.",
       "core_one": "{{count}} actualización del núcleo disponible",
       "core_other": "{{count}} actualizaciones del núcleo disponibles",
       "plugins_one": "{{count}} actualización de plugin disponible",

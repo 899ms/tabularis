@@ -25,14 +25,12 @@ export function useAvailableUpdates() {
           version: availableUpdate.latestVersion,
         })
       : "",
-    pluginsTooltip: t("update.badges.pluginDetails", {
-      count: pluginCount,
-      plugins: updates
-        .map(
-          (plugin) =>
-            `${plugin.name} ${plugin.installed_version} → ${plugin.latest_version}`,
-        )
-        .join(", "),
-    }),
+    pluginsTooltip: t("update.badges.plugins", { count: pluginCount }),
+    pluginDetails: [
+      ...updates.slice(0, 5).map(
+        (plugin) => `${plugin.name} ${plugin.installed_version} → ${plugin.latest_version}`,
+      ),
+      ...(pluginCount > 5 ? [t("update.badges.morePlugins", { count: pluginCount - 5 })] : []),
+    ],
   };
 }

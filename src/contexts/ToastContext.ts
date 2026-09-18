@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-export type ToastKind = "info" | "success" | "warning" | "error";
+export type ToastKind = "info" | "success" | "warning" | "error" | "update";
 
 /** A clickable action rendered inline in a toast (e.g. "Undo", "Report an issue"). */
 export interface ToastAction {

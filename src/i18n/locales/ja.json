@@ -723,6 +723,7 @@
       "loadingRegistry": "プラグインレジストリを読み込み中...",
       "registryError": "レジストリの読み込みに失敗しました",
       "installed": "インストール済み",
+      "latest": "最新",
       "by": "作成者:",
       "platformNotSupported": "お使いのプラットフォームでは利用できません",
       "update": "更新",
@@ -933,6 +934,10 @@
   },
   "update": {
     "badges": {
+      "morePlugins": "他 {{count}} 件 — すべての更新を見るにはプラグインを開いてください",
+      "driverUpdate": "ドライバーの更新があります",
+      "tag": "更新",
+      "driverTooltip": "{{name}} {{version}} が利用可能です。このプラグインは複数の接続で共有されています。プラグイン → 更新 から管理してください。",
       "core_one": "コアの更新が {{count}} 件あります",
       "core_other": "コアの更新が {{count}} 件あります",
       "plugins_one": "プラグインの更新が {{count}} 件あります",

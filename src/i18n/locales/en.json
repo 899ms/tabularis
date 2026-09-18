@@ -754,6 +754,7 @@
       "loadingRegistry": "Loading plugin registry...",
       "registryError": "Failed to load registry",
       "installed": "Installed",
+      "latest": "Latest",
       "by": "by",
       "platformNotSupported": "Not available for your platform",
       "update": "Update",
@@ -965,6 +966,10 @@
   },
   "update": {
     "badges": {
+      "morePlugins": "{{count}} more — open Plugins to see all updates",
+      "driverUpdate": "Driver update available",
+      "tag": "Update",
+      "driverTooltip": "{{name}} {{version}} is available. This plugin is shared by your connections. Open Plugins → Updates to manage it.",
       "core_one": "{{count}} core update available",
       "core_other": "{{count}} core updates available",
       "plugins_one": "{{count}} plugin update available",

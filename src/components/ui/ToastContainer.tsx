@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, CheckCircle2, Info, X, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowUpCircle, CheckCircle2, Info, X, XCircle } from "lucide-react";
 import type { ToastAction, ToastKind } from "../../contexts/ToastContext";
 
 export interface ToastItem {
@@ -21,6 +21,8 @@ const kindConfig: Record<ToastKind, { Icon: typeof Info; accent: string }> = {
   success: { Icon: CheckCircle2, accent: "var(--accent-success)" },
   warning: { Icon: AlertTriangle, accent: "var(--accent-warning)" },
   error: { Icon: XCircle, accent: "var(--accent-error)" },
+  // Same accent as the update badges so the toast and the counters match.
+  update: { Icon: ArrowUpCircle, accent: "var(--accent-primary)" },
 };
 
 export const ToastContainer = ({ toasts, onDismiss }: ToastContainerProps) => {

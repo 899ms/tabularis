@@ -10,8 +10,11 @@ import {
   Info,
   Code2,
   Library,
+  AlertTriangle,
+  ArrowUpCircle,
   Download,
   Loader2,
+  RefreshCw,
   ExternalLink,
   Activity,
   Sparkles,
@@ -33,6 +36,7 @@ import {
 import { WhatsNewModal } from "../modals/WhatsNewModal";
 import { OpenSourceLibrariesModal } from "../modals/OpenSourceLibrariesModal";
 import { SocialLinks } from "../SocialLinks";
+import { TONE_SOFT_BG_CLASS, TONE_TEXT_CLASS, type Tone } from "../../utils/tones";
 
 export function InfoTab() {
   const { t } = useTranslation();
@@ -45,7 +49,18 @@ export function InfoTab() {
     error: updateError,
     isUpToDate,
     installationSource,
+    downloadAndInstall,
+    isDownloading,
+    downloadProgress,
   } = useUpdate();
+  // One status for the card: what the user should know about updates right now.
+  const updateStatus: { tone: Tone; Icon: typeof Download; line: string } = updateInfo
+    ? { tone: "update", Icon: ArrowUpCircle, line: t("update.updateAvailable", { version: updateInfo.latestVersion }) }
+    : updateError
+      ? { tone: "danger", Icon: AlertTriangle, line: "" }
+      : isUpToDate
+        ? { tone: "success", Icon: CheckCircle2, line: t("update.upToDate") }
+        : { tone: "neutral", Icon: Download, line: isChecking ? t("update.checkingForUpdates") : "" };
   const {
     entries: changelogEntries,
     isLoading: isChangelogLoading,
@@ -115,24 +130,96 @@ export function InfoTab() {
         </div>
       </div>
 
-      {/* Updates */}
+      {/* Updates: one status card (version, state, actions) followed by the preferences. */}
       <SettingSection
         title={t("settings.updates")}
         icon={<Download size={14} className="text-muted" />}
       >
         <div className="space-y-4 pt-3">
-          <div className="bg-base p-4 rounded-lg border border-default">
-            <div className="text-sm text-secondary">
-              {t("settings.currentVersion")}
+          <div className="rounded-2xl border border-strong bg-elevated p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3 min-w-0">
+                <div
+                  className={clsx(
+                    "p-2.5 rounded-lg shrink-0",
+                    TONE_SOFT_BG_CLASS[updateStatus.tone],
+                    updateStatus.tone === "neutral" ? "text-secondary" : TONE_TEXT_CLASS[updateStatus.tone],
+                  )}
+                >
+                  {isChecking ? <Loader2 size={16} className="animate-spin" /> : <updateStatus.Icon size={16} />}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] uppercase tracking-wide text-muted">
+                    {t("settings.currentVersion")}
+                  </div>
+                  <div className="text-lg font-mono font-semibold text-primary leading-tight">
+                    v{APP_VERSION}
+                  </div>
+                  {updateStatus.line && (
+                    <div
+                      className={clsx(
+                        "text-xs mt-0.5",
+                        updateStatus.tone === "neutral" ? "text-muted" : TONE_TEXT_CLASS[updateStatus.tone],
+                      )}
+                    >
+                      {updateStatus.line}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {!installationSource && (
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  {updateInfo?.releaseUrl && (
+                    <button
+                      type="button"
+                      onClick={() => openUrl(updateInfo.releaseUrl)}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-muted hover:text-primary hover:bg-surface-secondary/60 transition-colors"
+                    >
+                      <ExternalLink size={13} />
+                      {t("update.releaseNotes")}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => checkForUpdates(true)}
+                    disabled={isChecking || isDownloading}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-default bg-base text-xs text-secondary hover:text-primary hover:border-strong disabled:opacity-50 transition-colors"
+                  >
+                    <RefreshCw size={13} className={clsx(isChecking && "animate-spin")} />
+                    {isChecking ? t("settings.checking") : t("settings.checkNow")}
+                  </button>
+                  {updateInfo && (
+                    <button
+                      type="button"
+                      onClick={() => downloadAndInstall()}
+                      disabled={isDownloading}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent-primary text-white text-xs font-semibold shadow-sm hover:bg-accent-primary/90 disabled:opacity-60 transition-colors"
+                    >
+                      {isDownloading ? (
+                        <>
+                          <Loader2 size={13} className="animate-spin" />
+                          {t("update.downloading")} {Math.round(downloadProgress)}%
+                        </>
+                      ) : (
+                        <>
+                          <Download size={13} />
+                          {t("update.downloadAndInstall")}
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
-            <div className="text-lg font-mono text-primary mt-1">
-              v{APP_VERSION}
-            </div>
+            {updateError && (
+              <p className="mt-3 text-xs text-accent-error">{updateError}</p>
+            )}
           </div>
 
           {installationSource ? (
-            <div className="bg-yellow-900/20 border border-yellow-900/50 text-yellow-400 px-4 py-3 rounded-lg">
-              <div className="text-sm font-medium">
+            <div className="bg-accent-warning/10 border border-accent-warning/30 px-4 py-3 rounded-lg">
+              <div className="text-sm font-medium text-accent-warning">
                 {t("update.managedByPackageManager", {
                   source:
                     ({ aur: "AUR", snap: "Snap Store", flatpak: "Flathub" } as Record<string, string>)[
@@ -140,7 +227,7 @@ export function InfoTab() {
                     ] ?? installationSource,
                 })}
               </div>
-              <div className="text-xs mt-1 text-yellow-400/70">
+              <div className="text-xs mt-1 text-accent-warning/70">
                 {t("update.managedByPackageManagerDesc")}
               </div>
             </div>
@@ -161,7 +248,7 @@ export function InfoTab() {
               </SettingRow>
 
               {settings.releaseChannel === "nightly" && (
-                <div className="bg-yellow-900/20 border border-yellow-900/50 text-yellow-400 px-4 py-3 rounded-lg text-xs">
+                <div className="bg-accent-warning/10 border border-accent-warning/30 text-accent-warning px-4 py-3 rounded-lg text-xs">
                   {t("update.nightlyWarning")}
                 </div>
               )}
@@ -177,48 +264,6 @@ export function InfoTab() {
                   }
                 />
               </SettingRow>
-
-              <button
-                onClick={() => checkForUpdates(true)}
-                disabled={isChecking}
-                className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-              >
-                {isChecking ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" />
-                    {t("settings.checking")}
-                  </>
-                ) : (
-                  <>
-                    <Download size={16} />
-                    {t("settings.checkNow")}
-                  </>
-                )}
-              </button>
-
-              {isUpToDate && !updateInfo && (
-                <div className="bg-blue-900/20 border border-blue-900/50 text-blue-400 px-4 py-3 rounded-lg flex items-center gap-2">
-                  <CheckCircle2 size={16} />
-                  <span className="text-sm">{t("update.upToDate")}</span>
-                </div>
-              )}
-
-              {updateInfo && (
-                <div className="bg-green-900/20 border border-green-900/50 text-green-400 px-4 py-3 rounded-lg flex items-center gap-2">
-                  <CheckCircle2 size={16} />
-                  <span className="text-sm">
-                    {t("update.updateAvailable", {
-                      version: updateInfo.latestVersion,
-                    })}
-                  </span>
-                </div>
-              )}
-
-              {updateError && (
-                <div className="bg-red-900/20 border border-red-900/50 text-red-400 px-4 py-3 rounded-lg text-sm">
-                  {updateError}
-                </div>
-              )}
             </>
           )}
         </div>

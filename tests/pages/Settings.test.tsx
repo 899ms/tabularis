@@ -37,7 +37,7 @@ vi.mock("../../src/hooks/usePluginRegistry", () => ({
 }));
 vi.mock("../../src/hooks/useUpdate", () => ({ useUpdate: vi.fn() }));
 vi.mock("../../src/hooks/useSettings", () => ({
-  useSettings: () => ({ settings: {} }),
+  useSettings: () => ({ settings: {}, isLoading: false, updateSetting: vi.fn() }),
 }));
 vi.mock("../../src/hooks/useDrivers", () => ({
   useDrivers: () => ({
@@ -128,9 +128,7 @@ function SettingsLink() {
       icon={() => null}
       label="Impostazioni"
       tooltip={updates.summary}
-      badge={
-        <UpdateBadge count={updates.totalCount} tooltip={updates.summary} />
-      }
+      badge={<UpdateBadge count={updates.totalCount} tooltip={updates.summary} />}
     />
   );
 }
@@ -191,7 +189,7 @@ describe("update navigation", () => {
     ).toBeNull();
   });
 
-  it("shows combined counts and distinct translated tooltips", () => {
+  it("aggregates the rail counter and splits core/plugin counts in the settings navigation", () => {
     vi.mocked(useUpdate).mockReturnValue({
       ...useUpdate(),
       availableUpdate: {
@@ -209,23 +207,49 @@ describe("update navigation", () => {
       updates: [plugin, { ...plugin, id: "redis", name: "Redis" }],
     });
     renderApp();
-    const link = screen.getByRole("link", { name: "Impostazioni" });
-    expect(link).toHaveAttribute(
-      "title",
-      "1 aggiornamento core disponibile, 2 aggiornamenti plugins disponibili",
-    );
-    expect(within(link).getByText("3")).toBeInTheDocument();
-    expect(
-      screen.getByTitle(
-        "Aggiornamenti disponibili per: PostgreSQL 1.0.0 → 2.0.0, Redis 1.0.0 → 2.0.0",
-      ),
-    ).toHaveTextContent("2");
-    expect(
-      screen.getByTitle(
-        "Tabularis 0.25.0 è disponibile. Apri Info per consultare l’aggiornamento del core.",
-      ),
-    ).toHaveTextContent("1");
+    const link = screen.getByRole("link", { name: /^Impostazioni:/ });
+    expect(link).not.toHaveAttribute("title");
+    expect(link.querySelector("[title]")).toBeNull();
+    const railBadge = within(link).getByLabelText("1 aggiornamento core disponibile, 2 aggiornamenti plugins disponibili");
+    expect(railBadge).toHaveTextContent("3");
+    expect(railBadge.style.backgroundColor).toContain("--accent-primary");
+    const pluginsButton = screen.getByRole("button", { name: /^Plugin/ });
+    const pluginBadge = within(pluginsButton).getByLabelText("2 aggiornamenti plugins disponibili");
+    fireEvent.mouseEnter(pluginBadge);
+    expect(screen.getByRole("tooltip")).toHaveTextContent("PostgreSQL 1.0.0 → 2.0.0");
+    expect(screen.getByRole("tooltip")).toHaveTextContent("Redis 1.0.0 → 2.0.0");
+    expect(within(screen.getByRole("tooltip")).getAllByRole("listitem")).toHaveLength(2);
+    fireEvent.mouseLeave(pluginBadge);
+    const infoButton = screen.getByRole("button", { name: /^Info/ });
+    const coreBadge = within(infoButton).getByText("1");
+    fireEvent.focus(infoButton);
+    expect(screen.getByRole("tooltip")).toHaveTextContent("Tabularis 0.25.0 è disponibile");
+    // Same pill everywhere: the rail, Info and Plugins counters share tone and shape.
+    for (const badge of [railBadge, coreBadge, pluginBadge]) {
+      expect(badge).toHaveClass("rounded-full");
+      expect(badge.style.backgroundColor).toBe(railBadge.style.backgroundColor);
+    }
     expect(screen.getAllByRole("status")).toHaveLength(1);
+  });
+
+  it("bounds a long plugin list and closes the tooltip with Escape", () => {
+    vi.mocked(usePluginRegistry).mockReturnValue({
+      ...usePluginRegistry(),
+      updates: Array.from({ length: 12 }, (_, index) => ({ ...plugin, id: `plugin-${index}`, name: `Plugin ${index}` })),
+    });
+    renderApp();
+    const button = screen.getByRole("button", { name: /^Plugin/ });
+    fireEvent.focus(button);
+    const tooltip = screen.getByRole("tooltip");
+    expect(button).toHaveAttribute("aria-describedby", tooltip.id);
+    expect(within(tooltip).getAllByRole("listitem")).toHaveLength(6);
+    expect(tooltip).toHaveTextContent("Plugin 4 1.0.0 → 2.0.0");
+    expect(tooltip).not.toHaveTextContent("Plugin 5");
+    expect(tooltip).toHaveTextContent("Altri 7");
+    expect(tooltip.parentElement).toBe(document.body);
+    fireEvent.keyDown(button, { key: "Escape" });
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    expect(button).not.toHaveAttribute("aria-describedby");
   });
 
   it("opens the updates filter by clicking the startup toast and does not repeat on navigation", async () => {

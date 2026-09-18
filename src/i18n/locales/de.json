@@ -709,6 +709,7 @@
       "loadingRegistry": "Plugin-Registry wird geladen...",
       "registryError": "Laden des Registry fehlgeschlagen",
       "installed": "Installiert",
+      "latest": "Neueste",
       "by": "von",
       "platformNotSupported": "Für deine Plattform nicht verfügbar",
       "update": "Aktualisieren",
@@ -919,6 +920,10 @@
   },
   "update": {
     "badges": {
+      "morePlugins": "{{count}} weitere — öffne Plugins, um alle Updates zu sehen",
+      "driverUpdate": "Treiber-Update verfügbar",
+      "tag": "Update",
+      "driverTooltip": "{{name}} {{version}} ist verfügbar. Dieses Plugin wird von mehreren Verbindungen genutzt. Öffne Plugins → Updates, um es zu verwalten.",
       "core_one": "{{count}} Core-Update verfügbar",
       "core_other": "{{count}} Core-Updates verfügbar",
       "plugins_one": "{{count}} Plugin-Update verfügbar",

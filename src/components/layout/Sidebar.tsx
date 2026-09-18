@@ -236,7 +236,7 @@ export const Sidebar = () => {
           <img
             src="/logo.png"
             alt="tabularis"
-            className="w-12 h-12 p-2 rounded-2xl mx-auto mb-4 shadow-lg shadow-blue-500/30"
+            className="w-12 h-12 p-2 rounded-2xl mx-auto mb-4 shadow-lg shadow-accent-primary/30"
             style={{
               backgroundColor: isDarkTheme
                 ? currentTheme?.colors?.surface?.secondary || "#334155"
@@ -330,10 +330,12 @@ export const Sidebar = () => {
             label={t("sidebar.settings")}
             tooltip={updates.summary}
             badge={
+              // One aggregated counter on the rail; the Settings navigation
+              // splits it into core (Info) and plugin (Plugins) counts.
               <UpdateBadge
                 count={updates.totalCount}
                 tooltip={updates.summary}
-                className="absolute right-0 top-0"
+                className="absolute -right-1 -top-1"
               />
             }
           />
@@ -387,7 +389,7 @@ export const Sidebar = () => {
               }}
               className={`rounded-lg p-2 transition-colors group relative ${
                 sidebarTab === tab.id
-                  ? "text-blue-400 bg-blue-500/10"
+                  ? "text-accent-primary bg-accent-primary/10"
                   : "text-muted hover:text-secondary hover:bg-surface-secondary"
               }`}
               title={tab.label}

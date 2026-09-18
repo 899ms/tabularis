@@ -742,6 +742,7 @@
       "loadingRegistry": "Caricamento registro plugin...",
       "registryError": "Impossibile caricare il registro",
       "installed": "Installato",
+      "latest": "Più recente",
       "by": "di",
       "platformNotSupported": "Non disponibile per la tua piattaforma",
       "update": "Aggiorna",
@@ -952,6 +953,10 @@
   },
   "update": {
     "badges": {
+      "morePlugins": "Altri {{count}} — apri Plugins per vedere tutti gli aggiornamenti",
+      "driverUpdate": "Aggiornamento driver disponibile",
+      "tag": "Aggiornamento",
+      "driverTooltip": "{{name}} {{version}} è disponibile. Questo plugin è condiviso tra le connessioni. Apri Plugins → Aggiornamenti per gestirlo.",
       "core_one": "{{count}} aggiornamento core disponibile",
       "core_other": "{{count}} aggiornamenti core disponibili",
       "plugins_one": "{{count}} aggiornamento plugin disponibile",

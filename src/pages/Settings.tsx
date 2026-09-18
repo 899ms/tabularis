@@ -39,6 +39,7 @@ import { useDrivers } from "../hooks/useDrivers";
 import { useSettings } from "../hooks/useSettings";
 import { useAvailableUpdates } from "../hooks/useAvailableUpdates";
 import { UpdateBadge } from "../components/ui/UpdateBadge";
+import { UpdateTooltip } from "../components/ui/UpdateTooltip";
 
 type SettingsTab =
   | "general"
@@ -212,33 +213,45 @@ export const Settings = () => {
         <div className="flex-1 py-2 px-2 overflow-y-auto space-y-0.5">
           {TAB_ITEMS.map(({ id, icon: Icon, labelKey }) => (
             <div key={id} className="space-y-1">
-              <button
-                onClick={() => setRequestedTab(id)}
-                className={clsx(
-                  "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
-                  activeTab === id ||
-                    (id === "plugins" && activePluginId !== null)
-                    ? "bg-surface-secondary text-primary"
-                    : "text-muted hover:text-primary hover:bg-surface-secondary/50",
-                )}
+              <UpdateTooltip
+                className="flex"
+                disabled={
+                  !((id === "plugins" && updates.pluginCount > 0) ||
+                    (id === "info" && updates.coreCount > 0))
+                }
+                label={
+                  id === "plugins" ? updates.pluginsTooltip : updates.coreTooltip
+                }
+                details={id === "plugins" ? updates.pluginDetails : undefined}
               >
-                <Icon size={16} />
-                <span className="truncate">{t(labelKey)}</span>
-                {id === "plugins" && (
-                  <UpdateBadge
-                    count={updates.pluginCount}
-                    tooltip={updates.pluginsTooltip}
-                    className="ml-auto"
-                  />
-                )}
-                {id === "info" && (
-                  <UpdateBadge
-                    count={updates.coreCount}
-                    tooltip={updates.coreTooltip}
-                    className="ml-auto"
-                  />
-                )}
-              </button>
+                <button
+                  onClick={() => setRequestedTab(id)}
+                  className={clsx(
+                    "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left",
+                    activeTab === id ||
+                      (id === "plugins" && activePluginId !== null)
+                      ? "bg-surface-secondary text-primary"
+                      : "text-muted hover:text-primary hover:bg-surface-secondary/50",
+                  )}
+                >
+                  <Icon size={16} />
+                  <span className="truncate">{t(labelKey)}</span>
+                  {id === "plugins" && (
+                    <UpdateBadge
+                      count={updates.pluginCount}
+                      tooltip={updates.pluginsTooltip}
+                      className="ml-auto"
+                    />
+                  )}
+                  {id === "info" && (
+                    <UpdateBadge
+                      count={updates.coreCount}
+                      tooltip={updates.coreTooltip}
+                      className="ml-auto"
+                    />
+                  )}
+                </button>
+              </UpdateTooltip>
 
               {id === "plugins" && pluginTabs.length > 0 && (
                 <div className="pl-4 space-y-0.5">
