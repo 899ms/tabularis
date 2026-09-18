@@ -317,10 +317,7 @@ async fn register_drivers_for_mcp() {
     driver_registry::register_driver(postgres::PostgresDriver::new()).await;
     driver_registry::register_driver(sqlite::SqliteDriver::new()).await;
 
-    let app_config = config::load_config_from_disk();
-    let plugin_configs = app_config.plugins.unwrap_or_default();
-    let enabled_ids = app_config.active_external_drivers;
-    plugins::manager::load_plugins_with_configs(plugin_configs, enabled_ids.as_deref()).await;
+    plugins::manager::reload_plugins_from_disk_config().await;
 
     // Must run after driver registration above — the migration resolves each
     // connection's driver dialect via the same registry, so it needs plugin
@@ -335,8 +332,9 @@ async fn register_drivers_for_mcp() {
 
 /// Resolve the driver for an MCP-known connection. Returns the connection,
 /// the resolved DB params, and the registered driver. Errors with a JSON-RPC
-/// "Unsupported driver" payload when no driver matches the connection's
-/// `driver` id (e.g. the plugin failed to load).
+/// payload: see [`resolve_driver_for_params`] for how a registry miss (e.g.
+/// the plugin failed to load, or was never installed) versus a registered
+/// driver's own resolution failure are each surfaced.
 async fn resolve_db_driver(
     conn_id: &str,
 ) -> Result<
@@ -348,14 +346,93 @@ async fn resolve_db_driver(
     JsonRpcError,
 > {
     let (conn, db_params) = resolve_db_params(conn_id).await?;
-    let driver = driver_registry::get_connection_driver(&db_params)
+    let driver = resolve_driver_for_params(&db_params).await?;
+    Ok((conn, db_params, driver))
+}
+
+/// Resolve the registered driver for `db_params`, rescanning installed
+/// plugins against the latest on-disk config once and retrying on a
+/// registry miss. Split out from [`resolve_db_driver`] so this retry logic
+/// is testable against a bare [`ConnectionParams`], without needing a
+/// resolvable [`crate::models::SavedConnection`].
+async fn resolve_driver_for_params(
+    db_params: &ConnectionParams,
+) -> Result<Arc<dyn DatabaseDriver>, JsonRpcError> {
+    match driver_registry::get_connection_driver(db_params).await {
+        Ok(driver) => return Ok(driver),
+        // The id has a registered driver, so this failure came from
+        // `for_connection` itself (e.g. a `get_connection_metadata` RPC
+        // error) rather than a registry miss — rescanning plugins on disk
+        // wouldn't change that, so surface the error directly instead of
+        // paying for a pointless rescan and a repeat of the same failing
+        // RPC call.
+        Err(message)
+            if driver_registry::get_driver(&db_params.driver)
+                .await
+                .is_some() =>
+        {
+            return Err(JsonRpcError {
+                code: -32000,
+                message,
+                data: None,
+            });
+        }
+        Err(_) => {}
+    }
+
+    // Not found in the in-memory registry populated at startup: this
+    // subprocess may have been running since before the plugin was
+    // installed/enabled, or before a connection was migrated to it (issue
+    // #783). The GUI hot-registers such changes in-process, but this
+    // standalone subprocess has no way to observe them — rescan installed
+    // plugins against the latest on-disk config once and retry before
+    // giving up. Rate-limited so a connection whose driver id is genuinely
+    // wrong (typo, never-installed plugin) can't force a filesystem scan on
+    // every single call from a tight retry loop.
+    if reload_cooldown_elapsed() {
+        plugins::manager::reload_plugins_from_disk_config().await;
+    }
+    driver_registry::get_connection_driver(db_params)
         .await
         .map_err(|message| JsonRpcError {
             code: -32000,
             message,
             data: None,
-        })?;
-    Ok((conn, db_params, driver))
+        })
+}
+
+/// Minimum time between plugin-directory rescans triggered by a registry
+/// miss in [`resolve_db_driver`].
+const RELOAD_COOLDOWN: std::time::Duration = std::time::Duration::from_secs(2);
+static LAST_RELOAD_ATTEMPT: once_cell::sync::Lazy<std::sync::Mutex<Option<std::time::Instant>>> =
+    once_cell::sync::Lazy::new(|| std::sync::Mutex::new(None));
+
+/// Returns `true` at most once per [`RELOAD_COOLDOWN`], recording `now` as
+/// the new last-attempt time whenever it does.
+fn reload_cooldown_elapsed() -> bool {
+    let mut last = LAST_RELOAD_ATTEMPT
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
+    let now = std::time::Instant::now();
+    let elapsed = cooldown_elapsed(*last, now, RELOAD_COOLDOWN);
+    if elapsed {
+        *last = Some(now);
+    }
+    elapsed
+}
+
+/// Pure core of [`reload_cooldown_elapsed`]: whether `cooldown` has passed
+/// since `last` (or `last` is `None`, meaning no attempt has been recorded
+/// yet), as of `now`.
+fn cooldown_elapsed(
+    last: Option<std::time::Instant>,
+    now: std::time::Instant,
+    cooldown: std::time::Duration,
+) -> bool {
+    match last {
+        Some(t) => now.duration_since(t) >= cooldown,
+        None => true,
+    }
 }
 
 /// Resolves the schema to pass to a metadata fetch, defaulting to `"public"`
