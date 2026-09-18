@@ -19,6 +19,7 @@ interface DownloadAsset {
 }
 
 interface UpdateContextType {
+  availableUpdate: UpdateCheckResult | null;
   updateInfo: UpdateCheckResult | null;
   isChecking: boolean;
   isDownloading: boolean;

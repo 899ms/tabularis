@@ -747,6 +747,7 @@
       "loadingRegistry": "Naglo-load ng plugin registry...",
       "registryError": "Hindi na-load ang registry",
       "installed": "Naka-install",
+      "latest": "Pinakabago",
       "by": "ni",
       "platformNotSupported": "Hindi available para sa iyong platform",
       "update": "I-update",
@@ -953,6 +954,21 @@
     }
   },
   "update": {
+    "badges": {
+      "morePlugins": "{{count}} pa — buksan ang Plugins para makita ang lahat ng update",
+      "driverUpdate": "May available na update ng driver",
+      "tag": "Update",
+      "driverTooltip": "Available na ang {{name}} {{version}}. Ibinabahagi ang plugin na ito ng iyong mga koneksyon. Buksan ang Plugins → Updates para pamahalaan ito.",
+      "core_one": "May {{count}} update sa core",
+      "core_other": "May {{count}} update sa core",
+      "plugins_one": "May {{count}} update sa plugin",
+      "plugins_other": "May {{count}} update sa mga plugin",
+      "coreDetails": "Available na ang Tabularis {{version}}. Buksan ang Impormasyon para tingnan ang update sa core.",
+      "pluginDetails_one": "May update para sa: {{plugins}}",
+      "pluginDetails_other": "May mga update para sa: {{plugins}}",
+      "toastTitle": "May mga update sa plugin",
+      "openPlugins": "Buksan ang Plugins"
+    },
     "newVersionAvailable": "May Bagong Bersyon",
     "version": "Bersyon",
     "releaseNotes": "Mga Tala ng Release",
@@ -1627,6 +1643,7 @@
     "colType": "Uri",
     "colNullable": "Nullable",
     "colKey": "Key",
+    "colDescription": "Paglalarawan",
     "yes": "OO",
     "no": "HINDI"
   },
@@ -1782,6 +1799,13 @@
     "dismiss": "Baka mamaya"
   },
   "whatsNew": {
+    "supportTitle": "Kumusta, ako si Andrea, ang lumikha ng Tabularis",
+    "supportStarAction": "Magbigay ng star sa GitHub",
+    "supportDescription": "Nilikha ko ang Tabularis na may isang layunin: panatilihin itong open source magpakailanman. Kung kapaki-pakinabang ito sa iyo, kahit maliit na donasyon sa GitHub Sponsors ay tumutulong sa akin na maglaan ng oras sa mga bagong feature at pagbutihin ito para sa lahat.",
+    "supportThanks": "Salamat sa pagiging bahagi ng proyektong ito!",
+    "supportNeverShow": "Huwag nang ipakita muli",
+    "supportHideError": "Hindi ma-save ang iyong kagustuhan. Pakisubukang muli.",
+    "supportAction": "Sumuporta sa GitHub Sponsors",
     "title": "Ano ang Bago",
     "subtitle": "Bersyon {{version}}",
     "features": "Mga Bagong Feature",

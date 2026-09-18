@@ -1,3 +1,44 @@
+# [0.24.0](https://github.com/TabularisDB/tabularis/compare/v0.23.0...v0.24.0) (2026-09-16)
+
+
+### Bug Fixes
+
+* address proxy PR review (blocker + notes + registry proxy) ([a9d0298](https://github.com/TabularisDB/tabularis/commit/a9d02987752f2076f814e8fc54c492cde04931a9))
+* close MigrationChecklistModal on Escape ([789dfad](https://github.com/TabularisDB/tabularis/commit/789dfad8364c0905902b2be3936888c3842586cf)), closes [#4](https://github.com/TabularisDB/tabularis/issues/4)
+* comments raised ([4ddc723](https://github.com/TabularisDB/tabularis/commit/4ddc72328ac2195e858eae17cb889997c028ad8b))
+* failing test cases ([4feed3c](https://github.com/TabularisDB/tabularis/commit/4feed3c585bfc83a6e62d509f965aa47283fbeda))
+* **linux:** repair desktop entry for deep links, category and name ([b5a4d4d](https://github.com/TabularisDB/tabularis/commit/b5a4d4da00636e64189170ede707839ae6d93e2c)), closes [#671](https://github.com/TabularisDB/tabularis/issues/671)
+* nitpics in utils changes ([afe9d38](https://github.com/TabularisDB/tabularis/commit/afe9d387ec8e414dc77ebb2c2d733b8e4602941c))
+* nits raised ([fedd827](https://github.com/TabularisDB/tabularis/commit/fedd827fadfbf41b079df1869d6c3b7560413e99))
+* Notebook View and also include mariaDB case ([f134bd9](https://github.com/TabularisDB/tabularis/commit/f134bd94e3202d819aa06cc04c34204e62184135))
+* parse connection port as number in NewConnectionModal ([cc9b7cb](https://github.com/TabularisDB/tabularis/commit/cc9b7cbcc8192f1ae8f135a2cb19e0f17678728c))
+* render update release notes as markdown ([400aed3](https://github.com/TabularisDB/tabularis/commit/400aed35d46f4dad42b5a3067e2b4b1e805224f9))
+* resolve tabularium reqwest mismatch and SOCKS read_exact ambiguity ([e575767](https://github.com/TabularisDB/tabularis/commit/e575767a1ab8a799de43803dbdce62b2cd34d0a3))
+* result toolbar method ([a0beaa9](https://github.com/TabularisDB/tabularis/commit/a0beaa966e72ae69c44cabdb81e862e980cbee5a))
+* route Tabularium SDK HTTP through app_http proxy ([f5dc637](https://github.com/TabularisDB/tabularis/commit/f5dc6373f56df60cbad958fac4cad0c4a6cfa650))
+* **snap:** repair snap sandbox integration ([6f8dae5](https://github.com/TabularisDB/tabularis/commit/6f8dae555d2865f9cbee6cbeaef1c6ad8db24bed)), closes [#732](https://github.com/TabularisDB/tabularis/issues/732) [#710](https://github.com/TabularisDB/tabularis/issues/710)
+* **sqlContext:** reset table refs when frame transitions to statement scope ([46f288a](https://github.com/TabularisDB/tabularis/commit/46f288a95abe333dff55314549821a5acf71c828))
+* stop persist_activation from reverting concurrent config changes ([ec3428c](https://github.com/TabularisDB/tabularis/commit/ec3428c70f44d72ce5778761f4b16093a7f0ea61))
+* stop SSH tunnels on proxy config save instead of orphaning them ([74faeea](https://github.com/TabularisDB/tabularis/commit/74faeead8071a73012cda5d705ba8c26461d8517))
+* test cases ([d007d91](https://github.com/TabularisDB/tabularis/commit/d007d91c04358a41d2dddb3eb26aaa3bbb89048c))
+* **theme:** follow Linux desktop portal preferences ([191aad9](https://github.com/TabularisDB/tabularis/commit/191aad90e8e62a67f56e94f2f6129909fd6289cc))
+* **theme:** follow native system appearance ([d2b0aa8](https://github.com/TabularisDB/tabularis/commit/d2b0aa8734610c5b6f6cbd30a25e5f3aac4204d1)), closes [#716](https://github.com/TabularisDB/tabularis/issues/716)
+* **theme:** resolve Linux desktop default without forced-theme feedback ([537f7ca](https://github.com/TabularisDB/tabularis/commit/537f7ca90d51320655ae6be8b356d9a42e4c5aa8))
+* **ui:** respect theme colors in saved query modal ([70af5d6](https://github.com/TabularisDB/tabularis/commit/70af5d6298873fffa4d551ed4eaf474f2cf59583))
+* widen NewConnectionModal updateField for proxy override ([262082c](https://github.com/TabularisDB/tabularis/commit/262082c93feb437f7ecd441d1e48c41187092f18))
+
+
+### Features
+
+* add pluggable HTTP/SOCKS5 proxy settings and fork-local Windows CI ([d7e1902](https://github.com/TabularisDB/tabularis/commit/d7e1902c74aec09f997b75d1ab785ac7e5e63a37))
+* **autocomplete:** rank columns of nearest table first (closes [#507](https://github.com/TabularisDB/tabularis/issues/507)) ([1c90484](https://github.com/TabularisDB/tabularis/commit/1c9048402f6c1294109dbb5e757e58b793d1c6a7))
+* **changelog:** add personal sponsorship and GitHub star invitation ([ca4e869](https://github.com/TabularisDB/tabularis/commit/ca4e8699be34bfaec30e64f351259045870f5a25))
+* create reusuable visual explain component ([ad36307](https://github.com/TabularisDB/tabularis/commit/ad3630741f5ed16d105c882fc24e9da98db0bdf5))
+* **editor:** show a running indicator on the tab whose query is executing ([240f070](https://github.com/TabularisDB/tabularis/commit/240f070c2607ac8a3c9ee68f9cd712061b456c7c))
+* **notebook:** inline query plan in SQL cells, plus notebook UX fixes ([83da5eb](https://github.com/TabularisDB/tabularis/commit/83da5eb729f0621b7ce92392bc9f0c8f2fe8f9bf))
+* **plugins:** discover capabilities and types per connection ([50b1a9e](https://github.com/TabularisDB/tabularis/commit/50b1a9e95d08baf621e82bfd2f62e8a91cedfac6))
+* **settings:** add a font setting for query result cells ([fa59d9e](https://github.com/TabularisDB/tabularis/commit/fa59d9e2707a3abf0ec41a42117244cb0d93909f)), closes [#726](https://github.com/TabularisDB/tabularis/issues/726)
+
 # [0.23.0](https://github.com/TabularisDB/tabularis/compare/v0.22.0...v0.23.0) (2026-09-10)
 
 

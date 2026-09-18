@@ -692,6 +692,7 @@
       "loadingRegistry": "플러그인 레지스트리를 불러오는 중...",
       "registryError": "레지스트리를 불러오지 못했습니다",
       "installed": "설치됨",
+      "latest": "최신",
       "by": "제작:",
       "platformNotSupported": "현재 플랫폼에서는 사용할 수 없습니다",
       "update": "업데이트",
@@ -898,6 +899,21 @@
     }
   },
   "update": {
+    "badges": {
+      "morePlugins": "{{count}}개 더 — 모든 업데이트를 보려면 플러그인을 여세요",
+      "driverUpdate": "드라이버 업데이트 사용 가능",
+      "tag": "업데이트",
+      "driverTooltip": "{{name}} {{version}}을(를) 사용할 수 있습니다. 이 플러그인은 여러 연결에서 공유됩니다. 플러그인 → 업데이트에서 관리하세요.",
+      "core_one": "코어 업데이트 {{count}}개 사용 가능",
+      "core_other": "코어 업데이트 {{count}}개 사용 가능",
+      "plugins_one": "플러그인 업데이트 {{count}}개 사용 가능",
+      "plugins_other": "플러그인 업데이트 {{count}}개 사용 가능",
+      "coreDetails": "Tabularis {{version}}을 사용할 수 있습니다. 정보를 열어 코어 업데이트를 확인하세요.",
+      "pluginDetails_one": "업데이트 가능: {{plugins}}",
+      "pluginDetails_other": "업데이트 가능: {{plugins}}",
+      "toastTitle": "플러그인 업데이트 사용 가능",
+      "openPlugins": "플러그인 열기"
+    },
     "newVersionAvailable": "새 버전이 있습니다",
     "version": "버전",
     "releaseNotes": "릴리스 노트",
@@ -1571,6 +1587,7 @@
     "colType": "타입",
     "colNullable": "NULL 허용",
     "colKey": "키",
+    "colDescription": "설명",
     "yes": "예",
     "no": "아니오"
   },
@@ -1726,6 +1743,13 @@
     "dismiss": "다음에 하기"
   },
   "whatsNew": {
+    "supportTitle": "안녕하세요, Tabularis를 만든 Andrea입니다",
+    "supportStarAction": "GitHub에서 스타 남기기",
+    "supportDescription": "영원히 오픈 소스로 유지하겠다는 목표로 Tabularis를 만들었습니다. 유용하게 사용하고 계신다면 GitHub Sponsors를 통한 작은 후원도 새로운 기능 개발에 시간을 들이고 모두를 위해 개선하는 데 큰 힘이 됩니다.",
+    "supportThanks": "이 프로젝트와 함께해 주셔서 감사합니다!",
+    "supportNeverShow": "다시 표시하지 않기",
+    "supportHideError": "설정을 저장하지 못했습니다. 다시 시도해 주세요.",
+    "supportAction": "GitHub Sponsors에서 후원하기",
     "title": "새로운 기능",
     "subtitle": "버전 {{version}}",
     "features": "새 기능",

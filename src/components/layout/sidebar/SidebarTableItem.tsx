@@ -21,7 +21,7 @@ import type { ContextMenuData } from "../../../types/sidebar";
 import type { DriverCapabilities } from "../../../types/plugins";
 
 interface SidebarTableItemProps {
-  table: { name: string };
+  table: { name: string; comment?: string | null };
   activeTable: string | null;
   onTableClick: (name: string) => void;
   onTableDoubleClick: (name: string) => void;
@@ -194,7 +194,9 @@ const SidebarTableItemImpl = ({
               : "text-muted group-hover:text-accent"
           }
         />
-        <span className="truncate flex-1">{table.name}</span>
+        <span className="truncate flex-1" title={table.comment || undefined}>
+          {table.name}
+        </span>
       </div>
       {isExpanded && (
         <div className="ml-[22px] border-l border-default">

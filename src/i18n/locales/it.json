@@ -747,6 +747,7 @@
       "loadingRegistry": "Caricamento registro plugin...",
       "registryError": "Impossibile caricare il registro",
       "installed": "Installato",
+      "latest": "Più recente",
       "by": "di",
       "platformNotSupported": "Non disponibile per la tua piattaforma",
       "update": "Aggiorna",
@@ -956,6 +957,24 @@
     }
   },
   "update": {
+    "badges": {
+      "morePlugins": "Altri {{count}} — apri Plugins per vedere tutti gli aggiornamenti",
+      "driverUpdate": "Aggiornamento driver disponibile",
+      "tag": "Aggiornamento",
+      "driverTooltip": "{{name}} {{version}} è disponibile. Questo plugin è condiviso tra le connessioni. Apri Plugins → Aggiornamenti per gestirlo.",
+      "core_one": "{{count}} aggiornamento core disponibile",
+      "core_other": "{{count}} aggiornamenti core disponibili",
+      "plugins_one": "{{count}} aggiornamento plugin disponibile",
+      "plugins_other": "{{count}} aggiornamenti plugins disponibili",
+      "coreDetails": "Tabularis {{version}} è disponibile. Apri Info per consultare l’aggiornamento del core.",
+      "pluginDetails_one": "Aggiornamento disponibile per: {{plugins}}",
+      "pluginDetails_other": "Aggiornamenti disponibili per: {{plugins}}",
+      "toastTitle": "Aggiornamenti dei plugin disponibili",
+      "openPlugins": "Apri Plugins",
+      "core_many": "{{count}} aggiornamenti core disponibili",
+      "plugins_many": "{{count}} aggiornamenti plugins disponibili",
+      "pluginDetails_many": "Aggiornamenti disponibili per: {{plugins}}"
+    },
     "newVersionAvailable": "Nuova Versione Disponibile",
     "version": "Versione",
     "releaseNotes": "Note di Rilascio",
@@ -1627,6 +1646,7 @@
     "colType": "Tipo",
     "colNullable": "Nullable",
     "colKey": "Chiave",
+    "colDescription": "Descrizione",
     "yes": "SÌ",
     "no": "NO"
   },
@@ -1754,6 +1774,13 @@
     "dismiss": "Forse più tardi"
   },
   "whatsNew": {
+    "supportTitle": "Ciao sono Andrea, il creatore di Tabularis",
+    "supportStarAction": "Lascia una stella su GitHub",
+    "supportDescription": "Ho creato Tabularis con un obiettivo: mantenerlo open source per sempre. Se ti è utile, anche una piccola donazione su GitHub Sponsors mi aiuta a dedicare tempo alle prossime funzionalità e a migliorarlo per tutti.",
+    "supportThanks": "Grazie per far parte di questo progetto!",
+    "supportNeverShow": "Non mostrare mai più",
+    "supportHideError": "Non riesco a salvare la preferenza. Riprova.",
+    "supportAction": "Sostieni su GitHub Sponsors",
     "title": "Novità",
     "subtitle": "Versione {{version}}",
     "features": "Nuove Funzionalità",

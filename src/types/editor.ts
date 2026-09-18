@@ -18,6 +18,7 @@ export interface TableColumn {
   is_generated?: boolean;
   default_value?: string;
   character_maximum_length?: number;
+  comment?: string | null;
 }
 
 export interface TableSchema {

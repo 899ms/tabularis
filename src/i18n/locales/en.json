@@ -759,6 +759,7 @@
       "loadingRegistry": "Loading plugin registry...",
       "registryError": "Failed to load registry",
       "installed": "Installed",
+      "latest": "Latest",
       "by": "by",
       "platformNotSupported": "Not available for your platform",
       "update": "Update",
@@ -969,6 +970,21 @@
     }
   },
   "update": {
+    "badges": {
+      "morePlugins": "{{count}} more — open Plugins to see all updates",
+      "driverUpdate": "Driver update available",
+      "tag": "Update",
+      "driverTooltip": "{{name}} {{version}} is available. This plugin is shared by your connections. Open Plugins → Updates to manage it.",
+      "core_one": "{{count}} core update available",
+      "core_other": "{{count}} core updates available",
+      "plugins_one": "{{count}} plugin update available",
+      "plugins_other": "{{count}} plugin updates available",
+      "coreDetails": "Tabularis {{version}} is available. Open Info to review the core update.",
+      "pluginDetails_one": "Update available for: {{plugins}}",
+      "pluginDetails_other": "Updates available for: {{plugins}}",
+      "toastTitle": "Plugin updates available",
+      "openPlugins": "Open Plugins"
+    },
     "newVersionAvailable": "New Version Available",
     "version": "Version",
     "releaseNotes": "Release Notes",
@@ -1649,6 +1665,7 @@
     "colType": "Type",
     "colNullable": "Nullable",
     "colKey": "Key",
+    "colDescription": "Description",
     "yes": "YES",
     "no": "NO"
   },
@@ -1804,6 +1821,13 @@
     "dismiss": "Maybe later"
   },
   "whatsNew": {
+    "supportTitle": "Hi, I'm Andrea, the creator of Tabularis",
+    "supportStarAction": "Star on GitHub",
+    "supportDescription": "I created Tabularis with one goal: to keep it open source forever. If you find it useful, even a small donation on GitHub Sponsors helps me spend time on new features and make it better for everyone.",
+    "supportThanks": "Thanks for being part of this project!",
+    "supportNeverShow": "Never show this again",
+    "supportHideError": "Couldn't save your preference. Please try again.",
+    "supportAction": "Support on GitHub Sponsors",
     "title": "What's New",
     "subtitle": "Version {{version}}",
     "features": "New Features",

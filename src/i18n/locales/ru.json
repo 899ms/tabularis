@@ -709,6 +709,7 @@
       "loadingRegistry": "Загрузка реестра плагинов...",
       "registryError": "Не удалось загрузить реестр",
       "installed": "Установлено",
+      "latest": "Последняя",
       "by": "от",
       "platformNotSupported": "Недоступно для вашей платформы",
       "update": "Обновить",
@@ -916,6 +917,27 @@
     }
   },
   "update": {
+    "badges": {
+      "morePlugins": "Ещё {{count}} — откройте Плагины, чтобы увидеть все обновления",
+      "driverUpdate": "Доступно обновление драйвера",
+      "tag": "Обновление",
+      "driverTooltip": "Доступна версия {{name}} {{version}}. Этот плагин используется несколькими подключениями. Откройте Плагины → Обновления, чтобы управлять им.",
+      "core_one": "Доступно {{count}} обновление ядра",
+      "core_other": "Доступно {{count}} обновлений ядра",
+      "plugins_one": "Доступно {{count}} обновление плагина",
+      "plugins_other": "Доступно {{count}} обновлений плагинов",
+      "coreDetails": "Доступен Tabularis {{version}}. Откройте раздел «О программе», чтобы посмотреть обновление ядра.",
+      "pluginDetails_one": "Доступно обновление для: {{plugins}}",
+      "pluginDetails_other": "Доступны обновления для: {{plugins}}",
+      "toastTitle": "Доступны обновления плагинов",
+      "openPlugins": "Открыть плагины",
+      "core_few": "Доступно {{count}} обновления ядра",
+      "core_many": "Доступно {{count}} обновлений ядра",
+      "plugins_few": "Доступно {{count}} обновления плагинов",
+      "plugins_many": "Доступно {{count}} обновлений плагинов",
+      "pluginDetails_few": "Доступны обновления для: {{plugins}}",
+      "pluginDetails_many": "Доступны обновления для: {{plugins}}"
+    },
     "newVersionAvailable": "Доступна новая версия",
     "version": "Версия",
     "releaseNotes": "Что нового",
@@ -1602,6 +1624,7 @@
     "colType": "Тип",
     "colNullable": "Nullable",
     "colKey": "Ключ",
+    "colDescription": "Описание",
     "yes": "Да",
     "no": "Нет"
   },
@@ -1757,6 +1780,13 @@
     "dismiss": "Может быть позже"
   },
   "whatsNew": {
+    "supportTitle": "Привет, я Andrea, создатель Tabularis",
+    "supportStarAction": "Поставить звезду на GitHub",
+    "supportDescription": "Я создал Tabularis с одной целью: навсегда сохранить его открытый исходный код. Если он вам полезен, даже небольшое пожертвование через GitHub Sponsors помогает мне уделять время новым функциям и делать проект лучше для всех.",
+    "supportThanks": "Спасибо, что вы — часть этого проекта!",
+    "supportNeverShow": "Больше никогда не показывать",
+    "supportHideError": "Не удалось сохранить настройку. Попробуйте ещё раз.",
+    "supportAction": "Поддержать на GitHub Sponsors",
     "title": "Что нового",
     "subtitle": "Версия {{version}}",
     "features": "Новые функции",

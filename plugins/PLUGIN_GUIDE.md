@@ -342,7 +342,7 @@ Add an optional `ui_extensions` array to your manifest:
 | `settings.plugin.actions` | Per-plugin actions in Settings modal | `targetPluginId` | Diagnostics, re-auth buttons |
 | `settings.plugin.before_settings` | Content above plugin settings form | `targetPluginId` | OAuth panels, status banners |
 | `connection-modal.connection_content` | Inside the connection form | `driver` | Custom connection fields |
-| `connection-modal.extra_fields` | Below host/port in the connection form | `driver`, `extra`, `setExtraField` | Plugin-specific connection fields (e.g. AWS region) |
+| `connection-modal.extra_fields` | Below host/port in the connection form | `driver`, `extra`, `setExtraField`, `credentialFieldsHidden`, `setCredentialFieldsHidden` | Plugin-specific connection fields (e.g. AWS region). `setCredentialFieldsHidden(true)` hides and clears the host username/password inputs for drivers that authenticate without a login; while hidden the host also ignores the login of an imported connection string and drops the stored password on save |
 
 ### SlotContext
 
@@ -750,6 +750,8 @@ Get column information for a table.
 ]
 ```
 
+> **Metadata comments:** `comment` is optional in both `get_tables` and `get_columns`. Older plugins may omit it or return `null`; Tabularis treats both forms as “description unavailable”. This is an additive response field and does not require a manifest capability or `min_runtime_version`. When present, the host displays it in the schema inspector, explorer tooltips, and table-browse grid headers.
+>
 > **JSON / JSONB columns:** Set `data_type` to `"JSON"` or `"JSONB"` (matched case-insensitively) to make Tabularis render the cell with syntax highlighting and expose the JSON editor window. In `execute_query` row data, send the cell as either a native JSON value (object/array/scalar) or a JSON-formatted string — both are accepted. For text-typed columns that hold JSON, end users can opt in per connection via the **Detect JSON in text columns** setting; no plugin change required.
 
 ---
@@ -1290,7 +1292,7 @@ Return foreign keys for all tables at once.
 
 ### DDL Generation
 
-These methods generate SQL statements. Tabularis may display the SQL to the user before executing it.
+These methods generate SQL statements. Tabularis may display the SQL to the user before executing it. When `get_tables` / `get_columns` return comments, the host preserves them in generated inspection SQL for MySQL-family dialects and dialects that use `COMMENT ON` (currently PostgreSQL and Oracle). Other dialects continue to receive the existing DDL without comments; no manifest change is required.
 
 #### `get_create_table_sql`
 

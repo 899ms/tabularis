@@ -68,6 +68,8 @@ export interface Settings {
   aiCustomOpenaiUrl?: string;
   aiCustomOpenaiModel?: string;
   autoCheckUpdatesOnStartup?: boolean;
+  /** Last plugin release shown in a startup notification, keyed by plugin id. */
+  notifiedPluginVersions?: Record<string, string>;
   releaseChannel?: "stable" | "nightly";
   loggingEnabled?: boolean;
   maxLogEntries?: number;

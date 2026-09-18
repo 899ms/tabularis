@@ -739,6 +739,7 @@
       "loadingRegistry": "Cargando registro de plugins...",
       "registryError": "Error al cargar el registro",
       "installed": "Instalado",
+      "latest": "Más reciente",
       "by": "por",
       "platformNotSupported": "No disponible para tu plataforma",
       "update": "Actualizar",
@@ -948,6 +949,24 @@
     }
   },
   "update": {
+    "badges": {
+      "morePlugins": "{{count}} más — abre Plugins para ver todas las actualizaciones",
+      "driverUpdate": "Actualización del driver disponible",
+      "tag": "Actualización",
+      "driverTooltip": "{{name}} {{version}} está disponible. Este plugin es compartido por tus conexiones. Abre Plugins → Actualizaciones para gestionarlo.",
+      "core_one": "{{count}} actualización del núcleo disponible",
+      "core_other": "{{count}} actualizaciones del núcleo disponibles",
+      "plugins_one": "{{count}} actualización de plugin disponible",
+      "plugins_other": "{{count}} actualizaciones de plugins disponibles",
+      "coreDetails": "Tabularis {{version}} está disponible. Abre Información para consultar la actualización del núcleo.",
+      "pluginDetails_one": "Actualización disponible para: {{plugins}}",
+      "pluginDetails_other": "Actualizaciones disponibles para: {{plugins}}",
+      "toastTitle": "Actualizaciones de plugins disponibles",
+      "openPlugins": "Abrir Plugins",
+      "core_many": "{{count}} actualizaciones del núcleo disponibles",
+      "plugins_many": "{{count}} actualizaciones de plugins disponibles",
+      "pluginDetails_many": "Actualizaciones disponibles para: {{plugins}}"
+    },
     "newVersionAvailable": "Nueva Versión Disponible",
     "version": "Versión",
     "releaseNotes": "Notas de la Versión",
@@ -1560,6 +1579,7 @@
     "colType": "Tipo",
     "colNullable": "Nullable",
     "colKey": "Clave",
+    "colDescription": "Descripción",
     "yes": "SÍ",
     "no": "NO"
   },
@@ -1673,6 +1693,22 @@
     "refreshError": "Error al actualizar la vista materializada: ",
     "failGetDefinition": "Error al obtener la definición: ",
     "confirmAlter": "¿Estás seguro de que deseas modificar la vista \"{{view}}\"?"
+  },
+  "whatsNew": {
+    "title": "Novedades",
+    "subtitle": "Versión {{version}}",
+    "features": "Nuevas funciones",
+    "bugFixes": "Correcciones de errores",
+    "breakingChanges": "Cambios incompatibles",
+    "readMore": "Leer más",
+    "dismiss": "Entendido",
+    "supportTitle": "Hola, soy Andrea, el creador de Tabularis",
+    "supportStarAction": "Dar una estrella en GitHub",
+    "supportDescription": "He creado Tabularis con un objetivo: mantenerlo como proyecto de código abierto para siempre. Si te resulta útil, incluso una pequeña donación en GitHub Sponsors me ayuda a dedicar tiempo a nuevas funciones y a mejorarlo para todos.",
+    "supportThanks": "¡Gracias por formar parte de este proyecto!",
+    "supportNeverShow": "No volver a mostrar",
+    "supportHideError": "No se pudo guardar tu preferencia. Inténtalo de nuevo.",
+    "supportAction": "Apoyar en GitHub Sponsors"
   },
   "dump": {
     "title": "Exportar Base de Datos",
