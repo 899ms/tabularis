@@ -317,10 +317,7 @@ async fn register_drivers_for_mcp() {
     driver_registry::register_driver(postgres::PostgresDriver::new()).await;
     driver_registry::register_driver(sqlite::SqliteDriver::new()).await;
 
-    let app_config = config::load_config_from_disk();
-    let plugin_configs = app_config.plugins.unwrap_or_default();
-    let enabled_ids = app_config.active_external_drivers;
-    plugins::manager::load_plugins_with_configs(plugin_configs, enabled_ids.as_deref()).await;
+    plugins::manager::reload_plugins_from_disk_config().await;
 
     // Must run after driver registration above — the migration resolves each
     // connection's driver dialect via the same registry, so it needs plugin
@@ -335,10 +332,17 @@ async fn register_drivers_for_mcp() {
 
 /// Resolve the driver for an MCP-known connection. Returns the connection,
 /// the resolved DB params, and the registered driver. Errors with a JSON-RPC
-/// "Unsupported driver" payload when no driver matches the connection's
-/// `driver` id (e.g. the plugin failed to load).
+/// payload: see [`resolve_driver_for_params`] for how a registry miss (e.g.
+/// the plugin failed to load, or was never installed) versus a registered
+/// driver's own resolution failure are each surfaced.
+///
+/// `active_ids` is the caller's already-loaded `active_external_drivers`
+/// (see [`resolve_driver_for_params`]) — passed through rather than
+/// re-reading it here, since every caller already has an `AppConfig` in hand
+/// or loads one anyway.
 async fn resolve_db_driver(
     conn_id: &str,
+    active_ids: Option<&[String]>,
 ) -> Result<
     (
         crate::models::SavedConnection,
@@ -348,14 +352,137 @@ async fn resolve_db_driver(
     JsonRpcError,
 > {
     let (conn, db_params) = resolve_db_params(conn_id).await?;
-    let driver = driver_registry::get_connection_driver(&db_params)
+    let driver = resolve_driver_for_params(&db_params, active_ids).await?;
+    Ok((conn, db_params, driver))
+}
+
+/// Resolve the registered driver for `db_params`, rescanning installed
+/// plugins against the latest on-disk config once and retrying on a
+/// registry miss. Split out from [`resolve_db_driver`] so this retry logic
+/// is testable against a bare [`ConnectionParams`], without needing a
+/// resolvable [`crate::models::SavedConnection`].
+///
+/// `active_ids` is the caller's `active_external_drivers` (`None` means "no
+/// explicit preference saved" — see [`plugins::manager::load_plugins`]'s doc
+/// comment). Taken as a parameter rather than read from disk here so this
+/// function stays a pure function of its inputs plus the driver registry —
+/// callers already have an `AppConfig` in hand (or load one anyway), so this
+/// avoids a redundant disk read on every call.
+async fn resolve_driver_for_params(
+    db_params: &ConnectionParams,
+    active_ids: Option<&[String]>,
+) -> Result<Arc<dyn DatabaseDriver>, JsonRpcError> {
+    // Reconciles the registry against `active_ids` before every lookup —
+    // not just on a miss, unlike the rescan-on-miss below. A driver that was
+    // disabled or uninstalled elsewhere keeps resolving successfully, so it
+    // never produces the miss that rescan relies on to notice anything
+    // (issue #787). Gated by its own cooldown, independent of
+    // `RELOAD_COOLDOWN` below: sharing one timer would let a busy reconcile
+    // check consume the cooldown budget a genuine registry-miss rescan needs
+    // to stay responsive.
+    if disable_check_cooldown_elapsed() {
+        driver_registry::reconcile_active_drivers(active_ids).await;
+    }
+
+    match driver_registry::get_connection_driver(db_params).await {
+        Ok(driver) => return Ok(driver),
+        // The id has a registered driver, so this failure came from
+        // `for_connection` itself (e.g. a `get_connection_metadata` RPC
+        // error) rather than a registry miss — rescanning plugins on disk
+        // wouldn't change that, so surface the error directly instead of
+        // paying for a pointless rescan and a repeat of the same failing
+        // RPC call.
+        Err(message)
+            if driver_registry::get_driver(&db_params.driver)
+                .await
+                .is_some() =>
+        {
+            return Err(JsonRpcError {
+                code: -32000,
+                message,
+                data: None,
+            });
+        }
+        Err(_) => {}
+    }
+
+    // Not found in the in-memory registry populated at startup: this
+    // subprocess may have been running since before the plugin was
+    // installed/enabled, or before a connection was migrated to it (issue
+    // #783). The GUI hot-registers such changes in-process, but this
+    // standalone subprocess has no way to observe them — rescan installed
+    // plugins against the latest on-disk config once and retry before
+    // giving up. Rate-limited so a connection whose driver id is genuinely
+    // wrong (typo, never-installed plugin) can't force a filesystem scan on
+    // every single call from a tight retry loop.
+    if reload_cooldown_elapsed() {
+        plugins::manager::reload_plugins_from_disk_config().await;
+    }
+    driver_registry::get_connection_driver(db_params)
         .await
         .map_err(|message| JsonRpcError {
             code: -32000,
             message,
             data: None,
-        })?;
-    Ok((conn, db_params, driver))
+        })
+}
+
+/// Minimum time between plugin-directory rescans triggered by a registry
+/// miss in [`resolve_db_driver`].
+const RELOAD_COOLDOWN: std::time::Duration = std::time::Duration::from_secs(2);
+static LAST_RELOAD_ATTEMPT: once_cell::sync::Lazy<std::sync::Mutex<Option<std::time::Instant>>> =
+    once_cell::sync::Lazy::new(|| std::sync::Mutex::new(None));
+
+/// Returns `true` at most once per [`RELOAD_COOLDOWN`], recording `now` as
+/// the new last-attempt time whenever it does.
+fn reload_cooldown_elapsed() -> bool {
+    let mut last = LAST_RELOAD_ATTEMPT
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
+    let now = std::time::Instant::now();
+    let elapsed = cooldown_elapsed(*last, now, RELOAD_COOLDOWN);
+    if elapsed {
+        *last = Some(now);
+    }
+    elapsed
+}
+
+/// Pure core of [`reload_cooldown_elapsed`]: whether `cooldown` has passed
+/// since `last` (or `last` is `None`, meaning no attempt has been recorded
+/// yet), as of `now`.
+fn cooldown_elapsed(
+    last: Option<std::time::Instant>,
+    now: std::time::Instant,
+    cooldown: std::time::Duration,
+) -> bool {
+    match last {
+        Some(t) => now.duration_since(t) >= cooldown,
+        None => true,
+    }
+}
+
+/// Minimum time between disk-config reconcile checks (disable/uninstall
+/// detection, issue #787) run at the top of [`resolve_driver_for_params`].
+/// Independent of [`RELOAD_COOLDOWN`] — see that call site for why.
+const DISABLE_CHECK_COOLDOWN: std::time::Duration = std::time::Duration::from_secs(2);
+static LAST_DISABLE_CHECK_ATTEMPT: once_cell::sync::Lazy<
+    std::sync::Mutex<Option<std::time::Instant>>,
+> = once_cell::sync::Lazy::new(|| std::sync::Mutex::new(None));
+
+/// Returns `true` at most once per [`DISABLE_CHECK_COOLDOWN`], recording
+/// `now` as the new last-attempt time whenever it does. Same pure core as
+/// [`reload_cooldown_elapsed`] ([`cooldown_elapsed`]), with its own state so
+/// the two checks can't starve each other.
+fn disable_check_cooldown_elapsed() -> bool {
+    let mut last = LAST_DISABLE_CHECK_ATTEMPT
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
+    let now = std::time::Instant::now();
+    let elapsed = cooldown_elapsed(*last, now, DISABLE_CHECK_COOLDOWN);
+    if elapsed {
+        *last = Some(now);
+    }
+    elapsed
 }
 
 /// Resolves the schema to pass to a metadata fetch, defaulting to `"public"`
@@ -586,7 +713,8 @@ async fn handle_read_resource(params: Option<Value>) -> Result<Value, JsonRpcErr
 
         // Resolve through the same path as the tools so keychain passwords and
         // SSH tunnels are applied — not just the raw saved params.
-        let (_conn, params, driver) = resolve_db_driver(conn_id).await?;
+        let active_ids = config::load_config_from_disk().active_external_drivers;
+        let (_conn, params, driver) = resolve_db_driver(conn_id, active_ids.as_deref()).await?;
         let schema = resolve_default_schema(&driver, None);
         let tables = driver
             .get_tables(&params, schema)
@@ -791,15 +919,15 @@ async fn dispatch_tool(
         "list_connections" => tool_list_connections(audit).await,
         "list_databases" => {
             let args = require_args(args)?;
-            tool_list_databases(args, audit).await
+            tool_list_databases(args, config, audit).await
         }
         "list_tables" => {
             let args = require_args(args)?;
-            tool_list_tables(args, audit).await
+            tool_list_tables(args, config, audit).await
         }
         "describe_table" => {
             let args = require_args(args)?;
-            tool_describe_table(args, audit).await
+            tool_describe_table(args, config, audit).await
         }
         "run_query" => {
             let args = require_args(args)?;
@@ -854,6 +982,7 @@ async fn tool_list_connections(_audit: &mut CallAudit) -> Result<Value, JsonRpcE
 
 async fn tool_list_tables(
     args: &serde_json::Map<String, Value>,
+    config: &AppConfig,
     audit: &mut CallAudit,
 ) -> Result<Value, JsonRpcError> {
     let conn_id = args
@@ -868,7 +997,8 @@ async fn tool_list_tables(
 
     audit.connection_id = Some(conn_id.to_string());
 
-    let (conn, db_params, driver) = resolve_db_driver(conn_id).await?;
+    let (conn, db_params, driver) =
+        resolve_db_driver(conn_id, config.active_external_drivers.as_deref()).await?;
     audit.connection_name = Some(conn.name.clone());
 
     let effective_schema = resolve_default_schema(&driver, schema);
@@ -893,6 +1023,7 @@ async fn tool_list_tables(
 
 async fn tool_list_databases(
     args: &serde_json::Map<String, Value>,
+    config: &AppConfig,
     audit: &mut CallAudit,
 ) -> Result<Value, JsonRpcError> {
     let conn_id = args
@@ -906,7 +1037,8 @@ async fn tool_list_databases(
 
     audit.connection_id = Some(conn_id.to_string());
 
-    let (conn, db_params, driver) = resolve_db_driver(conn_id).await?;
+    let (conn, db_params, driver) =
+        resolve_db_driver(conn_id, config.active_external_drivers.as_deref()).await?;
     audit.connection_name = Some(conn.name.clone());
 
     let databases = driver
@@ -929,6 +1061,7 @@ async fn tool_list_databases(
 
 async fn tool_describe_table(
     args: &serde_json::Map<String, Value>,
+    config: &AppConfig,
     audit: &mut CallAudit,
 ) -> Result<Value, JsonRpcError> {
     let conn_id = args
@@ -951,7 +1084,8 @@ async fn tool_describe_table(
 
     audit.connection_id = Some(conn_id.to_string());
 
-    let (conn, db_params, driver) = resolve_db_driver(conn_id).await?;
+    let (conn, db_params, driver) =
+        resolve_db_driver(conn_id, config.active_external_drivers.as_deref()).await?;
     audit.connection_name = Some(conn.name.clone());
 
     let effective_schema = resolve_default_schema(&driver, schema);
@@ -1012,7 +1146,8 @@ async fn tool_run_query(
     let kind = ai_activity::classify_query_kind(query);
     audit.query_kind = Some(kind.to_string());
 
-    let (conn, db_params, driver) = resolve_db_driver(conn_id).await?;
+    let (conn, db_params, driver) =
+        resolve_db_driver(conn_id, config.active_external_drivers.as_deref()).await?;
     audit.connection_name = Some(conn.name.clone());
 
     // Read-only enforcement (fail-closed: unknown counts as write).
