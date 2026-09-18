@@ -86,6 +86,65 @@ pub async fn unregister_manifest(id: &str) -> bool {
     removed
 }
 
+/// Pure core of [`reconcile_active_drivers`]: given `(id, is_builtin)` pairs
+/// for everything currently registered, returns the ids that are non-builtin
+/// and absent from `active_ids` — i.e. registered but no longer allowed to
+/// be. Extracted so the decision logic is testable without touching the
+/// process-global registries.
+fn drivers_to_unregister(registered: &[(String, bool)], active_ids: &[String]) -> Vec<String> {
+    registered
+        .iter()
+        .filter(|(_, is_builtin)| !is_builtin)
+        .filter(|(id, _)| !active_ids.iter().any(|active| active == id))
+        .map(|(id, _)| id.clone())
+        .collect()
+}
+
+/// Unregisters every registered non-built-in driver (and UI-only manifest)
+/// whose id is absent from `active_ids`. Lets a long-running process that
+/// only ever *adds* drivers on a registry miss (the standalone MCP
+/// subprocess's self-heal, issue #783) also notice that a plugin was
+/// disabled or uninstalled elsewhere — that never produces a miss, since the
+/// stale driver keeps resolving successfully.
+///
+/// `active_ids: None` means "no explicit preference saved" (see
+/// [`crate::plugins::manager::load_plugins`]'s doc comment) — every
+/// installed plugin is implicitly active in that state, so nothing is
+/// unregistered. Builtins are never touched regardless of `active_ids`,
+/// since `active_external_drivers` only ever governs external plugins.
+///
+/// Returns the ids that were actually unregistered, for logging/tests.
+pub async fn reconcile_active_drivers(active_ids: Option<&[String]>) -> Vec<String> {
+    let Some(active_ids) = active_ids else {
+        return Vec::new();
+    };
+
+    let registered: Vec<(String, bool)> = {
+        let reg = REGISTRY.read().await;
+        let manifest_reg = MANIFEST_REGISTRY.read().await;
+        reg.values()
+            .map(|d| (d.manifest().id.clone(), d.manifest().is_builtin))
+            .chain(manifest_reg.values().map(|m| (m.id.clone(), m.is_builtin)))
+            .collect()
+    };
+
+    let mut removed = Vec::new();
+    for id in drivers_to_unregister(&registered, active_ids) {
+        let driver_removed = unregister_driver(&id).await;
+        let manifest_removed = unregister_manifest(&id).await;
+        if driver_removed || manifest_removed {
+            removed.push(id);
+        }
+    }
+    if !removed.is_empty() {
+        log::info!(
+            "Reconciled driver registry against active_external_drivers, removed: {:?}",
+            removed
+        );
+    }
+    removed
+}
+
 /// Returns the manifests of all registered drivers (including UI-only plugins), sorted by id.
 /// Called by the `get_registered_drivers` Tauri command.
 pub async fn list_drivers() -> Vec<PluginManifest> {
@@ -111,6 +170,17 @@ pub async fn list_drivers_with_pid() -> Vec<(PluginManifest, Option<u32>)> {
     entries.sort_by(|a, b| a.0.id.cmp(&b.0.id));
     entries
 }
+
+/// Serializes tests that mutate the process-global `REGISTRY`/
+/// `MANIFEST_REGISTRY` statics in ways another concurrently-running test
+/// could observe or clobber — in particular `reconcile_active_drivers`,
+/// which by design removes anything absent from its allowlist and would
+/// otherwise sweep up fixtures registered by an unrelated test running on
+/// another `cargo test` thread. Acquired by this module's own tests and by
+/// `mcp::tests`' driver-registration test.
+#[cfg(test)]
+pub(crate) static REGISTRY_TEST_LOCK: Lazy<tokio::sync::Mutex<()>> =
+    Lazy::new(|| tokio::sync::Mutex::new(()));
 
 #[cfg(test)]
 mod tests;

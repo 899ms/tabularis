@@ -152,6 +152,11 @@ fn cooldown_elapsed_is_true_once_the_cooldown_has_fully_passed() {
 /// registered and surface the error straight away.
 #[tokio::test]
 async fn resolve_driver_for_params_does_not_retry_on_a_registered_drivers_own_failure() {
+    // Registers into the process-global driver registry — hold the same lock
+    // `drivers::registry`'s own tests use for that, so a concurrently-running
+    // `reconcile_active_drivers` test elsewhere can't sweep this driver away
+    // mid-test (it removes anything absent from its allowlist by design).
+    let _guard = driver_registry::REGISTRY_TEST_LOCK.lock().await;
     let driver_id = "test-mcp-issue784-for-connection-failure";
     let calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
     let calls_for_driver = calls.clone();
@@ -169,7 +174,7 @@ async fn resolve_driver_for_params_does_not_retry_on_a_registered_drivers_own_fa
         driver: driver_id.to_string(),
         ..Default::default()
     };
-    let err = match resolve_driver_for_params(&db_params).await {
+    let err = match resolve_driver_for_params(&db_params, None).await {
         Ok(_) => panic!("expected the for_connection failure to surface"),
         Err(err) => err,
     };
