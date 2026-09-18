@@ -400,3 +400,31 @@ fn should_skip_rescan_never_skips_a_builtin_id_even_when_registered() {
     assert!(!should_skip_rescan("postgres", true));
     assert!(!should_skip_rescan("sqlite", true));
 }
+
+/// The standalone MCP subprocess reruns plugin loading on every
+/// registry-miss rescan (issue #783) and never drains `STARTUP_ERRORS` — the
+/// GUI is the only consumer, via `get_plugin_startup_errors`. Without a cap,
+/// a plugin that can't load there would grow the vec once per miss for the
+/// life of the subprocess.
+#[test]
+fn push_startup_error_evicts_the_oldest_entry_once_at_capacity() {
+    use super::manager::{push_startup_error, PluginLoadError, MAX_STARTUP_ERRORS};
+
+    let mut errors = Vec::new();
+    for i in 0..MAX_STARTUP_ERRORS + 5 {
+        push_startup_error(
+            &mut errors,
+            PluginLoadError {
+                plugin_id: format!("plugin-{i}"),
+                error: "boom".to_string(),
+            },
+        );
+    }
+
+    assert_eq!(errors.len(), MAX_STARTUP_ERRORS);
+    assert_eq!(errors.first().unwrap().plugin_id, "plugin-5");
+    assert_eq!(
+        errors.last().unwrap().plugin_id,
+        format!("plugin-{}", MAX_STARTUP_ERRORS + 4)
+    );
+}

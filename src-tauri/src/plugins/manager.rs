@@ -17,6 +17,24 @@ use crate::plugins::driver::RpcDriver;
 /// Errors that occurred during startup plugin loading, to be fetched by the frontend.
 static STARTUP_ERRORS: Lazy<Mutex<Vec<PluginLoadError>>> = Lazy::new(|| Mutex::new(Vec::new()));
 
+/// Cap on `STARTUP_ERRORS`'s length. The GUI process drains it via
+/// `get_plugin_startup_errors`, but the standalone MCP subprocess reruns
+/// plugin loading on every registry-miss rescan (issue #783) and never
+/// drains it — a plugin that can't load there (missing executable,
+/// `min_runtime_version` too high) would otherwise get a new entry pushed on
+/// every miss for the life of the subprocess.
+pub(crate) const MAX_STARTUP_ERRORS: usize = 50;
+
+/// Pushes `error` onto `errors`, evicting the oldest entry first once
+/// `MAX_STARTUP_ERRORS` is reached, so a long-running process that never
+/// drains the vec can't grow it without bound.
+pub(crate) fn push_startup_error(errors: &mut Vec<PluginLoadError>, error: PluginLoadError) {
+    if errors.len() >= MAX_STARTUP_ERRORS {
+        errors.remove(0);
+    }
+    errors.push(error);
+}
+
 #[derive(Serialize, Clone)]
 pub struct PluginLoadError {
     pub plugin_id: String,
@@ -191,10 +209,13 @@ pub async fn load_plugins_with_configs(
                 .unwrap_or("unknown")
                 .to_string();
             if let Ok(mut guard) = STARTUP_ERRORS.lock() {
-                guard.push(PluginLoadError {
-                    plugin_id,
-                    error: e,
-                });
+                push_startup_error(
+                    &mut guard,
+                    PluginLoadError {
+                        plugin_id,
+                        error: e,
+                    },
+                );
             }
         }
     }

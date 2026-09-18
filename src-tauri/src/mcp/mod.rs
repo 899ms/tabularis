@@ -332,9 +332,9 @@ async fn register_drivers_for_mcp() {
 
 /// Resolve the driver for an MCP-known connection. Returns the connection,
 /// the resolved DB params, and the registered driver. Errors with a JSON-RPC
-/// "Unsupported driver" payload when no driver matches the connection's
-/// `driver` id even after a reload (e.g. the plugin failed to load, or was
-/// never installed).
+/// payload: see [`resolve_driver_for_params`] for how a registry miss (e.g.
+/// the plugin failed to load, or was never installed) versus a registered
+/// driver's own resolution failure are each surfaced.
 async fn resolve_db_driver(
     conn_id: &str,
 ) -> Result<
@@ -346,8 +346,38 @@ async fn resolve_db_driver(
     JsonRpcError,
 > {
     let (conn, db_params) = resolve_db_params(conn_id).await?;
-    if let Ok(driver) = driver_registry::get_connection_driver(&db_params).await {
-        return Ok((conn, db_params, driver));
+    let driver = resolve_driver_for_params(&db_params).await?;
+    Ok((conn, db_params, driver))
+}
+
+/// Resolve the registered driver for `db_params`, rescanning installed
+/// plugins against the latest on-disk config once and retrying on a
+/// registry miss. Split out from [`resolve_db_driver`] so this retry logic
+/// is testable against a bare [`ConnectionParams`], without needing a
+/// resolvable [`crate::models::SavedConnection`].
+async fn resolve_driver_for_params(
+    db_params: &ConnectionParams,
+) -> Result<Arc<dyn DatabaseDriver>, JsonRpcError> {
+    match driver_registry::get_connection_driver(db_params).await {
+        Ok(driver) => return Ok(driver),
+        // The id has a registered driver, so this failure came from
+        // `for_connection` itself (e.g. a `get_connection_metadata` RPC
+        // error) rather than a registry miss — rescanning plugins on disk
+        // wouldn't change that, so surface the error directly instead of
+        // paying for a pointless rescan and a repeat of the same failing
+        // RPC call.
+        Err(message)
+            if driver_registry::get_driver(&db_params.driver)
+                .await
+                .is_some() =>
+        {
+            return Err(JsonRpcError {
+                code: -32000,
+                message,
+                data: None,
+            });
+        }
+        Err(_) => {}
     }
 
     // Not found in the in-memory registry populated at startup: this
@@ -362,14 +392,13 @@ async fn resolve_db_driver(
     if reload_cooldown_elapsed() {
         plugins::manager::reload_plugins_from_disk_config().await;
     }
-    let driver = driver_registry::get_connection_driver(&db_params)
+    driver_registry::get_connection_driver(db_params)
         .await
         .map_err(|message| JsonRpcError {
             code: -32000,
             message,
             data: None,
-        })?;
-    Ok((conn, db_params, driver))
+        })
 }
 
 /// Minimum time between plugin-directory rescans triggered by a registry
