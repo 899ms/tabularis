@@ -50,7 +50,6 @@ jobs:
       RUST_TEST_THREADS: '1'
       CARGO_TARGET_DIR: ${{ github.workspace }}/subject/src-tauri/target
       EVIDENCE_DIR: ${{ github.workspace }}/evidence
-      PROFILE_DIR: ${{ runner.temp }}/issue-791-profile
       PHASE: ${{ matrix.phase }}
       BOOTSTRAP_SHA: ${{ github.sha }}
 
@@ -68,6 +67,16 @@ jobs:
           ref: ${{ matrix.phase == 'feature' && github.sha || 'd044381c536a3b9e4b576b1ed33fcce39efcf4b1' }}
           path: subject
           persist-credentials: false
+
+      - name: Provision isolated profile path
+        run: |
+          : "${RUNNER_TEMP:?}" "${GITHUB_ENV:?}"
+          profile_dir="$RUNNER_TEMP/issue-791-profile"
+          if command -v cygpath >/dev/null 2>&1; then
+            profile_dir="$(cygpath -m "$profile_dir")"
+          fi
+          mkdir -p "$profile_dir"
+          printf 'PROFILE_DIR=%s\n' "$profile_dir" >> "$GITHUB_ENV"
 
       - name: Record provenance and scope
         run: |
