@@ -4,6 +4,7 @@ import MonacoEditor, { type BeforeMount } from '@monaco-editor/react';
 import { useTranslation } from 'react-i18next';
 import { useEditorTheme } from '../../hooks/useEditorTheme';
 import { loadMonacoTheme } from '../../themes/themeUtils';
+import { getMonacoThemeId } from '../../themes/themeRuntime';
 import { Modal } from '../ui/Modal';
 import { Select } from '../ui/Select';
 
@@ -104,7 +105,7 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
                 <MonacoEditor
                     height="100%"
                     defaultLanguage="sql"
-                    theme={editorTheme.id}
+                    theme={getMonacoThemeId(editorTheme.id)}
                     beforeMount={handleBeforeMount}
                     value={sql}
                     onChange={(val) => setSql(val || '')}

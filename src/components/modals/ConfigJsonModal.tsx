@@ -5,6 +5,7 @@ import MonacoEditor, { type OnMount } from "@monaco-editor/react";
 import { invoke } from "@tauri-apps/api/core";
 import { useEditorTheme } from "../../hooks/useEditorTheme";
 import { loadMonacoTheme } from "../../themes/themeUtils";
+import { getMonacoThemeId } from "../../themes/themeRuntime";
 import { Modal } from "../ui/Modal";
 import { ConfirmModal } from "./ConfirmModal";
 
@@ -99,7 +100,7 @@ export const ConfigJsonModal = ({ isOpen, onClose }: ConfigJsonModalProps) => {
                 <MonacoEditor
                   height="500px"
                   defaultLanguage="json"
-                  theme={editorTheme.id}
+                  theme={getMonacoThemeId(editorTheme.id)}
                   value={jsonValue}
                   onChange={(val) => {
                     setJsonValue(val ?? "");

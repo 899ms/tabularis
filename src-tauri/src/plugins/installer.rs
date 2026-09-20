@@ -130,20 +130,30 @@ pub fn has_manifest(dir: &Path) -> bool {
 
 /// Reads and deserialises a plugin bundle's `.tabularium` manifest (JSON).
 pub fn read_manifest<T: serde::de::DeserializeOwned>(dir: &Path) -> Result<T, String> {
-    let path = dir.join(MANIFEST_FILE);
+    let mut path = dir.join(MANIFEST_FILE);
     if !path.exists() {
-        // COMPAT(registry-ga): fall back to legacy manifest.json.
-        if let Some(legacy) = crate::plugins::compat::read_legacy_manifest::<T>(dir) {
+        // COMPAT(registry-ga): preserve the legacy path, but validate kind before
+        // typed deserialization can discard it and before any plugin activation.
+        if crate::plugins::compat::has_legacy_manifest(dir) {
+            path = dir.join("manifest.json");
             log::warn!("Using legacy manifest.json in {:?} — republish as .tabularium", dir);
-            return legacy;
+        } else {
+            return Err(format!("No .tabularium manifest in {:?}", dir));
         }
-        return Err(format!(
-            "No .tabularium manifest in {:?} — this plugin bundle must ship a .tabularium (JSON)",
-            dir
-        ));
     }
-    let manifest_str = fs::read_to_string(&path)
-        .map_err(|e| format!("Failed to read plugin manifest {:?}: {}", path, e))?;
+    let mut manifest_str = String::new();
+    fs::File::open(&path)
+        .map_err(|e| e.to_string())?
+        .take(4 * 1024 * 1024 + 1)
+        .read_to_string(&mut manifest_str)
+        .map_err(|e| e.to_string())?;
+    super::package_kind::require_driver_kind(manifest_str.as_bytes()).map_err(|error| {
+        if error == super::package_kind::KIND_ERROR {
+            error
+        } else {
+            format!("Failed to parse plugin manifest {:?}: {}", path, error)
+        }
+    })?;
     serde_json::from_str(&manifest_str)
         .map_err(|e| format!("Failed to parse plugin manifest {:?}: {}", path, e))
 }
@@ -280,6 +290,13 @@ pub async fn download_and_install(
             download_url
         )
     })?;
+
+    // Never apply permissions or extract a theme through the executable path.
+    if let Err(error) = super::package_kind::validate_archive_kind(&mut archive) {
+        drop(archive);
+        fs::remove_dir_all(&tmp_dir).ok();
+        return Err(error);
+    }
 
     for i in 0..archive.len() {
         if cancellation.is_cancelled() {

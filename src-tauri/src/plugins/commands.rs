@@ -34,6 +34,7 @@ pub async fn fetch_plugin_registry(
     let result: Vec<RegistryPluginWithStatus> = remote
         .plugins
         .into_iter()
+        .filter(|plugin| matches!(plugin.kind.as_deref(), None | Some("driver")))
         .map(|plugin| {
             let installed_version = installed
                 .iter()
@@ -114,10 +115,13 @@ async fn resolve_api_install_asset(
     version: Option<&str>,
     platform: &str,
 ) -> Result<(String, Option<String>, String), String> {
+    let detail = crate::plugins::tabularium::fetch_plugin_detail(base, plugin_id).await?;
+    if !matches!(detail.kind.as_deref(), None | Some("driver")) {
+        return Err(super::package_kind::KIND_ERROR.into());
+    }
     let target_version = match version {
         Some(v) => v.to_string(),
         None => {
-            let detail = crate::plugins::tabularium::fetch_plugin_detail(base, plugin_id).await?;
             if !detail.latest_version.is_empty() {
                 detail.latest_version
             } else {
@@ -171,33 +175,40 @@ pub async fn install_plugin(
     //   3. COMPAT(registry-ga): if the API doesn't know the plugin (it lives
     //      only in the legacy registry, not yet migrated), fall back to the
     //      configured legacy `registry.json`'s direct asset.
-    let (download_url, expected_sha256, target_version) =
-        if let Some(res) =
-            crate::plugins::compat::resolve_static_asset(base, &plugin_id, version.as_deref(), &platform)
+    let (download_url, expected_sha256, target_version) = if let Some(res) =
+        crate::plugins::compat::resolve_static_asset(
+            base,
+            &plugin_id,
+            version.as_deref(),
+            &platform,
+        )
+        .await
+    {
+        let asset = res?;
+        (asset.download_url, asset.expected_sha256, asset.version)
+    } else {
+        match resolve_api_install_asset(base, &plugin_id, version.as_deref(), &platform).await {
+            Ok(resolved) => resolved,
+            Err(api_err) => {
+                if api_err == super::package_kind::KIND_ERROR {
+                    return Err(api_err);
+                }
+                // COMPAT(registry-ga): legacy-registry install fallback.
+                let legacy_url = crate::plugins::compat::legacy_registry_url(&config);
+                match crate::plugins::compat::fetch_static_asset(
+                    &legacy_url,
+                    &plugin_id,
+                    version.as_deref(),
+                    &platform,
+                )
                 .await
-        {
-            let asset = res?;
-            (asset.download_url, asset.expected_sha256, asset.version)
-        } else {
-            match resolve_api_install_asset(base, &plugin_id, version.as_deref(), &platform).await {
-                Ok(resolved) => resolved,
-                Err(api_err) => {
-                    // COMPAT(registry-ga): legacy-registry install fallback.
-                    let legacy_url = crate::plugins::compat::legacy_registry_url(&config);
-                    match crate::plugins::compat::fetch_static_asset(
-                        &legacy_url,
-                        &plugin_id,
-                        version.as_deref(),
-                        &platform,
-                    )
-                    .await
-                    {
-                        Ok(asset) => (asset.download_url, asset.expected_sha256, asset.version),
-                        Err(_) => return Err(api_err),
-                    }
+                {
+                    Ok(asset) => (asset.download_url, asset.expected_sha256, asset.version),
+                    Err(_) => return Err(api_err),
                 }
             }
-        };
+        }
+    };
     // Identity/version verification against what the registry advertised
     // happens inside download_and_install, while the bundle is still in its
     // temp dir — a mismatching archive is discarded without ever touching an
@@ -362,11 +373,33 @@ pub async fn fetch_tabularium_plugin_preview(
     let mut plugin = crate::plugins::tabularium::fetch_plugin_detail(&base, &slug).await?;
     plugin.registry_base_url = Some(base.trim_end_matches('/').to_string());
 
-    let installed_version = installer::list_installed()?
-        .into_iter()
-        .find(|i| i.id == slug)
-        .map(|i| i.version);
-    let platform = registry::get_current_platform();
+    // Declarative previews must not traverse driver discovery/startup paths.
+    let (installed_version, platform) = if plugin.kind.as_deref() == Some("theme") {
+        let key = crate::theme_packages::registry_key(&base)?;
+        let catalog = crate::theme_packages::read_theme_catalog(
+            &crate::paths::get_app_config_dir(),
+            env!("CARGO_PKG_VERSION"),
+        );
+        let installed = catalog
+            .themes
+            .iter()
+            .find(|entry| {
+                entry.origin["kind"] == "installed"
+                    && entry.origin["identity"]["registryKey"] == key
+                    && entry.origin["identity"]["packageName"] == slug
+            })
+            .and_then(|entry| entry.origin["packageVersion"].as_str())
+            .map(str::to_string);
+        (installed, "universal".to_string())
+    } else {
+        (
+            installer::list_installed()?
+                .into_iter()
+                .find(|i| i.id == slug)
+                .map(|i| i.version),
+            registry::get_current_platform(),
+        )
+    };
 
     // Target = the version the deeplink will install: the pinned version if the
     // link specified one, otherwise the registry's latest.

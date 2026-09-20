@@ -7,6 +7,7 @@ import { useCopyFeedback } from "../../hooks/useCopyFeedback";
 import Editor from "@monaco-editor/react";
 import { useEditorTheme } from "../../hooks/useEditorTheme";
 import { loadMonacoTheme } from "../../themes/themeUtils";
+import { getMonacoThemeId } from "../../themes/themeRuntime";
 import { Modal } from "../ui/Modal";
 import {
   AnthropicIcon,
@@ -244,7 +245,7 @@ export const McpModal = ({ isOpen, onClose }: McpModalProps) => {
                         <Editor
                           height="160px"
                           defaultLanguage="json"
-                          theme={editorTheme.id}
+                          theme={getMonacoThemeId(editorTheme.id)}
                           value={jsonValue}
                           beforeMount={(monaco) => loadMonacoTheme(editorTheme, monaco)}
                           options={{

@@ -24,6 +24,7 @@ import { useAlert } from "../hooks/useAlert";
 import { useCopyFeedback } from "../hooks/useCopyFeedback";
 import { useEditorTheme } from "../hooks/useEditorTheme";
 import { loadMonacoTheme } from "../themes/themeUtils";
+import { getMonacoThemeId } from "../themes/themeRuntime";
 
 interface McpClientStatus {
   client_id: string;
@@ -295,7 +296,7 @@ function McpSetupPanel() {
                 <Editor
                   height="220px"
                   defaultLanguage="json"
-                  theme={editorTheme.id}
+                  theme={getMonacoThemeId(editorTheme.id)}
                   value={jsonValue}
                   beforeMount={(monaco) => loadMonacoTheme(editorTheme, monaco)}
                   options={{

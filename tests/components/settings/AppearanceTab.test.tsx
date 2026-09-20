@@ -2,8 +2,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
 
-const updateSettings = vi.fn();
-const setTheme = vi.fn();
+const updateSettings = vi.fn(async () => undefined);
+const setTheme = vi.fn(async () => undefined);
+let loading = false;
 
 const lightTheme = {
   id: "tabularis-light",
@@ -58,6 +59,8 @@ vi.mock("../../../src/hooks/useTheme", () => ({
     allThemes: [lightTheme, darkTheme],
     setTheme,
     settings: themeSettings,
+    isLoading: loading,
+    catalog: { themes: [], issues: [] },
     updateSettings,
   }),
 }));
@@ -72,6 +75,19 @@ describe("AppearanceTab theme mode", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     themeSettings = { ...themeSettings, followSystemTheme: false };
+    loading = false;
+  });
+
+  it("disables theme choices while preferences are hydrating", () => {
+    loading = true; render(<AppearanceTab />);
+    expect(screen.getByText("Tabularis Light").closest("button")).toBeDisabled();
+  });
+
+  it("surfaces preference save failures instead of an unhandled promise", async () => {
+    updateSettings.mockRejectedValueOnce(new Error("settings unavailable"));
+    render(<AppearanceTab />);
+    fireEvent.click(screen.getByText("settings.themeModeSystem"));
+    expect(await screen.findByRole("alert")).toHaveTextContent("settings unavailable");
   });
 
   it("shows a single theme picker in static mode", () => {

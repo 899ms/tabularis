@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Modal } from "../ui/Modal";
+import { ThemeDeepLinkInstall } from "./ThemeDeepLinkInstall";
 import type { RegistryPluginWithStatus } from "../../types/plugins";
 import type { DeepLinkInstallRequest } from "../../hooks/useDeepLinkInstall";
 
@@ -89,6 +90,7 @@ export const PluginInstallConfirmModal = ({
   }, [request]);
 
   if (!request) return null;
+  if (preview?.kind === "theme") return <ThemeDeepLinkInstall request={request} preview={preview} onClose={onCancel} />;
 
   const requestedRegistry = request.registry ?? null;
   const showsRegistryMismatch =
