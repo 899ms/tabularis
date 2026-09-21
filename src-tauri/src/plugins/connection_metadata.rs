@@ -158,8 +158,9 @@ pub struct ConnectionMetadataCache {
 
 impl ConnectionMetadataCache {
     pub async fn entry(&self, params: &ConnectionParams) -> Result<MetadataCell, String> {
-        // Serializing through Value sorts object keys, including plugin extras.
-        let value = serde_json::to_value(params).map_err(|e| e.to_string())?;
+        // Sort object keys, including plugin extras, even with preserve_order enabled.
+        let mut value = serde_json::to_value(params).map_err(|e| e.to_string())?;
+        value.sort_all_objects();
         let bytes = serde_json::to_vec(&value).map_err(|e| e.to_string())?;
         let fingerprint: [u8; 32] = Sha256::digest(&bytes).into();
         let key = (params.connection_id.clone(), fingerprint);
