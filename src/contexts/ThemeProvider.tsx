@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { loadStartupConfig } from "../utils/startupConfig";
 import { useTranslation } from "react-i18next";
 import { ThemeContext } from "./ThemeContext";
 import { themeRegistry } from "../themes/themeRegistry";
@@ -47,9 +48,20 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     }).then((stop) => { if (disposed) stop(); else stopCatalog = stop; }).catch((error) => console.error("Failed to subscribe to theme changes:", error));
     void (async () => {
       try {
-        const [config, dark] = await Promise.all([invoke<Record<string, unknown>>("get_config"), getSystemIsDark(), refreshCatalog().catch((error) => console.error("Failed to load theme catalog:", error))]);
+        const startup = Promise.all([loadStartupConfig(), getSystemIsDark()]);
+        const catalogReady = refreshCatalog().catch((error) => console.error("Failed to load theme catalog:", error));
+        const [config, dark] = await startup;
         if (disposed) return;
         const hydrated = hydrateThemePreferences(config, localStorage.getItem("tabularis_theme_settings"), dark);
+        // Apply known builtin colors without waiting for package disk reads.
+        // Selection and persistence remain governed by the complete catalog.
+        const startupThemeId = hydrated.followSystemTheme
+          ? dark ? hydrated.darkThemeId : hydrated.lightThemeId
+          : hydrated.activeThemeId;
+        const preset = themeRegistry.getPreset(startupThemeId);
+        if (preset) applyThemeToCSS(preset);
+        await catalogReady;
+        if (disposed) return;
         settingsRef.current = hydrated;
         setSettings(hydrated);
         setSystemDark(dark);

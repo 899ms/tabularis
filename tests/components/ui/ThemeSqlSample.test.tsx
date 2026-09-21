@@ -7,7 +7,7 @@ import { builtinCatalog } from "../../../src/utils/themeCatalog";
 const mocks = vi.hoisted(() => ({ load: vi.fn(), independent: { id: "independent-editor" }, engine: {} }));
 vi.mock("../../../src/hooks/useEditorTheme", () => ({ useEditorTheme: () => mocks.independent }));
 vi.mock("../../../src/themes/themeUtils", async (original) => ({ ...await original<typeof import("../../../src/themes/themeUtils")>(), loadMonacoTheme: mocks.load }));
-vi.mock("@monaco-editor/react", () => ({ default: function Sample({ beforeMount }: { beforeMount: (engine: object) => void }) {
+vi.mock("../../../src/components/ui/LazyMonaco", () => ({ MonacoEditor: function Sample({ beforeMount }: { beforeMount: (engine: object) => void }) {
   useEffect(() => { beforeMount(mocks.engine); }, [beforeMount]);
   return <div>Monaco sample</div>;
 } }));

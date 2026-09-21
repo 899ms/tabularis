@@ -6,6 +6,8 @@ import { listen } from "@tauri-apps/api/event";
 import { ThemeProvider } from "../../src/contexts/ThemeProvider";
 import { useTheme } from "../../src/hooks/useTheme";
 import { themeRegistry } from "../../src/themes/themeRegistry";
+import { applyThemeToCSS } from "../../src/themes/themeUtils";
+import { loadStartupConfig } from "../../src/utils/startupConfig";
 import { builtinCatalog } from "../../src/utils/themeCatalog";
 import type { NativeThemeCatalog, NativeThemeContribution } from "../../src/types/themeCatalog";
 import type { Theme } from "../../src/types/theme";
@@ -163,6 +165,37 @@ describe("ThemeProvider catalog and explicit persistence", () => {
     config.theme = "monokai";
     const { result } = await mount();
     expect(result.current.currentTheme.id).toBe("monokai"); expect(saves()).toEqual([]);
+  });
+  it.each([
+    { saved: { theme: "monokai" }, dark: false, expected: "monokai" },
+    { saved: { theme: "nord", followSystemTheme: true, darkThemeId: "monokai" }, dark: true, expected: "monokai" },
+    { saved: { theme: "nord", followSystemTheme: true, lightThemeId: "tabularis-light" }, dark: false, expected: "tabularis-light" },
+  ])("applies builtin $expected before catalog hydration (system dark: $dark)", async ({ saved, dark, expected }) => {
+    config = saved; systemDark = dark;
+    const pending = deferred<NativeThemeCatalog>();
+    const native = vi.mocked(invoke).getMockImplementation()!;
+    vi.mocked(invoke).mockImplementation((command, args) => command === "get_theme_catalog" ? pending.promise : native(command, args));
+    const { result } = renderHook(() => useTheme(), { wrapper });
+    await waitFor(() => expect(applyThemeToCSS).toHaveBeenCalledWith(expect.objectContaining({ id: expected })));
+    expect(result.current.isLoading).toBe(true);
+    expect(saves()).toEqual([]);
+    await act(async () => pending.resolve(snapshot()));
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.currentTheme.id).toBe(expected);
+    expect(saves()).toEqual([]);
+  });
+  it("waits for an installed theme without applying or persisting a builtin replacement", async () => {
+    personal = [installed()]; config.theme = personal[0].id;
+    const pending = deferred<NativeThemeCatalog>();
+    const native = vi.mocked(invoke).getMockImplementation()!;
+    vi.mocked(invoke).mockImplementation((command, args) => command === "get_theme_catalog" ? pending.promise : native(command, args));
+    const { result } = renderHook(() => useTheme(), { wrapper });
+    await act(async () => { await loadStartupConfig(); });
+    expect(result.current.isLoading).toBe(true);
+    expect(applyThemeToCSS).not.toHaveBeenCalled();
+    await act(async () => pending.resolve(snapshot()));
+    expect(result.current.currentTheme.id).toBe(personal[0].id);
+    expect(saves()).toEqual([]);
   });
   it("reads historical localStorage without migrating during hydration", async () => {
     const source = '{"activeThemeId":"monokai"}'; localStorage.setItem("tabularis_theme_settings", source);
@@ -325,14 +358,17 @@ describe("preview, fallback and concurrency", () => {
     act(() => result.current.cancelPreview());
     expect(result.current.currentTheme.id).toBe("tabularis-dark"); expect(config.theme).toBe("monokai"); expect(saves()).toEqual([]);
   });
-  it("ignores stale StrictMode hydration and cleans duplicate subscriptions", async () => {
-    const older = deferred<Record<string, unknown>>();
-    const native = vi.mocked(invoke).getMockImplementation()!; let loads = 0;
-    vi.mocked(invoke).mockImplementation((command, args) => command === "get_config" ? ++loads === 1 ? older.promise : Promise.resolve({ theme: "nord" }) : native(command, args));
+  it("shares StrictMode config hydration with other boot consumers and cleans duplicate subscriptions", async () => {
+    const pending = deferred<Record<string, unknown>>();
+    const native = vi.mocked(invoke).getMockImplementation()!;
+    vi.mocked(invoke).mockImplementation((command, args) => command === "get_config" ? pending.promise : native(command, args));
+    const sharedConfig = loadStartupConfig();
     const { result, unmount } = renderHook(() => useTheme(), { wrapper, reactStrictMode: true });
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-    await act(async () => older.resolve({ theme: "monokai" }));
-    expect(result.current.currentTheme.id).toBe("nord"); expect(saves()).toEqual([]);
+    expect(vi.mocked(invoke).mock.calls.filter(([command]) => command === "get_config")).toHaveLength(1);
+    await act(async () => pending.resolve({ theme: "monokai" }));
+    await expect(sharedConfig).resolves.toEqual({ theme: "monokai" });
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.currentTheme.id).toBe("monokai"); expect(saves()).toEqual([]);
     expect(events.get("theme-catalog-changed")?.size).toBe(1);
     unmount(); expect(events.get("theme-catalog-changed")?.size).toBe(0);
   });

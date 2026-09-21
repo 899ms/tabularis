@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import MonacoEditor from "@monaco-editor/react";
+import { MonacoEditor } from "./LazyMonaco";
 import type * as Monaco from "monaco-editor";
 import { useEditorTheme } from "../../hooks/useEditorTheme";
 import { resolveCatalogEntry } from "../../utils/themeCatalog";
