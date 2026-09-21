@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ThemeReadmeModal } from "../../../src/components/modals/ThemeReadmeModal";
-import { ThemeRegistryInstall } from "../../../src/components/settings/ThemeDiscovery";
+import { ThemeRegistryInstall } from "../../../src/components/modals/ThemeRegistryInstall";
 
 const mocks = vi.hoisted(() => ({ invoke: vi.fn(), open: vi.fn() }));
+vi.mock("lucide-react", async () => await vi.importActual("lucide-react"));
 vi.mock("@tauri-apps/api/core", () => ({ invoke: mocks.invoke }));
 vi.mock("@tauri-apps/plugin-opener", () => ({ openUrl: mocks.open }));
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: "en", resolvedLanguage: "en" } }) }));
@@ -27,7 +28,7 @@ describe("theme README and screenshot metadata", () => {
   });
   it("uses one dialog at a time and restores the README button on Escape", async () => {
     render(<ThemeRegistryInstall isOpen onClose={vi.fn()} snapshot={{ registryKey: "a".repeat(64), registryUrl: "https://registry.invalid", plugins: [plugin] }} plugin={plugin} onCommitted={vi.fn()} />);
-    await waitFor(() => expect(screen.getByRole("button", { name: "themePackages.install" })).not.toBeDisabled());
+    await waitFor(() => expect(screen.getByRole("button", { name: /settings\.plugins\.(install|update)/ })).not.toBeDisabled());
     const button = screen.getByRole("button", { name: "themePackages.readme" }); button.focus(); fireEvent.click(button);
     await screen.findByRole("heading", { name: "Readable README" });
     expect(screen.getAllByRole("dialog")).toHaveLength(1);

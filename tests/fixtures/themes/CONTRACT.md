@@ -55,7 +55,7 @@ A theme-specific, nonempty registry extension schema adds:
 This **replaces**, rather than augments, global driver extensions in the
 registry's kind-scoped schema. No theme requirements are added to driver
 schemas/defaults. Local schemas and the operator-only extension example are in
-`public/schemas/`. An offline check against Tabularium's actual schema library
+`src/schemas/`. An offline check against Tabularium's actual schema library
 passes; public schema publication and operator enablement have not occurred.
 See `VERIFICATION.md` for current evidence; the earlier checkpoint reports are historical.
 

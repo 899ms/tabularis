@@ -1,9 +1,9 @@
 import Ajv, { type ValidateFunction } from "ajv";
 import { getNodeValue, parseTree, visit, printParseErrorCode } from "jsonc-parser";
 import { valid, gte } from "semver";
-import definitionSchema from "../../public/schemas/theme-definition-v1.json";
-import manifestSchema from "../../public/schemas/theme-package-v1.json";
-import limits from "../../public/schemas/theme-limits-v1.json";
+import definitionSchema from "../schemas/theme-definition-v1.json";
+import manifestSchema from "../schemas/theme-package-v1.json";
+import limits from "../schemas/theme-limits-v1.json";
 import type { ThemeDefinitionV1, ThemePackageManifestV1 } from "../types/themePackage";
 import { isThemePackagePath, isThemePackageSlug } from "./themePackageIdentity";
 

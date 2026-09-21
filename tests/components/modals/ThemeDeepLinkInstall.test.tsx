@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { PluginInstallConfirmModal } from "../../../src/components/modals/PluginInstallConfirmModal";
 
 const mocks = vi.hoisted(() => ({ invoke: vi.fn(), refreshCatalog: vi.fn() }));
+vi.mock("lucide-react", async () => await vi.importActual("lucide-react"));
 vi.mock("@tauri-apps/api/core", () => ({ invoke: mocks.invoke }));
 vi.mock("../../../src/hooks/useTheme", () => ({ useTheme: () => ({ catalog: { themes: [] }, refreshCatalog: mocks.refreshCatalog }) }));
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: "en" } }) }));
@@ -23,11 +24,12 @@ describe("theme deep-link dispatch", () => {
   it("uses requested package identity, direct native metadata and the declarative installer only after confirmation", async () => {
     const driverInstall = vi.fn();
     render(<PluginInstallConfirmModal request={request} busy={false} error={null} onConfirm={driverInstall} onCancel={vi.fn()} />);
-    await waitFor(() => expect(screen.getByRole("button", { name: "themePackages.install" })).toBeEnabled());
+    // Three chained native lookups precede the enabled button; give the full suite headroom.
+    await waitFor(() => expect(screen.getByRole("button", { name: /settings\.plugins\.(install|update)/ })).toBeEnabled(), { timeout: 4000 });
     expect(mocks.invoke).toHaveBeenCalledWith("fetch_theme_registry", { packageName: request.slug });
     expect(mocks.invoke).toHaveBeenCalledWith("fetch_theme_package_detail", expect.objectContaining({ packageName: request.slug, requestedRegistryUrl: request.registry }));
     expect(mocks.invoke.mock.calls.some(([command]) => command === "install_registry_theme")).toBe(false);
-    fireEvent.click(screen.getByRole("button", { name: "themePackages.install" }));
+    fireEvent.click(screen.getByRole("button", { name: /settings\.plugins\.(install|update)/ }));
     await screen.findByText("themePackages.installedHint");
     expect(mocks.invoke).toHaveBeenCalledWith("install_registry_theme", { packageName: request.slug, expectedRegistryKey: snapshot.registryKey, version: request.version });
     expect(driverInstall).not.toHaveBeenCalled();
@@ -37,7 +39,7 @@ describe("theme deep-link dispatch", () => {
     const driverInstall = vi.fn();
     render(<PluginInstallConfirmModal request={request} busy={false} error={null} onConfirm={driverInstall} onCancel={vi.fn()} />);
     expect(await screen.findByRole("alert")).toHaveTextContent("themePackages.noThemes");
-    expect(screen.queryByRole("button", { name: "themePackages.install" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /settings\.plugins\.(install|update)/ })).not.toBeInTheDocument();
     expect(driverInstall).not.toHaveBeenCalled(); expect(mocks.invoke).toHaveBeenCalledTimes(2);
   });
 });

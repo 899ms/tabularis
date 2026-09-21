@@ -1116,13 +1116,13 @@ export const Connections = () => {
           </div>
         </div>
 
-        <div className="relative flex items-stretch shadow-lg shadow-blue-500/20 rounded-xl">
+        <div className="relative flex items-stretch shadow-lg shadow-accent-primary/20 rounded-xl">
           <button
             onClick={() => {
               setEditingConnection(null);
               setIsModalOpen(true);
             }}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white pl-4 pr-3.5 py-2.5 rounded-l-xl font-semibold text-sm transition-colors duration-150"
+            className="flex items-center gap-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse pl-4 pr-3.5 py-2.5 rounded-l-xl font-semibold text-sm transition-colors duration-150"
           >
             <Plus size={15} />
             {t("connections.addConnection")}
@@ -1130,7 +1130,7 @@ export const Connections = () => {
           <button
             ref={importMenuBtnRef}
             onClick={toggleImportMenu}
-            className="flex items-center bg-blue-600 hover:bg-blue-500 text-white px-2 rounded-r-xl border-l border-blue-400/40 transition-colors duration-150"
+            className="flex items-center bg-accent-primary hover:bg-accent-primary/90 text-inverse px-2 rounded-r-xl border-l border-inverse/20 transition-colors duration-150"
             title={t("connections.addConnection")}
             aria-haspopup="menu"
             aria-expanded={isImportMenuOpen}
@@ -1272,7 +1272,7 @@ export const Connections = () => {
                   setEditingConnection(null);
                   setIsModalOpen(true);
                 }}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/20 hover:-translate-y-px"
+                className="flex items-center gap-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-accent-primary/20 hover:-translate-y-px"
               >
                 <Plus size={14} />
                 {t("connections.createFirst")}

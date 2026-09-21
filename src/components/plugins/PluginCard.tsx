@@ -1,16 +1,17 @@
 import type { ReactNode } from "react";
-import { BookOpen, Check, Download, ExternalLink, Home } from "lucide-react";
+import { BookOpen, Check, Download, ExternalLink, Home, Palette } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import type { PluginManifest } from "../../types/plugins";
 import { getDriverColor, getDriverIcon } from "../../utils/driverUI";
-import { parseAuthor } from "../../utils/plugins";
+import { parseAuthor, type PluginKind } from "../../utils/plugins";
 import { CARD_RESTING_CLASS } from "../../utils/connections";
-import { formatCount, stripTrailingSlash } from "../../utils/pluginPresentation";
+import { formatCount, stripTrailingSlash, THEME_TILE_COLOR } from "../../utils/pluginPresentation";
 import { RegistryDriverIcon } from "../RegistryDriverIcon";
 import { Chip } from "../ui/Chip";
 import { CompactCard, CompactCardHeader, CompactCardFooter } from "../ui/CompactCard";
+import { PluginKindChip } from "./PluginKindChip";
 import { PluginUpdateIndicator } from "./PluginUpdateIndicator";
 import { UpdateTooltip } from "../ui/UpdateTooltip";
 
@@ -19,6 +20,8 @@ export const PLUGIN_ICON_BUTTON_CLASS =
   "p-1.5 rounded-lg text-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:text-accent-primary hover:bg-accent-primary/10";
 
 interface PluginCardProps {
+  /** Driver (executable) or theme (declarative); drives the icon tile and the kind chip. */
+  kind?: PluginKind;
   name: string;
   description: string;
   version?: string;
@@ -52,7 +55,7 @@ interface PluginCardProps {
  * the primary action on the left and icon buttons on the right.
  */
 export function PluginCard({
-  name, description, version, manifest, author, homepage, registryPageUrl,
+  kind = "driver", name, description, version, manifest, author, homepage, registryPageUrl,
   iconUrl, downloads, status, control, meta, actions, secondaryActions, upToDate, updateVersion, onShowReadme,
 }: PluginCardProps) {
   const { t } = useTranslation();
@@ -61,14 +64,19 @@ export function PluginCard({
   const secondaryHomepage = homepage && registryPageUrl &&
     stripTrailingSlash(homepage) !== stripTrailingSlash(registryPageUrl)
     ? homepage : null;
-  const icon = manifest?.icon || !iconUrl
-    ? getDriverIcon(manifest, 20)
-    : <RegistryDriverIcon key={iconUrl} src={iconUrl} size={20} fallback={getDriverIcon(manifest, 20)} />;
+  const isTheme = kind === "theme";
+  // Themes get a fixed palette tile: they never carry a driver manifest colour.
+  const fallbackIcon = isTheme ? <Palette size={20} /> : getDriverIcon(manifest, 20);
+  const icon = (!isTheme && manifest?.icon) || !iconUrl
+    ? fallbackIcon
+    : <RegistryDriverIcon key={iconUrl} src={iconUrl} size={20} fallback={fallbackIcon} />;
+  const iconColor = isTheme ? THEME_TILE_COLOR : getDriverColor(manifest);
+  const updateLabel = t(isTheme ? "update.badges.themeUpdate" : "update.badges.driverUpdate");
   const hasFooter = !!(actions || secondaryActions || secondaryHomepage || onShowReadme);
 
   return (
     <CompactCard className={clsx("h-full", CARD_RESTING_CLASS)}>
-      <CompactCardHeader icon={icon} iconColor={getDriverColor(manifest)}>
+      <CompactCardHeader icon={icon} iconColor={iconColor}>
         <div className="flex items-start justify-between gap-2 mb-1.5">
           {primaryHref ? (
             <button
@@ -85,8 +93,8 @@ export function PluginCard({
           )}
           {control && <div className="shrink-0">{control}</div>}
         </div>
-        {(version || status || upToDate || updateVersion) && (
-          <div className="flex items-center gap-1.5 flex-wrap mb-2">
+        <div className="flex items-center gap-1.5 flex-wrap mb-2">
+            <PluginKindChip kind={kind} />
             {version && <Chip>v{version}</Chip>}
             {status}
             {upToDate && (
@@ -95,19 +103,18 @@ export function PluginCard({
               </Chip>
             )}
             {updateVersion && (
-              <UpdateTooltip label={t("update.badges.driverUpdate")}>
+              <UpdateTooltip label={updateLabel}>
                 <span
                   role="img"
                   tabIndex={0}
-                  aria-label={t("update.badges.driverUpdate")}
+                  aria-label={updateLabel}
                   className="inline-flex rounded-full focus-visible:outline focus-visible:outline-accent-primary"
                 >
                   <PluginUpdateIndicator version={updateVersion} />
                 </span>
               </UpdateTooltip>
             )}
-          </div>
-        )}
+        </div>
         <p className="text-[11px] text-muted line-clamp-2 break-words">{description}</p>
         {meta && <div className="mt-1.5 flex flex-wrap items-center gap-1">{meta}</div>}
         {(parsedAuthor || !!downloads) && (

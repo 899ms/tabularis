@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import builtins from "../../public/themes/builtin-themes.json";
+import builtins from "../../src/themes/builtin-themes.json";
 import { DEFAULT_THEME_SETTINGS } from "../../src/types/theme";
 import type { NativeThemeContribution } from "../../src/types/themeCatalog";
 import { builtinCatalog, hydrateThemePreferences, resolveCatalogEntry, resolveNativeCatalog, selectEffectiveTheme } from "../../src/utils/themeCatalog";

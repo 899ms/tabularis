@@ -128,7 +128,7 @@ A small definition is enough; missing values use permanent host-owned bases:
 
 Modes are `light`, `dark`, and `high-contrast`. Supported application leaves,
 local font-family lists, radii, registered editor color keys and SQL token rules
-are defined in `public/schemas/theme-definition-v1.json` in Tabularis. Unknown
+are defined in `src/schemas/theme-definition-v1.json` in Tabularis. Unknown
 fields fail validation. The tool bundles these schemas and never fetches their
 `$id` URLs; deployment of public schema URLs is a separate release operation.
 
@@ -150,7 +150,7 @@ legacy SQL rules and change rendering. New clients preview/import the container
 through the native snapshot API; old clients reject it rather than silently
 misrendering it. Original files are not rewritten by exporting. Legacy getters
 remain for historical representations; use `get_theme_catalog` for modern
-snapshots and definitions. See `public/schemas/theme-snapshot-v1.json`.
+snapshots and definitions. See `src/schemas/theme-snapshot-v1.json`.
 
 **Export author package** asks for package name/version/runtime floor, license text
 and acknowledgement of redistribution rights. A new-format personal/imported theme
@@ -233,7 +233,7 @@ This feature's tests never publish a real release or change registry administrat
 ## Upgrade and downgrade safety
 
 New personal definitions/snapshots live in `theme-personal-v1`; packages live in
-namespaced `theme-packages`, separate from historical `themes`. Merely reading the
+`plugins/themes/<package-name>/` in the app data directory, beside `plugins/drivers/<package-name>/` driver bundles and separate from historical standalone `themes/*.json` files in the config directory. Discovery also accepts manually copied `plugins/<package-name>/` bundles, using their manifest `kind`; kind-scoped copies take precedence. Every install or update writes to the kind-scoped directory, never the root or a registry-hash directory. Folder names map `theme` to `themes`, `driver` to `drivers`, and otherwise keep the kind unchanged. Merely reading the
 catalog never migrates or changes originals. Old clients do not understand new
 variant IDs or modern personal documents. A replay of the old provider proves that
 it writes its fallback over an unavailable new selection at startup. A runtime

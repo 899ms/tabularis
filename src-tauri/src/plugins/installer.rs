@@ -179,8 +179,10 @@ pub async fn download_and_install(
 ) -> Result<(), String> {
     cancellation.check()?;
     let plugins_dir = get_plugins_dir()?;
-    let tmp_dir = plugins_dir.join(format!(".tmp-{}", plugin_id));
-    let final_dir = plugins_dir.join(plugin_id);
+    let final_dir = super::layout::driver_destination(&plugins_dir, plugin_id)?;
+    let kind_dir = final_dir.parent().ok_or("Missing driver directory")?;
+    fs::create_dir_all(kind_dir).map_err(|e| e.to_string())?;
+    let tmp_dir = kind_dir.join(format!(".tmp-{}", plugin_id));
 
     // Clean up any leftover temp dir
     if tmp_dir.exists() {
@@ -412,91 +414,59 @@ pub async fn download_and_install(
     // replacing files, otherwise the OS may keep them locked. Once this short
     // commit phase starts, installation is completed atomically rather than
     // leaving the existing plugin disabled.
-    if final_dir.exists() {
+    let previous = super::layout::driver_candidates(&plugins_dir)?
+        .into_iter()
+        .filter(|path| super::layout::driver_identity(path).as_deref() == Some(plugin_id))
+        .collect::<Vec<_>>();
+    if !previous.is_empty() || final_dir.exists() {
         crate::drivers::registry::unregister_driver(plugin_id).await;
         crate::drivers::registry::unregister_manifest(plugin_id).await;
         sleep(Duration::from_millis(500)).await;
-        fs::remove_dir_all(&final_dir)
-            .map_err(|e| format!("Failed to remove existing plugin: {}", e))?;
+        if final_dir.exists() {
+            fs::remove_dir_all(&final_dir)
+                .map_err(|e| format!("Failed to remove existing plugin: {}", e))?;
+        }
     }
 
     // Rename temp to final
     fs::rename(&tmp_dir, &final_dir)
         .map_err(|e| format!("Failed to finalize plugin installation: {}", e))?;
 
+    // Retire flat/renamed copies only after the kind-scoped install succeeds.
+    for path in previous.into_iter().filter(|path| path != &final_dir) {
+        if let Err(error) = fs::remove_dir_all(&path) {
+            log::warn!("Installed driver but could not remove fallback {:?}: {}", path, error);
+        }
+    }
     log::info!("Plugin '{}' installed successfully", plugin_id);
     Ok(())
 }
 
 pub fn uninstall(plugin_id: &str) -> Result<(), String> {
     let plugins_dir = get_plugins_dir()?;
-    let mut plugin_dir = plugins_dir.join(plugin_id);
-
-    // The directory normally matches the plugin id, but manually copied or
-    // legacy bundles may live in a folder named differently from the manifest
-    // id — those still show up as installed (list_installed reads manifests),
-    // so resolve them by scanning manifests before giving up.
-    if !plugin_dir.exists() {
-        plugin_dir = find_plugin_dir_by_id(&plugins_dir, plugin_id)
-            .ok_or_else(|| format!("Plugin '{}' is not installed", plugin_id))?;
+    super::layout::resolve_driver(&plugins_dir, plugin_id)?;
+    // Remove fallback copies first so uninstall cannot resurrect an older bundle.
+    for path in super::layout::driver_candidates(&plugins_dir)?.into_iter().rev() {
+        if super::layout::driver_identity(&path).as_deref() == Some(plugin_id) {
+            fs::remove_dir_all(&path)
+                .map_err(|e| format!("Failed to remove plugin '{}': {}", plugin_id, e))?;
+        }
     }
-
-    fs::remove_dir_all(&plugin_dir)
-        .map_err(|e| format!("Failed to remove plugin '{}': {}", plugin_id, e))?;
 
     log::info!("Plugin '{}' uninstalled successfully", plugin_id);
     Ok(())
 }
 
-/// Scans the plugins directory for a bundle whose manifest id matches
-/// `plugin_id`, regardless of the directory name.
-fn find_plugin_dir_by_id(plugins_dir: &Path, plugin_id: &str) -> Option<PathBuf> {
-    let entries = fs::read_dir(plugins_dir).ok()?;
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if !path.is_dir() || !has_manifest(&path) {
-            continue;
-        }
-        if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-            if name.starts_with(".tmp-") {
-                continue;
-            }
-        }
-        if let Ok(info) = read_plugin_info_from_dir(&path) {
-            if info.id == plugin_id {
-                return Some(path);
-            }
-        }
-    }
-    None
+/// Resolve kind-scoped bundles first, then flat bundles (including renamed ones).
+pub fn resolve_plugin_dir(plugin_id: &str) -> Result<PathBuf, String> {
+    super::layout::resolve_driver(&get_plugins_dir()?, plugin_id)
 }
 
 pub fn list_installed() -> Result<Vec<InstalledPluginInfo>, String> {
     let plugins_dir = get_plugins_dir()?;
     let mut plugins = Vec::new();
 
-    let entries = match fs::read_dir(&plugins_dir) {
-        Ok(e) => e,
-        Err(_) => return Ok(plugins),
-    };
-
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if !path.is_dir() {
-            continue;
-        }
-
-        // Skip temp directories
-        if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-            if name.starts_with(".tmp-") {
-                continue;
-            }
-        }
-
-        if !has_manifest(&path) {
-            continue;
-        }
-
+    for path in super::layout::driver_directories(&plugins_dir)? {
         if let Ok(plugin) = read_plugin_info_from_dir(&path) {
             plugins.push(plugin);
         }

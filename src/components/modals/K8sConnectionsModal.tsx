@@ -762,7 +762,7 @@ export function K8sConnectionsModal({
           <div className="flex items-center gap-2">
             <button
               onClick={handleCreate}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-600 hover:bg-blue-500 text-white rounded-md transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-md transition-colors"
             >
               <Plus size={12} />
               {t("k8sConnections.add", { defaultValue: "Add" })}
@@ -1065,7 +1065,7 @@ function EditForm({
         <button
           onClick={onSave}
           disabled={isActionPending}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-md transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 text-inverse rounded-md transition-colors"
         >
           <Check size={12} />
           {t("common.save")}

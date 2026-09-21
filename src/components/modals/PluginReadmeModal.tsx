@@ -206,7 +206,7 @@ export function PluginReadmeModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors cursor-pointer"
+            className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-lg text-sm font-medium transition-colors cursor-pointer"
           >
             {t("common.close")}
           </button>

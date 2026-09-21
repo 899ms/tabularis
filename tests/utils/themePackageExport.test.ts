@@ -10,7 +10,10 @@ describe("theme package export", () => {
     const original = builtinCatalog().themes[0].entry;
     const source = JSON.parse(original.source); source.monacoTheme = { base: "vs-dark", inherit: true };
     const entry = resolveCatalogEntry({ ...original, id: "custom-generated", source: JSON.stringify(source), origin: { kind: "personal" }, readOnly: false });
+    const before = JSON.stringify(entry);
+    expect(entry.resolved.editor.colors?.["editor.lineHighlightBorder"]).toBe("transparent");
     const definition = materializePackageDefinition(entry);
+    expect(JSON.stringify(entry)).toBe(before);
     expect(definition.layout?.borderRadius).toEqual({});
     expect(definition.editor?.colors).toEqual({});
     expect(exportThemePackage(entry, manifest, "Fixture license").byteLength).toBeGreaterThan(0);

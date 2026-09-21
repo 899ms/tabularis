@@ -204,7 +204,7 @@ export const ExportConnectionsModal = ({
           <button
             onClick={handleExport}
             disabled={loading}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 text-inverse rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
           >
             {loading && <Loader2 size={16} className="animate-spin" />}
             {t("connections.exportModal.export")}

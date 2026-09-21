@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Monitor, Code2 } from "lucide-react";
 import clsx from "clsx";
@@ -21,29 +21,12 @@ import { FontPicker } from "./FontPicker";
 import { ThemePicker } from "./ThemePicker";
 import { ThemeManager } from "./ThemeManager";
 import { ResultColorsSection } from "./ResultColorsSection";
-import { themeRegistry } from "../../themes/themeRegistry";
 
 export function AppearanceTab() {
   const { t } = useTranslation();
   const { settings, updateSetting } = useSettings();
-  const {
-    currentTheme,
-    allThemes,
-    setTheme,
-    settings: themeSettings,
-    updateSettings,
-    isLoading: themeLoading,
-  } = useTheme();
+  const { allThemes } = useTheme();
   const [subTab, setSubTab] = useState<"general" | "editor">("general");
-  const [themeError, setThemeError] = useState("");
-  const themeSaveRequest = useRef(0);
-  const saveThemeChoice = (operation: () => Promise<void>) => {
-    const request = ++themeSaveRequest.current;
-    setThemeError("");
-    void operation().catch((error) => {
-      if (request === themeSaveRequest.current) setThemeError(String(error));
-    });
-  };
 
   return (
     <div>
@@ -78,64 +61,6 @@ export function AppearanceTab() {
       {/* General sub-tab */}
       {subTab === "general" && (
         <>
-          <fieldset disabled={themeLoading}>
-          <SettingSection title={t("settings.themeSelection")}>
-            <SettingRow
-              label={t("settings.themeMode")}
-              description={t("settings.themeModeDesc")}
-            >
-              <SettingButtonGroup
-                value={themeSettings.followSystemTheme ? "system" : "static"}
-                onChange={(mode) =>
-                  saveThemeChoice(() => updateSettings({ followSystemTheme: mode === "system" }))
-                }
-                options={[
-                  { value: "static", label: t("settings.themeModeStatic") },
-                  { value: "system", label: t("settings.themeModeSystem") },
-                ]}
-              />
-            </SettingRow>
-
-            {themeSettings.followSystemTheme ? (
-              <>
-                <div className="py-3">
-                  <p className="text-sm text-muted mb-2">
-                    {t("settings.lightTheme")}
-                  </p>
-                  <ThemePicker
-                    value={themeSettings.lightThemeId}
-                    onChange={(id) => saveThemeChoice(() => updateSettings({ lightThemeId: id }))}
-                    themes={allThemes.filter((theme) =>
-                      themeRegistry.isLightTheme(theme),
-                    )}
-                  />
-                </div>
-                <div className="py-3">
-                  <p className="text-sm text-muted mb-2">
-                    {t("settings.darkTheme")}
-                  </p>
-                  <ThemePicker
-                    value={themeSettings.darkThemeId}
-                    onChange={(id) => saveThemeChoice(() => updateSettings({ darkThemeId: id }))}
-                    themes={allThemes.filter((theme) =>
-                      themeRegistry.isDarkTheme(theme),
-                    )}
-                  />
-                </div>
-              </>
-            ) : (
-              <div className="py-3">
-                <ThemePicker
-                  value={currentTheme.id}
-                  onChange={(id) => saveThemeChoice(() => setTheme(id))}
-                  themes={allThemes}
-                />
-              </div>
-            )}
-          </SettingSection>
-
-          </fieldset>
-          {themeError && <p role="alert" className="text-red-400 text-sm mb-4">{themeError}</p>}
           <ThemeManager />
 
           <SettingSection title={t("settings.fontFamily")}>

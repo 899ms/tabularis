@@ -28,7 +28,7 @@ fn install(root: &Path) -> String {
         &|| Ok(()),
     )
     .unwrap();
-    install_validated_theme(&root.join("theme-packages"), &key, &package, &|| Ok(())).unwrap();
+    install_validated_theme(&root.join("plugins"), &key, &package, &|| Ok(())).unwrap();
     key
 }
 
@@ -36,7 +36,7 @@ fn install(root: &Path) -> String {
 fn empty_profile_reads_do_not_create_directories_and_keep_all_builtins() {
     let temp = tempfile::tempdir().unwrap();
     let absent = temp.path().join("absent");
-    let catalog = read_theme_catalog(&absent, "0.99.0");
+    let catalog = read_theme_catalog(&absent, &absent, "0.99.0");
     assert_eq!(catalog.themes.len(), 12);
     assert!(catalog.issues.is_empty(), "{:?}", catalog.issues);
     assert!(catalog
@@ -66,7 +66,7 @@ fn native_and_frontend_legacy_shapes_and_nulls_are_read_without_rewriting() {
     let before: Vec<_> = (0..3)
         .map(|i| fs::read(temp.path().join(format!("themes/{i}.json"))).unwrap())
         .collect();
-    let catalog = read_theme_catalog(temp.path(), "0.99.0");
+    let catalog = read_theme_catalog(temp.path(), temp.path(), "0.99.0");
     assert_eq!(catalog.themes.len(), 15, "{:?}", catalog.issues);
     for entry in catalog
         .themes
@@ -90,7 +90,7 @@ fn corrupt_and_colliding_personal_files_do_not_hide_builtins_or_get_renamed() {
     store(temp.path(), "a.json", &value);
     store(temp.path(), "b.json", &value);
     fs::write(temp.path().join("themes/corrupt.json"), b"{").unwrap();
-    let catalog = read_theme_catalog(temp.path(), "0.99.0");
+    let catalog = read_theme_catalog(temp.path(), temp.path(), "0.99.0");
     assert_eq!(catalog.themes.len(), 12);
     assert!(!catalog.issues.is_empty());
     assert_eq!(fs::read_dir(temp.path().join("themes")).unwrap().count(), 3);
@@ -155,7 +155,7 @@ fn import_issues_distinct_native_ids_and_preserves_source_metadata() {
     assert_eq!(a["extra"], value["extra"]);
     assert_eq!(a["isPreset"], false);
     assert_eq!(a["isReadOnly"], false);
-    assert_eq!(read_theme_catalog(temp.path(), "0.99.0").themes.len(), 14);
+    assert_eq!(read_theme_catalog(temp.path(), temp.path(), "0.99.0").themes.len(), 14);
 }
 
 #[test]
@@ -187,7 +187,7 @@ fn definitions_are_additive_and_stale_updates_do_not_replace_them() {
     )
     .is_err());
     assert_eq!(
-        read_theme_catalog(temp.path(), "0.99.0")
+        read_theme_catalog(temp.path(), temp.path(), "0.99.0")
             .themes
             .into_iter()
             .find(|t| t.id == created.id)
@@ -196,16 +196,16 @@ fn definitions_are_additive_and_stale_updates_do_not_replace_them() {
         "Changed"
     );
     remove_personal_theme(temp.path(), &created.id).unwrap();
-    assert_eq!(read_theme_catalog(temp.path(), "0.99.0").themes.len(), 12);
+    assert_eq!(read_theme_catalog(temp.path(), temp.path(), "0.99.0").themes.len(), 12);
 }
 
 #[test]
 fn installed_catalog_uses_host_identity_and_never_activates_or_recovers() {
     let temp = tempfile::tempdir().unwrap();
     let key = install(temp.path());
-    let namespace = temp.path().join("theme-packages").join(&key);
+    let namespace = temp.path().join("plugins/themes");
     fs::create_dir(namespace.join(".staging-00000000-0000-0000-0000-000000000000")).unwrap();
-    let catalog = read_theme_catalog(temp.path(), "0.99.0");
+    let catalog = read_theme_catalog(temp.path(), temp.path(), "0.99.0");
     assert_eq!(catalog.themes.len(), 13, "{:?}", catalog.issues);
     let theme = catalog
         .themes
@@ -219,20 +219,20 @@ fn installed_catalog_uses_host_identity_and_never_activates_or_recovers() {
         .join(".staging-00000000-0000-0000-0000-000000000000")
         .exists());
     assert!(!temp.path().join("config.json").exists());
-    assert_eq!(read_theme_catalog(temp.path(), "0.24.0").themes.len(), 12);
+    assert_eq!(read_theme_catalog(temp.path(), temp.path(), "0.24.0").themes.len(), 12);
 }
 
 #[test]
 fn package_tampering_isolated_and_disabled_variants_keep_identity() {
     let temp = tempfile::tempdir().unwrap();
-    let key = install(temp.path());
-    let namespace = temp.path().join("theme-packages").join(&key);
+    install(temp.path());
+    let namespace = temp.path().join("plugins/themes");
     fs::write(namespace.join(".disabled-fixture-theme"), "1").unwrap();
-    let catalog = read_theme_catalog(temp.path(), "0.99.0");
+    let catalog = read_theme_catalog(temp.path(), temp.path(), "0.99.0");
     assert_eq!(catalog.themes.len(), 13);
     assert!(!catalog.themes.last().unwrap().available);
     fs::write(namespace.join("fixture-theme/extra.js"), "do not execute").unwrap();
-    let catalog = read_theme_catalog(temp.path(), "0.99.0");
+    let catalog = read_theme_catalog(temp.path(), temp.path(), "0.99.0");
     assert_eq!(catalog.themes.len(), 12);
     assert!(!catalog.issues.is_empty());
 }
@@ -242,19 +242,17 @@ fn duplication_is_independent_and_issued_by_native_context() {
     let temp = tempfile::tempdir().unwrap();
     let key = install(temp.path());
     let id = format!("theme:{key}:fixture-theme:dark");
-    let copy = duplicate_personal_theme(temp.path(), "0.99.0", &id, "My copy", None).unwrap();
+    let copy = duplicate_personal_theme(temp.path(), temp.path(), "0.99.0", &id, "My copy", None).unwrap();
     assert_ne!(copy.id, id);
     assert_eq!(copy.origin["kind"], "personal");
     assert!(!copy.read_only);
-    fs::remove_dir_all(temp.path().join("theme-packages")).unwrap();
-    assert!(read_theme_catalog(temp.path(), "0.99.0")
+    fs::remove_dir_all(temp.path().join("plugins")).unwrap();
+    assert!(read_theme_catalog(temp.path(), temp.path(), "0.99.0")
         .themes
         .iter()
         .any(|t| t.id == copy.id));
     let editor = json!({"base":"vs-dark","inherit":true,"rules":[],"colors":{"editor.background":"#123456"}});
-    let snapshot = duplicate_personal_theme(
-        temp.path(),
-        "0.99.0",
+    let snapshot = duplicate_personal_theme(temp.path(), temp.path(), "0.99.0",
         "tabularis-dark",
         "Snapshot",
         Some(editor.clone()),
@@ -273,7 +271,7 @@ fn symlinked_files_and_roots_never_read_or_modify_external_data() {
     let root = temp.path().join("profile");
     fs::create_dir(&root).unwrap();
     symlink(outside.join("themes"), root.join("themes")).unwrap();
-    let catalog = read_theme_catalog(&root, "0.99.0");
+    let catalog = read_theme_catalog(&root, &root, "0.99.0");
     assert_eq!(catalog.themes.len(), 12);
     assert!(!catalog.issues.is_empty());
     assert!(save_legacy_theme(&root, legacy()).is_err());

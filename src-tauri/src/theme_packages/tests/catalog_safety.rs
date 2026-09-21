@@ -21,9 +21,7 @@ fn catalog_read_budget_counts_invalid_sources_without_writing_them() {
 fn duplicated_legacy_snapshots_remain_editable_and_exportable() {
     let root = tempfile::tempdir().unwrap();
     let editor = serde_json::json!({"base":"vs-dark","inherit":true,"colors":{"editor.background":"#123456"},"rules":[]});
-    let duplicate = super::super::duplicate_personal_theme(
-        root.path(),
-        "0.99.0",
+    let duplicate = super::super::duplicate_personal_theme(root.path(), root.path(), "0.99.0",
         "monokai",
         "Copy",
         Some(editor.clone()),
@@ -40,7 +38,7 @@ fn duplicated_legacy_snapshots_remain_editable_and_exportable() {
     let source: serde_json::Value =
         serde_json::from_str(snapshot["source"].as_str().unwrap()).unwrap();
     assert_eq!(source["colors"]["bg"]["base"], "#abcdef");
-    let entry = read_theme_catalog(root.path(), "0.99.0")
+    let entry = read_theme_catalog(root.path(), root.path(), "0.99.0")
         .themes
         .into_iter()
         .find(|entry| entry.id == duplicate.id)
@@ -86,7 +84,7 @@ fn standalone_preview_keeps_v1_validation_strict() {
 #[test]
 fn fifo_namespace_locks_are_rejected_without_opening_them() {
     let root = tempfile::tempdir().unwrap();
-    let namespace = root.path().join("theme-packages").join("a".repeat(64));
+    let namespace = root.path().join("plugins/themes");
     fs::create_dir_all(&namespace).unwrap();
     assert!(std::process::Command::new("mkfifo")
         .arg(namespace.join(".lock"))
@@ -94,12 +92,12 @@ fn fifo_namespace_locks_are_rejected_without_opening_them() {
         .unwrap()
         .success());
     assert!(files::package_read_lock(&namespace).is_err());
-    let catalog = read_theme_catalog(root.path(), "0.99.0");
+    let catalog = read_theme_catalog(root.path(), root.path(), "0.99.0");
     assert_eq!(catalog.themes.len(), 12);
     assert!(catalog
         .issues
         .iter()
-        .any(|issue| issue.contains("Invalid theme namespace lock")));
+        .any(|issue| issue.contains("Invalid theme storage lock")));
     assert!(std::process::Command::new("mkfifo")
         .arg(root.path().join(".theme-write.lock"))
         .status()

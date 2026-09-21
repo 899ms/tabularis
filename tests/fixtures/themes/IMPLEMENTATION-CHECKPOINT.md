@@ -8,7 +8,7 @@ The working tree is uncommitted and has not been pushed. PR #793 remains open.
 
 ## Implemented in this checkpoint
 
-- Public local assets under `public/schemas/`: definition, manifest, concrete
+- Bundled local assets under `src/schemas/`: definition, manifest, concrete
   limits, frozen light/dark/high-contrast fallback bases and an operator-only
   theme kind extension example. `$id` URLs identify the schemas; publication
   at those URLs has NOT been performed or verified.

@@ -69,7 +69,7 @@ export function AiActivitySessionsTab() {
               })}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-9 w-full rounded border border-strong bg-base pl-9 pr-3 text-sm text-primary placeholder:text-muted focus:border-blue-500 focus:outline-none"
+              className="h-9 w-full rounded border border-strong bg-base pl-9 pr-3 text-sm text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none"
             />
           </div>
           <Select

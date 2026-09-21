@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import Ajv from "ajv";
-import schema from "../../public/schemas/theme-snapshot-v1.json";
+import schema from "../../src/schemas/theme-snapshot-v1.json";
 import vectors from "../fixtures/themes/snapshot-editor-vectors.json";
 import legacy from "../fixtures/themes/legacy-frontend.json";
 

@@ -73,8 +73,7 @@ async fn latest_archive_version_drift_preserves_the_previous_package() {
     .unwrap();
     let path = root
         .path()
-        .join("theme-packages")
-        .join(&key)
+        .join("plugins/themes")
         .join("fixture-theme/.tabularium");
     let before = std::fs::read(&path).unwrap();
     server.state.lock().unwrap().version = "2.0.0".into();

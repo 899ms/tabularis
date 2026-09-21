@@ -16,7 +16,7 @@ fn staged_invalid_archive_and_corrupt_personal_file_are_rejected_without_repairi
     std::fs::write(directory.join("custom-corrupt.json"), source).unwrap();
     let prefs = "{\"theme\":\"custom-corrupt\"}";
     std::fs::write(root.path().join("config.json"), prefs).unwrap();
-    let catalog = read_theme_catalog(root.path(), "0.24.0");
+    let catalog = read_theme_catalog(root.path(), root.path(), "0.24.0");
     assert!(!catalog.issues.is_empty());
     assert!(!catalog
         .themes
@@ -74,7 +74,7 @@ async fn manual_node_fixture_is_usable_by_the_real_sdk_and_theme_installer() {
     transport::install_registry_package(root.path(), &base, &key, "fixture-theme", None, "0.24.0")
         .await
         .unwrap();
-    let installed: Vec<_> = read_theme_catalog(root.path(), "0.24.0")
+    let installed: Vec<_> = read_theme_catalog(root.path(), root.path(), "0.24.0")
         .themes
         .into_iter()
         .filter(|entry| entry.origin["kind"] == "installed")
@@ -90,7 +90,7 @@ async fn manual_node_fixture_is_usable_by_the_real_sdk_and_theme_installer() {
     )
     .await
     .unwrap();
-    let updated = read_theme_catalog(root.path(), "0.24.0");
+    let updated = read_theme_catalog(root.path(), root.path(), "0.24.0");
     assert!(installed.iter().all(|entry| updated
         .themes
         .iter()

@@ -171,7 +171,7 @@ export const ConnectionDiagnosticsModal = ({
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-sm font-medium transition-colors"
+            className="px-4 py-1.5 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-md text-sm font-medium transition-colors"
           >
             {t("common.close")}
           </button>

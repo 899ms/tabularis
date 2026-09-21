@@ -18,7 +18,7 @@ struct Limits {
 }
 
 static LIMITS: Lazy<Limits> = Lazy::new(|| {
-    serde_json::from_str(include_str!("../../../public/schemas/theme-limits-v1.json"))
+    serde_json::from_str(include_str!("../../../src/schemas/theme-limits-v1.json"))
         .expect("Bundled theme limits must be valid")
 });
 
@@ -32,12 +32,12 @@ fn compile_schema(source: &str) -> Result<JSONSchema, String> {
 
 static DEFINITION: Lazy<Result<JSONSchema, String>> = Lazy::new(|| {
     compile_schema(include_str!(
-        "../../../public/schemas/theme-definition-v1.json"
+        "../../../src/schemas/theme-definition-v1.json"
     ))
 });
 static MANIFEST: Lazy<Result<JSONSchema, String>> = Lazy::new(|| {
     compile_schema(include_str!(
-        "../../../public/schemas/theme-package-v1.json"
+        "../../../src/schemas/theme-package-v1.json"
     ))
 });
 
@@ -125,7 +125,15 @@ pub fn is_safe_relative_path(path: &str) -> bool {
         })
 }
 
-/// Identity is bound to configured host context, never an archive property.
+/// Validate a host-issued registry identity (lowercase SHA-256 hex).
+/// Kept for provenance and request guards; it is no longer a directory name.
+pub fn is_registry_namespace(name: &str) -> bool {
+    name.len() == 64
+        && name
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || matches!(byte, b'a'..=b'f'))
+}
+
 pub fn registry_key(base_url: &str) -> Result<String, String> {
     let url = url::Url::parse(base_url).map_err(|error| error.to_string())?;
     if !matches!(url.scheme(), "https" | "http")

@@ -220,13 +220,14 @@ pub fn update_personal_definition(
 /// authority. Native lookup supplies ownership/source and issues the fresh ID.
 pub fn duplicate_personal_theme(
     root: &Path,
+    data_root: &Path,
     host_version: &str,
     source_id: &str,
     name: &str,
     editor: Option<Value>,
 ) -> Result<ThemeContribution, String> {
     validate_name(name)?;
-    let source = read_theme_catalog(root, host_version)
+    let source = read_theme_catalog(root, data_root, host_version)
         .themes
         .into_iter()
         .find(|entry| entry.id == source_id && entry.available)

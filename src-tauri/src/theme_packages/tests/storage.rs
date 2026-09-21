@@ -12,7 +12,7 @@ fn lock_contention_remains_cancellable_without_touching_the_installation() {
     let temporary = tempfile::tempdir().unwrap();
     let key = "a".repeat(64);
     install_validated_theme(temporary.path(), &key, &validated("1.0.0"), &|| Ok(())).unwrap();
-    let folder = temporary.path().join(&key);
+    let folder = temporary.path().join("themes");
     let file = fs::OpenOptions::new()
         .read(true)
         .write(true)
@@ -59,14 +59,14 @@ fn cancellation_after_commit_begins_cannot_misreport_a_committed_update() {
         &fs::read(
             temporary
                 .path()
-                .join(&key)
+                .join("themes")
                 .join("fixture-theme/.tabularium"),
         )
         .unwrap(),
     )
     .unwrap();
     assert_eq!(value["version"], "2.0.0");
-    assert_clean(&temporary.path().join(&key));
+    assert_clean(&temporary.path().join("themes"));
 }
 
 fn validated(version: &str) -> super::super::ValidatedThemePackage {
@@ -94,7 +94,7 @@ fn assert_clean(folder: &Path) {
 #[test]
 fn install_and_update_are_namespaced_and_do_not_touch_preferences_or_personal_files() {
     let temporary = tempfile::tempdir().unwrap();
-    let root = temporary.path().join("theme-packages");
+    let root = temporary.path().join("plugins");
     let key = "a".repeat(64);
     let other_key = "b".repeat(64);
     fs::write(temporary.path().join("config.json"), b"saved selections").unwrap();
@@ -113,15 +113,13 @@ fn install_and_update_are_namespaced_and_do_not_touch_preferences_or_personal_fi
     install_validated_theme(&root, &other_key, &validated("1.0.0"), &|| Ok(())).unwrap();
     install_validated_theme(&root, &key, &validated("2.0.0"), &|| Ok(())).unwrap();
     let manifest: serde_json::Value = serde_json::from_slice(
-        &fs::read(root.join(&key).join("fixture-theme/.tabularium")).unwrap(),
+        &fs::read(root.join("themes/fixture-theme/.tabularium")).unwrap(),
     )
     .unwrap();
     assert_eq!(manifest["version"], "2.0.0");
-    let other: serde_json::Value = serde_json::from_slice(
-        &fs::read(root.join(&other_key).join("fixture-theme/.tabularium")).unwrap(),
-    )
-    .unwrap();
-    assert_eq!(other["version"], "1.0.0");
+    // Different registries replace the same kind/name, not parallel copies.
+    assert!(!root.join(&key).exists());
+    assert!(!root.join(&other_key).exists());
     assert_eq!(
         fs::read(temporary.path().join("config.json")).unwrap(),
         b"saved selections"
@@ -130,7 +128,7 @@ fn install_and_update_are_namespaced_and_do_not_touch_preferences_or_personal_fi
         fs::read(temporary.path().join("themes/personal.json")).unwrap(),
         b"original personal bytes"
     );
-    assert_clean(&root.join(&key));
+    assert_clean(&root.join("themes"));
 }
 
 #[test]
@@ -139,7 +137,7 @@ fn every_precommit_cancellation_point_preserves_the_previous_installation() {
     let key = "a".repeat(64);
     let root = temporary.path();
     install_validated_theme(root, &key, &validated("1.0.0"), &|| Ok(())).unwrap();
-    let original = fs::read(root.join(&key).join("fixture-theme/.tabularium")).unwrap();
+    let original = fs::read(root.join("themes/fixture-theme/.tabularium")).unwrap();
     for cancel_at in 1..=6 {
         let checks = Cell::new(0);
         let result = install_validated_theme(root, &key, &validated("2.0.0"), &|| {
@@ -156,10 +154,10 @@ fn every_precommit_cancellation_point_preserves_the_previous_installation() {
             cancel_at
         );
         assert_eq!(
-            fs::read(root.join(&key).join("fixture-theme/.tabularium")).unwrap(),
+            fs::read(root.join("themes/fixture-theme/.tabularium")).unwrap(),
             original
         );
-        assert_clean(&root.join(&key));
+        assert_clean(&root.join("themes"));
     }
 }
 
@@ -170,7 +168,7 @@ fn replacement_failure_restores_old_data_and_cleans_staging() {
     install_validated_theme(temporary.path(), &key, &validated("1.0.0"), &|| Ok(())).unwrap();
     let destination = temporary
         .path()
-        .join(&key)
+        .join("themes")
         .join("fixture-theme/.tabularium");
     let original = fs::read(&destination).unwrap();
     let result = install_with_rename(
@@ -193,7 +191,7 @@ fn replacement_failure_restores_old_data_and_cleans_staging() {
     );
     assert!(result.is_err());
     assert_eq!(fs::read(destination).unwrap(), original);
-    assert_clean(&temporary.path().join(&key));
+    assert_clean(&temporary.path().join("themes"));
 }
 
 #[test]
@@ -201,7 +199,7 @@ fn failed_rollback_retains_recoverable_originals_and_explicit_recovery_is_idempo
     let temporary = tempfile::tempdir().unwrap();
     let key = "a".repeat(64);
     install_validated_theme(temporary.path(), &key, &validated("1.0.0"), &|| Ok(())).unwrap();
-    let folder = temporary.path().join(&key);
+    let folder = temporary.path().join("themes");
     let original = fs::read(folder.join("fixture-theme/.tabularium")).unwrap();
     let result = install_with_rename(
         temporary.path(),
@@ -233,7 +231,7 @@ fn recovery_removes_precommit_staging_and_keeps_an_already_committed_destination
     let temporary = tempfile::tempdir().unwrap();
     let key = "a".repeat(64);
     install_validated_theme(temporary.path(), &key, &validated("1.0.0"), &|| Ok(())).unwrap();
-    let folder = temporary.path().join(&key);
+    let folder = temporary.path().join("themes");
     let id = Uuid::new_v4();
     fs::create_dir(folder.join(format!(".backup-{}", id))).unwrap();
     fs::write(folder.join(format!(".backup-{}/old", id)), b"old data").unwrap();
@@ -275,7 +273,7 @@ fn untrusted_or_corrupt_recovery_records_cannot_escape_the_namespace() {
     let temporary = tempfile::tempdir().unwrap();
     let key = "a".repeat(64);
     install_validated_theme(temporary.path(), &key, &validated("1.0.0"), &|| Ok(())).unwrap();
-    let folder = temporary.path().join(&key);
+    let folder = temporary.path().join("themes");
     let id = Uuid::new_v4();
     let marker = folder.join(format!(".transaction-{}.json", id));
     fs::write(&marker, br#"{"version":1,"package":"../../escape"}"#).unwrap();
@@ -300,11 +298,11 @@ fn symlinked_storage_roots_namespaces_and_destinations_are_rejected() {
             "root" => root.clone(),
             "namespace" => {
                 fs::create_dir(&root).unwrap();
-                root.join(&key)
+                root.join("themes")
             }
             _ => {
-                fs::create_dir_all(root.join(&key)).unwrap();
-                root.join(&key).join("fixture-theme")
+                fs::create_dir_all(root.join("themes")).unwrap();
+                root.join("themes").join("fixture-theme")
             }
         };
         symlink(outside.path(), link).unwrap();

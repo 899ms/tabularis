@@ -28,13 +28,13 @@ fn author_generated_original_and_imported_archives_complete_local_lifecycle_with
             validate_theme_archive(first, "fixture-theme", "1.0.0", "0.23.0", &|| Ok(())).is_err()
         );
         install_validated_theme(
-            &root.path().join("theme-packages"),
+            &root.path().join("plugins"),
             &key,
             &validated,
             &|| Ok(()),
         )
         .unwrap();
-        let installed: Vec<_> = read_theme_catalog(root.path(), "0.24.0")
+        let installed: Vec<_> = read_theme_catalog(root.path(), root.path(), "0.24.0")
             .themes
             .into_iter()
             .filter(|entry| entry.origin["kind"] == "installed")
@@ -47,16 +47,16 @@ fn author_generated_original_and_imported_archives_complete_local_lifecycle_with
         let prefs = json!({"theme":dark.id,"editorTheme":dark.id,"themeSettings":{"activeThemeId":dark.id,"darkThemeId":dark.id,"followSystemTheme":true}}).to_string();
         std::fs::write(root.path().join("config.json"), &prefs).unwrap();
         let copy =
-            duplicate_personal_theme(root.path(), "0.24.0", &dark.id, "Independent", None).unwrap();
+            duplicate_personal_theme(root.path(), root.path(), "0.24.0", &dark.id, "Independent", None).unwrap();
         let edited = update_personal_definition(root.path(), &copy.id, "Edited", "{\"schemaVersion\":1,\"mode\":\"dark\",\"colors\":{\"accent\":{\"primary\":\"#ff00aa\"}}}", &copy.revision).unwrap();
         assert_eq!(edited.origin["kind"], "personal");
         let update =
             validate_theme_archive(second, "fixture-theme", "2.0.0", "0.24.0", &|| Ok(())).unwrap();
-        install_validated_theme(&root.path().join("theme-packages"), &key, &update, &|| {
+        install_validated_theme(&root.path().join("plugins"), &key, &update, &|| {
             Ok(())
         })
         .unwrap();
-        let catalog = read_theme_catalog(root.path(), "0.24.0");
+        let catalog = read_theme_catalog(root.path(), root.path(), "0.24.0");
         for entry in &installed {
             assert!(catalog.themes.iter().any(
                 |updated| updated.id == entry.id && updated.origin["packageVersion"] == "2.0.0"
@@ -67,14 +67,14 @@ fn author_generated_original_and_imported_archives_complete_local_lifecycle_with
             edited.source
         );
         lifecycle::set_package_enabled(root.path(), &key, "fixture-theme", false).unwrap();
-        assert!(read_theme_catalog(root.path(), "0.24.0")
+        assert!(read_theme_catalog(root.path(), root.path(), "0.24.0")
             .themes
             .iter()
             .filter(|entry| entry.origin["kind"] == "installed")
             .all(|entry| !entry.available));
         lifecycle::set_package_enabled(root.path(), &key, "fixture-theme", true).unwrap();
         lifecycle::remove_package(root.path(), &key, "fixture-theme").unwrap();
-        assert!(read_theme_catalog(root.path(), "0.24.0")
+        assert!(read_theme_catalog(root.path(), root.path(), "0.24.0")
             .themes
             .iter()
             .all(|entry| entry.origin["kind"] != "installed"));
@@ -82,7 +82,11 @@ fn author_generated_original_and_imported_archives_complete_local_lifecycle_with
             std::fs::read_to_string(root.path().join("config.json")).unwrap(),
             prefs
         );
-        assert!(!root.path().join("plugins").exists());
+        // Installers only create the mapped theme directory, never driver bundles.
+        assert!(std::fs::read_dir(root.path().join("plugins"))
+            .unwrap()
+            .flatten()
+            .all(|entry| entry.file_name() == "themes"));
     }
 }
 
@@ -113,7 +117,7 @@ async fn author_generated_archives_use_read_only_discovery_and_exact_tracked_reg
         )
         .await
         .unwrap();
-        let ids: Vec<_> = read_theme_catalog(root.path(), "0.24.0")
+        let ids: Vec<_> = read_theme_catalog(root.path(), root.path(), "0.24.0")
             .themes
             .into_iter()
             .filter(|entry| entry.origin["kind"] == "installed")
@@ -134,7 +138,7 @@ async fn author_generated_archives_use_read_only_discovery_and_exact_tracked_reg
         )
         .await
         .unwrap();
-        let updated = read_theme_catalog(root.path(), "0.24.0");
+        let updated = read_theme_catalog(root.path(), root.path(), "0.24.0");
         assert!(ids.iter().all(|id| updated
             .themes
             .iter()
@@ -147,7 +151,10 @@ async fn author_generated_archives_use_read_only_discovery_and_exact_tracked_reg
             ]
         );
         assert!(!root.path().join("config.json").exists());
-        assert!(!root.path().join("plugins").exists());
+        assert!(std::fs::read_dir(root.path().join("plugins"))
+            .unwrap()
+            .flatten()
+            .all(|entry| entry.file_name() == "themes"));
     }
 }
 

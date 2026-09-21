@@ -6,7 +6,7 @@ import { resolveLegacyTheme, resolveThemeDefinition } from "../../src/utils/them
 import legacy from "../fixtures/themes/legacy-frontend.json";
 import type { Theme } from "../../src/types/theme";
 import { createInstalledThemeId } from "../../src/utils/themePackageIdentity";
-import schema from "../../public/schemas/theme-definition-v1.json";
+import schema from "../../src/schemas/theme-definition-v1.json";
 
 interface EngineTheme {
   themeName: string;
@@ -87,6 +87,26 @@ describe("actual Monaco theme engine", () => {
     expect(a.getColor("editor.background")?.toString()).toBe(b.getColor("editor.background")?.toString());
     expect(a.tokenTheme.getColorMap()[foreground(a.tokenTheme.match(0, "string.sql"))].toString()).toBe("#abcd12");
     expect(b.tokenTheme.getColorMap()[foreground(b.tokenTheme.match(0, "string.sql"))].toString()).toBe("#abcd12");
+  });
+
+  it.each(["light", "dark", "high-contrast"])("renders omitted %s editor borders as transparent rather than Monaco's invalid-color red", (mode) => {
+    const resolved = resolveThemeDefinition(JSON.stringify({ schemaVersion: 1, mode }), context);
+    const { engine, monaco } = instance();
+    loadMonacoTheme(resolved.theme, monaco);
+    for (const key of ["editor.lineHighlightBorder", "editorOverviewRuler.border", "editorError.background", "editorError.border", "editorWarning.border", "editorInfo.border", "editorHint.border", "inputValidation.errorBorder"]) {
+      expect(resolved.editor.colors?.[key]).toBe("#00000000");
+      expect(engine.getColorTheme().getColor(key)?.toString()).toBe("rgba(0, 0, 0, 0)");
+    }
+    expect(Object.values(resolved.editor.colors ?? {})).not.toContain("transparent");
+  });
+
+  it("preserves explicit author border colors instead of replacing them with transparent defaults", () => {
+    const colors = { "editor.lineHighlightBorder": "#f28c3c", "editorOverviewRuler.border": "#3d2f27" };
+    const resolved = resolveThemeDefinition(JSON.stringify({ schemaVersion: 1, mode: "dark", editor: { colors } }), context);
+    const { engine, monaco } = instance();
+    loadMonacoTheme(resolved.theme, monaco);
+    for (const [key, color] of Object.entries(colors)) expect(engine.getColorTheme().getColor(key)?.toString()).toBe(color);
+    expect(resolved.source.kind === "v1" && resolved.source.value.editor?.colors).toEqual(colors);
   });
 
   it("does not advertise token backgrounds that the DOM renderer ignores", () => {

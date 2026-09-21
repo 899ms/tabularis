@@ -202,7 +202,7 @@ export const McpModal = ({ isOpen, onClose }: McpModalProps) => {
                             e.stopPropagation();
                             handleInstall(client.client_id);
                           }}
-                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-medium transition-colors shadow-lg shadow-blue-900/20 shrink-0"
+                          className="px-3 py-1.5 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-lg text-xs font-medium transition-colors shadow-lg shadow-accent-primary/20 shrink-0"
                         >
                           {t("mcp.install")}
                         </button>

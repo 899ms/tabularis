@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
+import { AlertTriangle, Eye, FileCode, Info, Pencil, Save } from "lucide-react";
 import { ThemeDialog } from "../ui/ThemeDialog";
+import { ThemeDialogButton } from "../ui/ThemeDialogButton";
+import { InlineBanner } from "../ui/InlineBanner";
 import { ThemeSqlSample } from "../ui/ThemeSqlSample";
+import { Select } from "../ui/Select";
 import { useTheme } from "../../hooks/useTheme";
 import { convertVsCodeTheme, VsCodeThemeImportError, type VsCodeThemeDiagnostic } from "../../utils/vsCodeThemeImport";
 import { resolveCatalogEntry } from "../../utils/themeCatalog";
@@ -19,6 +23,7 @@ interface ThemeDocumentModalProps {
 export function ThemeDocumentModal({ isOpen, onClose, kind, original }: ThemeDocumentModalProps) {
   const { t } = useTranslation();
   const themes = useTheme();
+  const modeId = useId();
   const [source, setSource] = useState(original?.entry.source ?? "");
   const [editorSource, setEditorSource] = useState(original?.entry.editor ? JSON.stringify(original.entry.editor, null, 2) : "");
   const snapshot = kind === "edit" && original?.entry.format === "legacy" && !!original.entry.editor;
@@ -75,11 +80,19 @@ export function ThemeDocumentModal({ isOpen, onClose, kind, original }: ThemeDoc
     } catch (failure) { setError(String(failure)); }
     finally { setBusy(false); }
   };
-  return <ThemeDialog isOpen onClose={onClose} busy={busy} title={t(`themePackages.${kind === "vscode" ? "importVSCode" : kind === "edit" ? "edit" : "importJSON"}`)}>
-    <p className="text-sm text-secondary">{t("themePackages.previewHint")}</p>
-    {kind === "vscode" && <p className="text-sm text-secondary">{t("themePackages.licenseNotice")}</p>}
-    <fieldset disabled={busy || committed} className="space-y-3">
-      {kind !== "edit" && <label className="block text-sm">{t("themePackages.file")}<input type="file" accept={kind === "vscode" ? ".json,.jsonc" : ".json"} className="block w-full" onChange={async (event) => {
+  return <ThemeDialog isOpen onClose={onClose} busy={busy} widthClass="w-[760px]"
+    icon={kind === "edit" ? <Pencil size={20} /> : <FileCode size={20} />}
+    title={t(`themePackages.${kind === "vscode" ? "importVSCode" : kind === "edit" ? "edit" : "importJSON"}`)}
+    subtitle={original?.entry.name}
+    footer={<>
+      <ThemeDialogButton className="mr-auto" icon={<Eye size={16} />} onClick={() => void preview()} disabled={busy || committed || !source || !name.trim()}>{t("themePackages.preview")}</ThemeDialogButton>
+      <ThemeDialogButton disabled={busy} onClick={onClose}>{t(committed ? "common.close" : "common.cancel")}</ThemeDialogButton>
+      <ThemeDialogButton variant="primary" icon={<Save size={16} />} disabled={busy || committed || !prepared || (prepared.diagnostics.length > 0 && !acknowledged)} onClick={() => void commit()}>{t("common.save")}</ThemeDialogButton>
+    </>}>
+    <p className="text-sm leading-relaxed text-secondary">{t("themePackages.previewHint")}</p>
+    {kind === "vscode" && <InlineBanner tone="neutral" icon={<Info size={16} />}>{t("themePackages.licenseNotice")}</InlineBanner>}
+    <fieldset disabled={busy || committed} className="space-y-4">
+      {kind !== "edit" && <label className="block space-y-1.5 text-xs font-medium text-secondary">{t("themePackages.file")}<input type="file" accept={kind === "vscode" ? ".json,.jsonc" : ".json"} className="block w-full min-w-0 rounded-lg border border-strong bg-base p-2 text-sm font-normal text-secondary file:mr-3 file:rounded-md file:border-0 file:bg-surface-secondary file:px-3 file:py-1.5 file:text-primary file:cursor-pointer focus-visible:outline focus-visible:outline-accent-primary disabled:opacity-50" onChange={async (event) => {
         const file = event.target.files?.[0]; if (!file) return;
         invalidate(); const request = generation.current;
         const limit = kind === "vscode" ? 256 * 1024 : 8 * 1024 * 1024;
@@ -87,26 +100,24 @@ export function ThemeDocumentModal({ isOpen, onClose, kind, original }: ThemeDoc
         try { const text = await file.text(); if (request === generation.current) setSource(text); }
         catch (failure) { if (request === generation.current) setError(String(failure)); }
       }} /></label>}
-      <label className="block text-sm">{t("themePackages.name")}<input value={name} maxLength={128} onChange={(event) => { invalidate(); setName(event.target.value); }} className="block w-full px-3 py-2 bg-base border border-strong rounded-lg" /></label>
-      {kind === "vscode" && <label className="block text-sm">{t("themePackages.mode")}<select value={mode} onChange={(event) => { invalidate(); setMode(event.target.value as ThemePackageMode | ""); }} className="block bg-base border border-strong rounded-lg p-2">
-        <option value="">{t("themePackages.detectMode")}</option>
-        {(["light", "dark", "high-contrast"] as const).map((value) => <option key={value} value={value}>{t(`themePackages.modes.${value}`)}</option>)}
-      </select></label>}
-      <label className="block text-sm">{t("themePackages.source")}<textarea spellCheck={false} value={source} maxLength={8 * 1024 * 1024} onChange={(event) => { invalidate(); setSource(event.target.value); }} rows={12} className="block w-full font-mono text-xs p-3 bg-base border border-strong rounded-lg" /></label>
-      {snapshot && <label className="block text-sm">{t("themePackages.snapshotEditor")}<textarea aria-label={t("themePackages.snapshotEditor")} spellCheck={false} value={editorSource} onChange={(event) => { invalidate(); setEditorSource(event.target.value); }} maxLength={4 * 1024 * 1024} rows={10} className="block w-full font-mono text-xs p-3 bg-base border border-strong rounded-lg" /><span className="text-muted">{t("themePackages.snapshotEditorHelp")}</span></label>}
-      <button type="button" onClick={() => void preview()} disabled={!source || !name.trim()} className="px-4 py-2 border border-strong rounded-lg disabled:opacity-50">{t("themePackages.preview")}</button>
+      <label className="block space-y-1.5 text-xs font-medium text-secondary">{t("themePackages.name")}<input data-autofocus value={name} maxLength={128} onChange={(event) => { invalidate(); setName(event.target.value); }} className="block w-full px-3 py-2 bg-base border border-strong rounded-lg text-sm font-normal text-primary focus:border-accent-primary focus:outline-none disabled:opacity-50" /></label>
+      {kind === "vscode" && <div className="space-y-1.5">
+        <label htmlFor={modeId} className="block text-xs font-medium text-secondary">{t("themePackages.mode")}</label>
+        <Select id={modeId} value={mode || "auto"} options={["auto", "light", "dark", "high-contrast"]}
+          labels={{ auto: t("themePackages.detectMode"), light: t("themePackages.modes.light"), dark: t("themePackages.modes.dark"), "high-contrast": t("themePackages.modes.high-contrast") }}
+          searchable={false} disabled={busy || committed}
+          onChange={(value) => { invalidate(); setMode(value === "auto" ? "" : value as ThemePackageMode); }} />
+      </div>}
+      <label className="block space-y-1.5 text-xs font-medium text-secondary">{t("themePackages.source")}<textarea spellCheck={false} value={source} maxLength={8 * 1024 * 1024} onChange={(event) => { invalidate(); setSource(event.target.value); }} rows={10} className="block w-full resize-none font-mono font-normal text-xs leading-relaxed p-3 bg-base border border-strong rounded-lg text-primary focus:border-accent-primary focus:outline-none disabled:opacity-50" /></label>
+      {snapshot && <label className="block space-y-1.5 text-xs font-medium text-secondary">{t("themePackages.snapshotEditor")}<textarea aria-label={t("themePackages.snapshotEditor")} spellCheck={false} value={editorSource} onChange={(event) => { invalidate(); setEditorSource(event.target.value); }} maxLength={4 * 1024 * 1024} rows={8} className="block w-full resize-none font-mono font-normal text-xs leading-relaxed p-3 bg-base border border-strong rounded-lg text-primary focus:border-accent-primary focus:outline-none disabled:opacity-50" /><span className="block font-normal leading-relaxed text-muted">{t("themePackages.snapshotEditorHelp")}</span></label>}
       {prepared && <div role="status" className="text-sm text-secondary">{t("themePackages.previewReady")}</div>}
       {!!prepared?.diagnostics.length && <div className="space-y-2">
-        <ul className="text-xs max-h-40 overflow-y-auto">{prepared.diagnostics.map((diagnostic, index) => <li key={index}>{t(`themePackages.diagnostics.${diagnostic.code}`)}: <code>{diagnostic.path}</code></li>)}</ul>
-        <label className="flex gap-2"><input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} />{t("themePackages.acknowledge")}</label>
+        <ul className="text-xs max-h-40 overflow-y-auto rounded-lg border border-strong bg-base p-3 space-y-1 break-words">{prepared.diagnostics.map((diagnostic, index) => <li key={index}>{t(`themePackages.diagnostics.${diagnostic.code}`)}: <code>{diagnostic.path}</code></li>)}</ul>
+        <label className="flex items-start gap-2 text-sm text-secondary"><input className="mt-1 shrink-0 accent-accent-primary" type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} />{t("themePackages.acknowledge")}</label>
       </div>}
-      <label className="flex gap-2"><input type="checkbox" checked={apply} onChange={(event) => setApply(event.target.checked)} />{t("themePackages.applyAfterSave")}</label>
+      <label className="flex items-start gap-2 text-sm text-secondary"><input className="mt-1 shrink-0 accent-accent-primary" type="checkbox" checked={apply} onChange={(event) => setApply(event.target.checked)} />{t("themePackages.applyAfterSave")}</label>
     </fieldset>
     {prepared && !committed && <ThemeSqlSample contribution={prepared.entry} />}
-    {error && <p role="alert" className="text-red-400 text-sm">{error}</p>}
-    <div className="flex justify-end gap-3">
-      <button type="button" disabled={busy} onClick={onClose} className="px-4 py-2">{t(committed ? "common.close" : "common.cancel")}</button>
-      <button type="button" disabled={busy || committed || !prepared || (prepared.diagnostics.length > 0 && !acknowledged)} onClick={() => void commit()} className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50">{t("common.save")}</button>
-    </div>
+    {error && <InlineBanner tone="red" role="alert" icon={<AlertTriangle size={16} />}><p className="whitespace-pre-wrap break-words">{error}</p></InlineBanner>}
   </ThemeDialog>;
 }

@@ -1,4 +1,4 @@
-use crate::paths::get_app_config_dir;
+use crate::paths::{get_app_config_dir, get_default_app_data_dir};
 use crate::theme_packages::{self, ThemeCatalog, ThemeContribution};
 use serde_json::Value;
 use tauri::{AppHandle, Emitter};
@@ -13,7 +13,11 @@ fn committed<T>(app: &AppHandle, result: Result<T, String>) -> Result<T, String>
 
 #[tauri::command]
 pub fn get_theme_catalog() -> ThemeCatalog {
-    theme_packages::read_theme_catalog(&get_app_config_dir(), env!("CARGO_PKG_VERSION"))
+    theme_packages::read_theme_catalog(
+        &get_app_config_dir(),
+        &get_default_app_data_dir(),
+        env!("CARGO_PKG_VERSION"),
+    )
 }
 
 /// Legacy command names and argument names remain available. Raw metadata is
@@ -162,6 +166,7 @@ pub fn duplicate_personal_theme(
         &app,
         theme_packages::duplicate_personal_theme(
             &get_app_config_dir(),
+            &get_default_app_data_dir(),
             env!("CARGO_PKG_VERSION"),
             &theme_id,
             &name,

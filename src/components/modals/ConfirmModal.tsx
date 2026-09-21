@@ -63,17 +63,17 @@ export const ConfirmModal = ({
     danger: {
       icon: <AlertTriangle size={20} className="text-red-400" />,
       iconBg: "bg-red-900/30",
-      button: "bg-red-600 hover:bg-red-500",
+      button: "bg-red-600 hover:bg-red-500 text-white",
     },
     warning: {
       icon: <AlertTriangle size={20} className="text-amber-400" />,
       iconBg: "bg-amber-900/30",
-      button: "bg-amber-600 hover:bg-amber-500",
+      button: "bg-amber-600 hover:bg-amber-500 text-white",
     },
     info: {
       icon: <AlertTriangle size={20} className="text-blue-400" />,
       iconBg: "bg-blue-900/30",
-      button: "bg-blue-600 hover:bg-blue-500",
+      button: "bg-accent-primary hover:bg-accent-primary/90 text-inverse",
     },
   };
 
@@ -114,7 +114,7 @@ export const ConfirmModal = ({
             disabled={isCountingDown}
             className={`${
               confirmClassName ??
-              `px-4 py-2 ${currentVariant.button} text-white rounded-lg text-sm font-medium transition-colors`
+              `px-4 py-2 ${currentVariant.button} rounded-lg text-sm font-medium transition-colors`
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {isCountingDown

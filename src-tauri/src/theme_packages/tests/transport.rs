@@ -65,7 +65,7 @@ async fn latest_and_explicit_updates_follow_one_tracked_redirect_and_preserve_pr
         server.tracked(),
         vec!["/api/plugins/fixture-theme/latest?os=universal&arch=&redirect=1"]
     );
-    let first = read_theme_catalog(root.path(), "0.24.0")
+    let first = read_theme_catalog(root.path(), root.path(), "0.24.0")
         .themes
         .into_iter()
         .find(|entry| entry.origin["kind"] == "installed")
@@ -85,7 +85,7 @@ async fn latest_and_explicit_updates_follow_one_tracked_redirect_and_preserve_pr
     )
     .await
     .unwrap();
-    let updated = read_theme_catalog(root.path(), "0.24.0")
+    let updated = read_theme_catalog(root.path(), root.path(), "0.24.0")
         .themes
         .into_iter()
         .find(|entry| entry.origin["kind"] == "installed")
@@ -168,8 +168,7 @@ async fn integrity_and_download_limits_leave_the_previous_installation_unchanged
     .unwrap();
     let path = root
         .path()
-        .join("theme-packages")
-        .join(&key)
+        .join("plugins/themes")
         .join("fixture-theme/.tabularium");
     let before = std::fs::read(&path).unwrap();
     for failure in ["hash", "signature", "oversize"] {

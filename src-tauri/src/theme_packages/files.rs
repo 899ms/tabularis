@@ -139,20 +139,21 @@ pub(super) fn write_lock(root: &Path) -> Result<File, String> {
     Ok(file)
 }
 
-pub(super) fn package_read_lock(namespace: &Path) -> Result<File, String> {
+pub(super) fn package_read_lock(namespace: &Path) -> Result<Option<File>, String> {
     let path = namespace.join(".lock");
     check_path(&path)?;
-    if !fs::symlink_metadata(&path)
-        .map_err(|e| e.to_string())?
-        .is_file()
-    {
-        return Err("Invalid theme namespace lock".into());
+    match fs::symlink_metadata(&path) {
+        // Manual bundles do not have an installer lock. Reads never create it.
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(e) => return Err(e.to_string()),
+        Ok(metadata) if metadata.is_file() => (),
+        Ok(_) => return Err("Invalid theme storage lock".into()),
     }
     let file =
         File::open(path).map_err(|_| "Theme namespace has no installation lock".to_string())?;
     if !file.metadata().map_err(|e| e.to_string())?.is_file() {
         return Err("Invalid theme namespace lock".into());
     }
-    FileExt::try_lock_shared(&file).map_err(|_| "Theme namespace is being updated".to_string())?;
-    Ok(file)
+    FileExt::try_lock_shared(&file).map_err(|_| "Theme storage is being updated".to_string())?;
+    Ok(Some(file))
 }

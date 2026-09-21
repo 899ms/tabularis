@@ -128,8 +128,11 @@ fn package_location(
     {
         return Err("Invalid installed theme identity".into());
     }
-    let namespace = root.join(catalog::PACKAGES_DIR).join(registry);
-    let location = namespace.join(package);
+    let location = super::locations::resolve_package(root, package)?;
+    if super::locations::package_registry(&location)? != registry {
+        return Err("Installed theme identity changed; refresh the catalog".into());
+    }
+    let namespace = location.parent().ok_or("Missing theme parent")?.to_path_buf();
     files::check_path(&location)?;
     if !fs::symlink_metadata(&location)
         .map_err(|e| e.to_string())?
@@ -143,15 +146,16 @@ fn package_location(
 fn lock_namespace(namespace: &Path) -> Result<File, String> {
     let path = namespace.join(".lock");
     files::check_path(&path)?;
-    if !fs::symlink_metadata(&path)
-        .map_err(|e| e.to_string())?
-        .is_file()
-    {
-        return Err("Invalid theme namespace lock".into());
+    match fs::symlink_metadata(&path) {
+        Ok(meta) if !meta.is_file() => return Err("Invalid theme storage lock".into()),
+        Err(e) if e.kind() != std::io::ErrorKind::NotFound => return Err(e.to_string()),
+        _ => (),
     }
     let file = fs::OpenOptions::new()
         .read(true)
         .write(true)
+        .create(true)
+        .truncate(false)
         .open(path)
         .map_err(|e| e.to_string())?;
     FileExt::try_lock_exclusive(&file)
@@ -165,8 +169,12 @@ pub fn set_package_enabled(
     package: &str,
     enabled: bool,
 ) -> Result<(), String> {
+    let storage = root.join(catalog::PACKAGES_DIR).join(super::locations::directory_name());
+    // Serialize flat-bundle mutations with installs into the canonical folder.
+    package_location(root, registry, package)?;
+    files::create_directory(&storage)?;
+    let _lock = lock_namespace(&storage)?;
     let (namespace, _) = package_location(root, registry, package)?;
-    let _lock = lock_namespace(&namespace)?;
     let marker = namespace.join(format!(".disabled-{package}"));
     files::check_path(&marker)?;
     if enabled {
@@ -181,8 +189,16 @@ pub fn set_package_enabled(
 }
 
 pub fn remove_package(root: &Path, registry: &str, package: &str) -> Result<ThemeCommit, String> {
+    let storage = root.join(catalog::PACKAGES_DIR).join(super::locations::directory_name());
+    package_location(root, registry, package)?;
+    files::create_directory(&storage)?;
+    let _lock = lock_namespace(&storage)?;
     let (namespace, location) = package_location(root, registry, package)?;
-    let _lock = lock_namespace(&namespace)?;
+    let fallback = root.join(catalog::PACKAGES_DIR).join(package);
+    if !crate::plugins::layout::is_kind_directory(package) && fallback != location
+        && super::locations::is_theme_package(&fallback).unwrap_or(false) {
+        fs::remove_dir_all(&fallback).map_err(|e| e.to_string())?;
+    }
     let removed = namespace.join(format!(".removed-{}", uuid::Uuid::new_v4()));
     fs::rename(location, &removed).map_err(|e| e.to_string())?;
     let mut warnings = Vec::new();

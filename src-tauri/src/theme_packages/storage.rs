@@ -73,7 +73,8 @@ fn namespace(root: &Path, registry_key: &str) -> Result<PathBuf, String> {
     {
         return Err("Invalid host-issued theme registry identity".into());
     }
-    Ok(root.join(registry_key))
+    super::files::check_path(root)?;
+    Ok(root.join(super::locations::directory_name()))
 }
 
 fn storage_lock(
@@ -263,6 +264,8 @@ pub(super) fn install_with_rename(
         create_directory(path.parent().ok_or("Missing theme file parent")?)?;
         write_new(&path, bytes)?;
     }
+    // Provenance is host-owned metadata, never accepted from an archive.
+    write_new(&staging.0.join(super::locations::ORIGIN_FILE), registry_key.as_bytes())?;
     sync_directory(&staging.0)?;
     check_cancelled()?;
     let marker = folder.join(format!(".transaction-{}.json", id));
@@ -315,6 +318,32 @@ pub(super) fn install_with_rename(
     })();
     if let Err(error) = cleanup {
         warnings.push(format!("Committed theme cleanup pending: {}", error));
+    }
+    // A successful update migrates flat themes into the kind directory. Never
+    // retire a driver with the same name, or touch fallback data on failure.
+    let fallback = root.join(name);
+    if !crate::plugins::layout::is_kind_directory(name) {
+        let cleanup = (|| -> Result<(), String> {
+            let old_marker = root.join(format!(".disabled-{name}"));
+            let marker = folder.join(format!(".disabled-{name}"));
+            if old_marker.try_exists().map_err(|e| e.to_string())?
+                && !marker.try_exists().map_err(|e| e.to_string())?
+            {
+                let value = super::files::read_file(&old_marker, 1)?;
+                if value != "1" { return Err("Invalid disabled theme marker".into()); }
+                super::files::atomic_write(&marker, b"1", false)?;
+            }
+            if super::locations::is_theme_package(&fallback).unwrap_or(false) {
+                fs::remove_dir_all(&fallback).map_err(|e| e.to_string())?;
+            }
+            if old_marker.try_exists().map_err(|e| e.to_string())? {
+                fs::remove_file(old_marker).map_err(|e| e.to_string())?;
+            }
+            Ok(())
+        })();
+        if let Err(error) = cleanup {
+            warnings.push(format!("Installed theme; fallback cleanup pending: {error}"));
+        }
     }
     Ok(ThemeCommit { warnings })
 }

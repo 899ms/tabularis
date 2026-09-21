@@ -5,9 +5,7 @@ use serde_json::{json, Value};
 fn standalone_snapshot_roundtrip_keeps_editor_and_original_bytes() {
     let profile = tempfile::tempdir().unwrap();
     let editor = json!({"base":"vs-dark","inherit":true,"colors":{"editor.background":"#123456"},"rules":[{"token":"keyword.sql","foreground":"abcdef","fontStyle":"italic"}]});
-    let entry = duplicate_personal_theme(
-        profile.path(),
-        "0.24.0",
+    let entry = duplicate_personal_theme(profile.path(), profile.path(), "0.24.0",
         "dracula",
         "Independent",
         Some(editor.clone()),
@@ -44,9 +42,7 @@ fn snapshot_rejects_aliases_invalid_bases_and_invalid_camelcase_styles_before_wr
         json!({"base":"vs-dark","inherit":true,"rules":[{"token":"x","fontStyle":{}}]}),
     ] {
         let profile = tempfile::tempdir().unwrap();
-        assert!(duplicate_personal_theme(
-            profile.path(),
-            "0.24.0",
+        assert!(duplicate_personal_theme(profile.path(), profile.path(), "0.24.0",
             "tabularis-dark",
             "Copy",
             Some(editor)
@@ -59,9 +55,7 @@ fn snapshot_rejects_aliases_invalid_bases_and_invalid_camelcase_styles_before_wr
 #[test]
 fn missing_snapshot_collections_do_not_leak_named_source_rules() {
     let profile = tempfile::tempdir().unwrap();
-    let entry = duplicate_personal_theme(
-        profile.path(),
-        "0.24.0",
+    let entry = duplicate_personal_theme(profile.path(), profile.path(), "0.24.0",
         "dracula",
         "Empty editor",
         Some(json!({"base":"vs-dark","inherit":true})),

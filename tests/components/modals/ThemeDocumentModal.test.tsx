@@ -74,13 +74,36 @@ describe("ThemeDocumentModal", () => {
     source('{"type":"hcLight","colors":{"editor.background":"#ffffff"}}');
     fireEvent.click(screen.getByRole("button", { name: "themePackages.preview" }));
     await screen.findByText("themePackages.importErrors.modeRequired"); expect(mocks.invoke).not.toHaveBeenCalled();
-    fireEvent.change(screen.getByLabelText("themePackages.mode"), { target: { value: "light" } });
+    const mode = screen.getByLabelText("themePackages.mode");
+    expect(mode.tagName).toBe("BUTTON");
+    fireEvent.click(mode);
+    fireEvent.click(screen.getByRole("button", { name: "themePackages.modes.light", exact: true }));
     fireEvent.click(screen.getByRole("button", { name: "themePackages.preview" }));
     await screen.findByText("themePackages.previewReady");
     source('{"type":"light","colors":{"editor.background":"#eeeeee"}}');
     expect(screen.queryByText("themePackages.previewReady")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "common.save" })).toBeDisabled();
   });
+  it("restores automatic mode through the shared picker and invalidates a prepared preview", async () => {
+    render(<ThemeDocumentModal isOpen onClose={vi.fn()} kind="vscode" />);
+    source('{"type":"dark","colors":{"editor.background":"#123456"}}');
+    const picker = screen.getByLabelText("themePackages.mode");
+    expect(picker).toHaveTextContent("themePackages.detectMode");
+    fireEvent.click(picker);
+    fireEvent.click(screen.getByRole("button", { name: "themePackages.modes.light", exact: true }));
+    expect(picker).toHaveTextContent("themePackages.modes.light");
+    fireEvent.click(screen.getByRole("button", { name: "themePackages.preview" }));
+    await screen.findByText("themePackages.previewReady");
+    fireEvent.click(picker);
+    fireEvent.click(screen.getByRole("button", { name: "themePackages.detectMode", exact: true }));
+    expect(picker).toHaveTextContent("themePackages.detectMode");
+    expect(screen.queryByText("themePackages.previewReady")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "common.save" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "themePackages.preview" }));
+    await screen.findByText("themePackages.previewReady");
+    expect(JSON.parse(mocks.invoke.mock.lastCall?.[1].source).mode).toBe("dark");
+  });
+
   it("does not repeat a committed import when applying its selection fails", async () => {
     mocks.setTheme.mockRejectedValueOnce(new Error("save_config failed"));
     render(<ThemeDocumentModal isOpen onClose={vi.fn()} kind="tabularis" />);
@@ -95,7 +118,10 @@ describe("ThemeDocumentModal", () => {
   it("contains keyboard focus, handles Escape and restores the invoking control", () => {
     const button = document.createElement("button"); document.body.append(button); button.focus();
     const close = vi.fn(); const view = render(<ThemeDocumentModal isOpen onClose={close} kind="tabularis" />);
-    expect(screen.getByRole("dialog")).toHaveFocus();
+    expect(screen.getByLabelText("themePackages.name")).toHaveFocus();
+    expect(screen.getByRole("button", { name: "common.save" }).closest(".overflow-y-auto")).toBeNull();
+    expect(screen.getByRole("button", { name: "themePackages.preview" }).closest(".overflow-y-auto")).toBeNull();
+    screen.getByRole("dialog").focus();
     fireEvent.keyDown(screen.getByRole("dialog"), { key: "Tab", shiftKey: true });
     expect(screen.getByRole("button", { name: "common.cancel" })).toHaveFocus();
     fireEvent.keyDown(window, { key: "Escape" }); expect(close).toHaveBeenCalledOnce();

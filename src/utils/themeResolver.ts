@@ -1,4 +1,4 @@
-import frozenBases from "../../public/schemas/theme-bases-v1.json";
+import frozenBases from "../schemas/theme-bases-v1.json";
 import type { Theme, MonacoThemeDefinition } from "../types/theme";
 import type { ThemeContributionContext, ThemePackageMode, ResolvedThemeContribution } from "../types/themePackage";
 import { generateMonacoTheme, getMonacoThemeDefinition } from "../themes/themeUtils";
@@ -84,6 +84,11 @@ export function resolveThemeDefinition(source: string, context: ThemeContributio
   };
   const generated = generateMonacoTheme(theme);
   const generatedColors = { ...generated.colors };
+  // Monaco parses hexadecimal colors only; the CSS keyword falls back to red.
+  // Normalize v1 defaults before author overrides, leaving legacy snapshots intact.
+  for (const [key, color] of Object.entries(generatedColors)) {
+    if (color === "transparent") generatedColors[key] = "#00000000";
+  }
   // Preserve the legacy six-digit defaults, but compose alpha numerically for
   // v1 input. The compatibility adapter deliberately retains legacy output.
   const alphaDefaults: Array<[string, string, number]> = [

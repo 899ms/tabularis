@@ -13,7 +13,13 @@ function canonical(value: unknown): string {
 /** Refuse a lossy legacy conversion instead of advertising a faithful export. */
 export function materializePackageDefinition(contribution: CatalogTheme): ThemeDefinitionV1 {
   if (contribution.entry.format === "v1") return parseThemeDefinition(contribution.entry.source);
-  const { theme, editor } = contribution.resolved;
+  const { theme } = contribution.resolved;
+  // Compare intended transparency with the v1 hex-only defaults. Do not mutate
+  // the legacy source or snapshot when repairing this unsupported CSS keyword.
+  const editor = {
+    ...contribution.resolved.editor,
+    colors: Object.fromEntries(Object.entries(contribution.resolved.editor.colors ?? {}).map(([key, color]) => [key, color === "transparent" ? "#00000000" : color])),
+  };
   const context = { id: "theme:export-preview", name: contribution.entry.name, revision: "export", origin: { kind: "personal" as const } };
   const defaults = resolveThemeDefinition(JSON.stringify({ schemaVersion: 1, mode: contribution.entry.mode }), context).theme;
   if (editor.inherit === false) throw new Error("Legacy editor inherit=false cannot be represented; use standalone JSON export.");

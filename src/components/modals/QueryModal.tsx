@@ -135,7 +135,7 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium disabled:opacity-50 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded font-medium disabled:opacity-50 transition-colors"
             >
               <Save size={16} />
               {isSaving ? 'Saving...' : 'Save'}

@@ -32,15 +32,25 @@ import {
   Search,
   FolderOpen,
   CircleStop,
+  Palette,
 } from "lucide-react";
 import clsx from "clsx";
 import { useSettings } from "../../hooks/useSettings";
 import { useDrivers } from "../../hooks/useDrivers";
+import { useTheme } from "../../hooks/useTheme";
 import { usePluginRegistry } from "../../hooks/usePluginRegistry";
 import { useSearchParams } from "react-router-dom";
 import { useDatabase } from "../../hooks/useDatabase";
 import { PluginCard, PLUGIN_ICON_BUTTON_CLASS } from "../plugins/PluginCard";
 import { getPluginVersionState } from "../../utils/pluginVersions";
+import { mergeLocalThemePlugins } from "../../utils/localThemePlugins";
+import { getPluginUpdates } from "../../utils/pluginUpdates";
+import {
+  matchesPluginKind,
+  parsePluginKindFilter,
+  pluginKind,
+  type PluginKindFilter,
+} from "../../utils/plugins";
 import { removePluginConfig } from "../../utils/pluginConfig";
 import { findConnectionsForDrivers } from "../../utils/connectionManager";
 import { APP_VERSION } from "../../version";
@@ -441,17 +451,23 @@ function PluginToggle({
   enabled,
   disabled,
   onToggle,
+  label,
+  title,
 }: {
   enabled: boolean;
   disabled?: boolean;
   onToggle: () => void;
+  label?: string;
+  title?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onToggle}
       disabled={disabled}
-      aria-label={enabled ? "Disable plugin" : "Enable plugin"}
+      aria-label={label ?? (enabled ? "Disable plugin" : "Enable plugin")}
+      aria-pressed={enabled}
+      title={title}
       className={clsx(
         "relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent",
         "transition-colors duration-200 ease-in-out",
@@ -549,13 +565,18 @@ export function PluginsTab({
     installedPlugins,
     refresh: refreshDrivers,
   } = useDrivers();
+  const { catalog, refreshCatalog } = useTheme();
   const {
-    plugins: registryPlugins,
-    updates: pluginUpdates,
+    plugins: remotePlugins,
     loading: registryLoading,
     error: registryError,
     refresh: refreshRegistry,
   } = usePluginRegistry();
+  const registryPlugins = useMemo(
+    () => mergeLocalThemePlugins(remotePlugins, catalog.themes.map(({ entry }) => entry)),
+    [remotePlugins, catalog.themes],
+  );
+  const pluginUpdates = useMemo(() => getPluginUpdates(registryPlugins, APP_VERSION), [registryPlugins]);
   const { openConnectionIds, connectionDataMap, disconnect, connections } = useDatabase();
 
   const [installingPluginId, setInstallingPluginId] = useState<string | null>(
@@ -585,6 +606,8 @@ export function PluginsTab({
     pluginName: string;
     onConfirm: () => Promise<void>;
   } | null>(null);
+  const [togglingThemeId, setTogglingThemeId] = useState<string | null>(null);
+  const [themeToggleError, setThemeToggleError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
   const filterParam = searchParams.get("filter");
@@ -600,6 +623,35 @@ export function PluginsTab({
       { replace: true },
     );
   };
+  // Kind (drivers / themes) is orthogonal to the status filter above and lives
+  // in the URL too, so Appearance can deep-link straight to the theme list.
+  const activeKind = parsePluginKindFilter(searchParams.get("kind"));
+  const setActiveKind = (kind: PluginKindFilter) => {
+    setSearchParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        if (kind === "all") next.delete("kind");
+        else next.set("kind", kind);
+        return next;
+      },
+      { replace: true },
+    );
+  };
+  const openAppearance = () => {
+    setSearchParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        next.set("tab", "appearance");
+        next.delete("filter");
+        next.delete("kind");
+        return next;
+      },
+      { replace: true },
+    );
+  };
+  // Theme installs run through the theme package installer, which is keyed by
+  // registry + package; the key is resolved at install time and kept for cancel.
+  const themeRegistryKeys = useRef(new Map<string, string>());
   const [readmePlugin, setReadmePlugin] = useState<{
     slug: string;
     name: string;
@@ -623,14 +675,40 @@ export function PluginsTab({
     () => allDrivers.filter((driver) => driver.is_builtin !== true),
     [allDrivers],
   );
-  const updateCount = pluginUpdates.length;
+  const kindPlugins = useMemo(
+    () => registryPlugins.filter((p) => matchesPluginKind(p, activeKind)),
+    [registryPlugins, activeKind],
+  );
+  const kindUpdates = useMemo(
+    () => pluginUpdates.filter((p) => matchesPluginKind(p, activeKind)),
+    [pluginUpdates, activeKind],
+  );
+  const kindCounts = useMemo(
+    () => ({
+      all: registryPlugins.length,
+      driver: registryPlugins.filter((p) => pluginKind(p) === "driver").length,
+      theme: registryPlugins.filter((p) => pluginKind(p) === "theme").length,
+    }),
+    [registryPlugins],
+  );
+  // Local and registry themes share the list, but never driver manifests.
+  const installedThemes = useMemo(
+    () =>
+      activeKind === "driver"
+        ? []
+        : registryPlugins.filter(
+            (p) => pluginKind(p) === "theme" && !!p.installed_version,
+          ),
+    [registryPlugins, activeKind],
+  );
+  const updateCount = kindUpdates.length;
 
   const filteredPlugins = useMemo(() => {
-    let list = registryPlugins;
+    let list = kindPlugins;
     if (activeFilter === "installed") {
       list = list.filter((p) => !!p.installed_version);
     } else if (activeFilter === "updates") {
-      list = pluginUpdates;
+      list = kindUpdates;
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -642,7 +720,7 @@ export function PluginsTab({
       );
     }
     return list;
-  }, [registryPlugins, pluginUpdates, activeFilter, searchQuery]);
+  }, [kindPlugins, kindUpdates, activeFilter, searchQuery]);
 
   // The shared registry refreshes itself; refresh this tab's driver list too.
   useEffect(() => {
@@ -708,18 +786,39 @@ export function PluginsTab({
   const doInstall = useCallback(
     async (pluginId: string, version: string) => {
       setInstallingPluginId(pluginId);
-      try {
-        await invoke("install_plugin", { pluginId, version });
-        // The picked version is spent once installed. Keeping it would pin the
-        // card to what's now on disk, which reads as neither "up to date" (it
-        // isn't latest) nor updatable (it is installed) — and the picker hides
-        // itself once only one other release is left, leaving no way out.
+      // The picked version is spent once installed. Keeping it would pin the
+      // card to what's now on disk, which reads as neither "up to date" (it
+      // isn't latest) nor updatable (it is installed) — and the picker hides
+      // itself once only one other release is left, leaving no way out.
+      const forgetSelection = () =>
         setSelectedVersions((prev) => {
           if (!(pluginId in prev)) return prev;
           const next = { ...prev };
           delete next[pluginId];
           return next;
         });
+      const registryPlugin = registryPlugins.find((plugin) => plugin.id === pluginId);
+      try {
+        if (registryPlugin && pluginKind(registryPlugin) === "theme") {
+          // Declarative package: same button, different installer. Nothing is
+          // activated as a driver and the theme catalog is what changes.
+          const snapshot = await invoke<{ registryKey: string }>(
+            "fetch_theme_registry",
+            { packageName: pluginId },
+          );
+          themeRegistryKeys.current.set(pluginId, snapshot.registryKey);
+          await invoke("install_registry_theme", {
+            packageName: pluginId,
+            expectedRegistryKey: snapshot.registryKey,
+            version,
+          });
+          forgetSelection();
+          await refreshCatalog();
+          refreshRegistry();
+          return;
+        }
+        await invoke("install_plugin", { pluginId, version });
+        forgetSelection();
         await updateSettingRef.current(
           "activeExternalDrivers",
           Array.from(
@@ -745,17 +844,23 @@ export function PluginsTab({
           });
         }
       } finally {
+        themeRegistryKeys.current.delete(pluginId);
         setInstallingPluginId(null);
         setCancellingPluginId(null);
       }
     },
-    [refreshRegistry, refreshDrivers, onPluginsChanged, registryPlugins],
+    [refreshRegistry, refreshDrivers, refreshCatalog, onPluginsChanged, registryPlugins],
   );
 
   const doCancelInstall = useCallback(async (pluginId: string) => {
     setCancellingPluginId(pluginId);
     try {
-      await invoke<boolean>("cancel_plugin_install", { pluginId });
+      const registryKey = themeRegistryKeys.current.get(pluginId);
+      if (registryKey) {
+        await invoke<boolean>("cancel_theme_install", { registryKey, packageName: pluginId });
+      } else {
+        await invoke<boolean>("cancel_plugin_install", { pluginId });
+      }
     } catch (err) {
       setCancellingPluginId(null);
       setPluginInstallError({
@@ -848,6 +953,28 @@ export function PluginsTab({
     [activeExternalDrivers, updateSetting, refreshDrivers],
   );
 
+  const doToggleTheme = useCallback(
+    async (packageName: string, registryKey: string, enabled: boolean) => {
+      setTogglingThemeId(packageName);
+      setThemeToggleError(null);
+      try {
+        // A package toggle applies to every variant. Saved theme selections and
+        // driver preferences are retained; the refreshed catalog decides fallback.
+        await invoke("set_theme_package_enabled", { packageName, registryKey, enabled });
+        try {
+          await refreshCatalog();
+        } catch (error) {
+          setThemeToggleError(`${t("themePackages.committedRefreshFailed")} ${String(error)}`);
+        }
+      } catch (error) {
+        setThemeToggleError(`${packageName}: ${String(error)}`);
+      } finally {
+        setTogglingThemeId(null);
+      }
+    },
+    [refreshCatalog, t],
+  );
+
   const renderVersionActions = (plugin: RegistryPluginWithStatus) => (
     <PluginVersionActions
       plugin={plugin}
@@ -862,6 +989,100 @@ export function PluginsTab({
       onCancelInstall={doCancelInstall}
     />
   );
+
+  // One card for every registry entry, whatever its kind: only the install
+  // path differs (driver installer vs. theme package dialog).
+  const renderRegistryCard = (plugin: RegistryPluginWithStatus) => {
+    const isTheme = pluginKind(plugin) === "theme";
+    const themeEntry = isTheme ? catalog.themes.find(({ entry }) =>
+      entry.origin.kind === "installed" && entry.origin.identity.packageName === plugin.id,
+    )?.entry : undefined;
+    const themeIdentity = themeEntry?.origin.kind === "installed" ? themeEntry.origin.identity : undefined;
+    const isLocalOnly = !remotePlugins.some((remote) => remote.id === plugin.id && pluginKind(remote) === pluginKind(plugin));
+      const installedBadge = plugin.installed_version ? (
+        <Chip>
+          {t("settings.plugins.installed")} v
+          {plugin.installed_version}
+        </Chip>
+      ) : undefined;
+
+      // Tags from the Tabularium catalogue, as ghost tokens so they never
+      // compete with the status chips. The kind itself is a first-class chip
+      // on the card (driver vs theme), so it is not repeated here.
+      const remainingTags = (plugin.tags ?? []).filter(
+        (t) => t && t !== plugin.kind && t !== "driver" && t !== "theme",
+      );
+      const tagMeta =
+        remainingTags.length > 0 ? (
+          <>
+            {remainingTags.slice(0, 4).map((tag) => (
+              <Chip key={tag} variant="ghost">{tag}</Chip>
+            ))}
+          </>
+        ) : undefined;
+
+      // If we know which registry served this plugin, link the
+      // card title to its detail page on that registry (highest
+      // priority); the upstream homepage becomes a small icon.
+      const registryPageUrl = plugin.registry_base_url
+        ? `${plugin.registry_base_url.replace(/\/+$/, "")}/plugins/${plugin.id}`
+        : null;
+
+      return (
+        <PluginCard
+          key={`${pluginKind(plugin)}:${plugin.id}`}
+          kind={isTheme ? "theme" : "driver"}
+          name={plugin.name}
+          description={plugin.description}
+          author={plugin.author}
+          homepage={plugin.homepage}
+          registryPageUrl={registryPageUrl}
+          iconUrl={plugin.icon}
+          downloads={plugin.downloads}
+          manifest={isTheme ? undefined : allDrivers.find((driver) => driver.id === plugin.id)}
+          version={plugin.installed_version ? undefined : plugin.latest_version}
+          updateVersion={pluginUpdates.find((update) => update.id === plugin.id && pluginKind(update) === pluginKind(plugin))?.latest_version}
+          upToDate={!isLocalOnly && !!plugin.installed_version && plugin.installed_version === plugin.latest_version}
+          status={<>
+            {installedBadge}
+            {themeEntry && !themeEntry.available && <Chip>{t("themePackages.disabled")}</Chip>}
+          </>}
+          control={themeEntry && themeIdentity ? (
+            <PluginToggle
+              enabled={themeEntry.available}
+              disabled={togglingThemeId !== null || installingPluginId === plugin.id}
+              label={t(themeEntry.available ? "themePackages.disable" : "themePackages.enable")}
+              title={t("themePackages.packageWarning")}
+              onToggle={() => void doToggleTheme(
+                themeIdentity.packageName, themeIdentity.registryKey, !themeEntry.available,
+              )}
+            />
+          ) : undefined}
+          meta={tagMeta}
+          onShowReadme={isLocalOnly ? undefined : () =>
+            setReadmePlugin({
+              slug: plugin.id,
+              name: plugin.name,
+              registryUrl: plugin.registry_base_url ?? null,
+            })
+          }
+          actions={isLocalOnly ? undefined : renderVersionActions(plugin)}
+          secondaryActions={
+            isTheme && plugin.installed_version ? (
+              <button
+                type="button"
+                onClick={openAppearance}
+                className={PLUGIN_ICON_BUTTON_CLASS}
+                aria-label={t("settings.plugins.manageThemes")}
+                title={t("settings.plugins.manageThemes")}
+              >
+                <Palette size={14} />
+              </button>
+            ) : undefined
+          }
+        />
+      );
+  };
 
   return (
     <>
@@ -895,7 +1116,11 @@ export function PluginsTab({
                 </button>
                 <button
                   type="button"
-                  onClick={() => refreshRegistry()}
+                  onClick={() => {
+                    refreshRegistry();
+                    refreshDrivers();
+                    void refreshCatalog();
+                  }}
                   className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-default bg-base text-xs text-secondary hover:text-primary hover:border-strong transition-colors"
                 >
                   <RefreshCw size={13} className={clsx(registryLoading && "animate-spin")} />
@@ -908,7 +1133,10 @@ export function PluginsTab({
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-default">
             <StatCard
               icon={<PackageCheck size={15} />}
-              value={installedPlugins.length}
+              value={
+                (activeKind === "theme" ? 0 : installedPlugins.length) +
+                installedThemes.length
+              }
               label={t("settings.plugins.installedMetric")}
               onClick={() => setActiveFilter("installed")}
               active={activeFilter === "installed"}
@@ -921,7 +1149,7 @@ export function PluginsTab({
             />
             <StatCard
               icon={<Boxes size={15} />}
-              value={registryPlugins.length}
+              value={kindPlugins.length}
               label={t("settings.plugins.registryMetric")}
               onClick={() => setActiveFilter("all")}
               active={activeFilter === "all"}
@@ -936,6 +1164,8 @@ export function PluginsTab({
             />
           </div>
         </div>
+
+        {themeToggleError && <p role="alert" className="text-sm text-accent-error">{themeToggleError}</p>}
 
         {/* Available */}
         <div className="mb-8">
@@ -964,24 +1194,26 @@ export function PluginsTab({
             </div>
           </div>
 
-          {/* Filter tabs */}
-          <div className="flex items-center border-b border-default">
+          {/* Filter tabs (status) + kind selector */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-default">
             <div className="flex items-center gap-0.5">
               {(
                 [
                   {
                     id: "all" as const,
                     label: t("settings.plugins.filterAll"),
-                    count: registryPlugins.length,
+                    count: kindPlugins.length,
                   },
                   {
                     id: "installed" as const,
                     label: t("settings.plugins.filterInstalled"),
                     count:
-                      allDrivers.length +
-                      installedPlugins.filter(
-                        (p) => !allDrivers.some((d) => d.id === p.id),
-                      ).length,
+                      (activeKind === "theme"
+                        ? 0
+                        : allDrivers.length +
+                          installedPlugins.filter(
+                            (p) => !allDrivers.some((d) => d.id === p.id),
+                          ).length) + installedThemes.length,
                   },
                   {
                     id: "updates" as const,
@@ -1010,6 +1242,52 @@ export function PluginsTab({
                 </button>
               ))}
             </div>
+            <div
+              role="group"
+              aria-label={t("settings.plugins.kindFilter")}
+              className="mb-1.5 inline-flex items-center gap-0.5 rounded-lg border border-default bg-base p-0.5"
+            >
+              {(
+                [
+                  {
+                    id: "all" as const,
+                    label: t("settings.plugins.kindAll"),
+                    icon: <Boxes size={11} />,
+                  },
+                  {
+                    id: "driver" as const,
+                    label: t("settings.plugins.kindDrivers"),
+                    icon: <Plug size={11} />,
+                  },
+                  {
+                    id: "theme" as const,
+                    label: t("settings.plugins.kindThemes"),
+                    icon: <Palette size={11} />,
+                  },
+                ] satisfies Array<{
+                  id: PluginKindFilter;
+                  label: string;
+                  icon: ReactNode;
+                }>
+              ).map(({ id, label, icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  aria-pressed={activeKind === id}
+                  onClick={() => setActiveKind(id)}
+                  className={clsx(
+                    "inline-flex h-6 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors",
+                    activeKind === id
+                      ? "bg-accent-primary/12 text-accent-primary"
+                      : "text-muted hover:bg-surface-secondary/60 hover:text-secondary",
+                  )}
+                >
+                  {icon}
+                  {label}
+                  {id !== "all" && <CountBadge count={kindCounts[id]} />}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="pt-4">
@@ -1017,22 +1295,23 @@ export function PluginsTab({
               /* ── Installed tab ── */
               (() => {
                 const sq = searchQuery.toLowerCase().trim();
-                const activeDrivers = sq
-                  ? allDrivers.filter(
-                      (d) =>
-                        d.name.toLowerCase().includes(sq) ||
-                        d.description.toLowerCase().includes(sq),
-                    )
-                  : allDrivers;
-                const disabledPlugins = installedPlugins
-                  .filter((p) => !allDrivers.some((d) => d.id === p.id))
-                  .filter(
-                    (p) =>
-                      !sq ||
-                      p.name.toLowerCase().includes(sq) ||
-                      p.description.toLowerCase().includes(sq),
-                  );
-                const isEmpty = activeDrivers.length === 0 && disabledPlugins.length === 0;
+                const matchesSearch = (item: { name: string; description: string }) =>
+                  !sq ||
+                  item.name.toLowerCase().includes(sq) ||
+                  item.description.toLowerCase().includes(sq);
+                const kindDrivers = activeKind === "theme" ? [] : allDrivers;
+                const activeDrivers = kindDrivers.filter(matchesSearch);
+                const disabledPlugins =
+                  activeKind === "theme"
+                    ? []
+                    : installedPlugins
+                        .filter((p) => !allDrivers.some((d) => d.id === p.id))
+                        .filter(matchesSearch);
+                const visibleThemes = installedThemes.filter(matchesSearch);
+                const isEmpty =
+                  activeDrivers.length === 0 &&
+                  disabledPlugins.length === 0 &&
+                  visibleThemes.length === 0;
                 return (
                   <div className="grid gap-4 xl:grid-cols-2 lg:grid-cols-2 sm:grid-cols-1">
                     {activeDrivers.map((driver: PluginManifest) => {
@@ -1274,6 +1553,8 @@ export function PluginsTab({
                       );
                     })}
 
+                    {visibleThemes.map(renderRegistryCard)}
+
                     {isEmpty && (
                       <p className="col-span-full text-sm text-muted py-4">
                         {sq
@@ -1301,73 +1582,16 @@ export function PluginsTab({
                   </div>
                 )}
 
-                {!registryLoading && !registryError && (
+                {(filteredPlugins.length > 0 || (!registryLoading && !registryError)) && (
                   <div className="grid gap-4 xl:grid-cols-2 lg:grid-cols-2 sm:grid-cols-1">
-                    {filteredPlugins.map((plugin) => {
-                  const installedBadge = plugin.installed_version ? (
-                    <Chip>
-                      {t("settings.plugins.installed")} v
-                      {plugin.installed_version}
-                    </Chip>
-                  ) : undefined;
+                    {filteredPlugins.map(renderRegistryCard)}
 
-                  // Tags + kind from the Tabularium catalogue, as ghost tokens so
-                  // they never compete with the status chips. Kind comes first
-                  // since it drives admin taxonomies.
-                  const remainingTags = (plugin.tags ?? []).filter(
-                    (t) => t && t !== plugin.kind,
-                  );
-                  const tagMeta =
-                    plugin.kind || remainingTags.length > 0 ? (
-                      <>
-                        {plugin.kind && <Chip variant="ghost">{plugin.kind}</Chip>}
-                        {remainingTags.slice(0, 4).map((tag) => (
-                          <Chip key={tag} variant="ghost">{tag}</Chip>
-                        ))}
-                      </>
-                    ) : undefined;
-
-                  // If we know which registry served this plugin, link the
-                  // card title to its detail page on that registry (highest
-                  // priority); the upstream homepage becomes a small icon.
-                  const registryPageUrl = plugin.registry_base_url
-                    ? `${plugin.registry_base_url.replace(/\/+$/, "")}/plugins/${plugin.id}`
-                    : null;
-
-                  return (
-                    <PluginCard
-                      key={plugin.id}
-                      name={plugin.name}
-                      description={plugin.description}
-                      author={plugin.author}
-                      homepage={plugin.homepage}
-                      registryPageUrl={registryPageUrl}
-                      iconUrl={plugin.icon}
-                      downloads={plugin.downloads}
-                      manifest={allDrivers.find((driver) => driver.id === plugin.id)}
-                      version={plugin.installed_version ? undefined : plugin.latest_version}
-                      updateVersion={pluginUpdates.find((update) => update.id === plugin.id)?.latest_version}
-                      upToDate={!!plugin.installed_version && plugin.installed_version === plugin.latest_version}
-                      status={installedBadge}
-                      meta={tagMeta}
-                      onShowReadme={() =>
-                        setReadmePlugin({
-                          slug: plugin.id,
-                          name: plugin.name,
-                          registryUrl: plugin.registry_base_url ?? null,
-                        })
-                      }
-                      actions={renderVersionActions(plugin)}
-                    />
-                  );
-                })}
-
-                {filteredPlugins.length === 0 && registryPlugins.length > 0 && (
+                {filteredPlugins.length === 0 && kindPlugins.length > 0 && (
                   <p className="col-span-full text-sm text-muted py-4">
                     {t("settings.plugins.searchNoResults")}
                   </p>
                 )}
-                {registryPlugins.length === 0 && (
+                {kindPlugins.length === 0 && (
                   <p className="col-span-full text-sm text-muted py-4">
                     {t("settings.plugins.noPlugins")}
                   </p>

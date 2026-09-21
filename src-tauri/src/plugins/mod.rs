@@ -9,6 +9,7 @@ mod force_install_tests;
 pub mod install_cancellation;
 pub mod installer;
 pub mod integrity;
+pub(crate) mod layout;
 pub mod manager;
 pub(crate) mod package_kind;
 pub mod registry;

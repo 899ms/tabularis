@@ -1,4 +1,4 @@
-import schema from "../../public/schemas/theme-definition-v1.json";
+import schema from "../schemas/theme-definition-v1.json";
 import type { ThemeDefinitionV1, ThemePackageMode } from "../types/themePackage";
 import { parseBoundedJsoncTheme, parseThemeDefinition, THEME_INPUT_LIMITS } from "./themePackageValidation";
 

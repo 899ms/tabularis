@@ -94,7 +94,7 @@ pub async fn install_local_theme_package(
             return Err("Local package identity changed after preview".into());
         }
         install_validated_theme(
-            &crate::paths::get_app_config_dir().join(PACKAGES_DIR),
+            &crate::paths::get_default_app_data_dir().join(PACKAGES_DIR),
             &key,
             &package,
             &|| cancellation.check(),
@@ -182,7 +182,7 @@ pub async fn install_registry_theme(
     version: Option<String>,
 ) -> Result<ThemeCommit, String> {
     let result = super::transport::install_registry_package(
-        &crate::paths::get_app_config_dir(),
+        &crate::paths::get_default_app_data_dir(),
         &registry_base(&app)?,
         &expected_registry_key,
         &package_name,
@@ -207,7 +207,7 @@ pub fn set_theme_package_enabled(
     enabled: bool,
 ) -> Result<(), String> {
     lifecycle::set_package_enabled(
-        &crate::paths::get_app_config_dir(),
+        &crate::paths::get_default_app_data_dir(),
         &registry_key,
         &package_name,
         enabled,
@@ -219,14 +219,11 @@ pub fn set_theme_package_enabled(
 /// Recovery is an explicit action, never a catalog-read or hydration side effect.
 #[tauri::command]
 pub fn recover_theme_packages(app: AppHandle) -> Result<Vec<String>, String> {
-    let root = crate::paths::get_app_config_dir().join(PACKAGES_DIR);
+    let root = crate::paths::get_default_app_data_dir().join(PACKAGES_DIR);
     let mut failures = Vec::new();
-    for entry in files::directory(&root)?.into_iter().take(128) {
-        let key = entry.file_name().to_string_lossy().into_owned();
-        match recover_theme_transactions(&root, &key) {
-            Ok(()) => refresh(&app),
-            Err(error) => failures.push(format!("{key}: {error}")),
-        }
+    match recover_theme_transactions(&root, &lifecycle::local_registry_key()) {
+        Ok(()) => refresh(&app),
+        Err(error) => failures.push(error),
     }
     Ok(failures)
 }
@@ -238,7 +235,7 @@ pub fn uninstall_theme_package(
     package_name: String,
 ) -> Result<ThemeCommit, String> {
     let result = lifecycle::remove_package(
-        &crate::paths::get_app_config_dir(),
+        &crate::paths::get_default_app_data_dir(),
         &registry_key,
         &package_name,
     )?;

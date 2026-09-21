@@ -339,7 +339,7 @@ const VisualQueryBuilderContent = () => {
                         ))}
                         className={`flex-1 px-3 py-1 text-xs font-medium rounded transition-colors ${
                           condition.logicalOperator === 'AND' 
-                            ? 'bg-blue-500 text-white' 
+                            ? 'bg-accent-primary text-inverse'
                             : 'bg-surface-tertiary text-secondary hover:bg-surface-tertiary'
                         }`}
                       >

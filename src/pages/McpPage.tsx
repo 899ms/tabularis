@@ -257,7 +257,7 @@ function McpSetupPanel() {
                     e.stopPropagation();
                     handleInstall(client.client_id);
                   }}
-                  className="ml-3 shrink-0 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-blue-900/20 transition-colors hover:bg-blue-500"
+                  className="ml-3 shrink-0 rounded-lg bg-accent-primary px-3 py-1.5 text-xs font-medium text-inverse shadow-lg shadow-accent-primary/20 transition-colors hover:bg-accent-primary/90"
                 >
                   {t("mcp.install")}
                 </button>

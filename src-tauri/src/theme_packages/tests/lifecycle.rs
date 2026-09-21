@@ -21,25 +21,25 @@ fn disable_uninstall_and_reinstall_keep_source_identity_and_configuration() {
     let temp = tempfile::tempdir().unwrap();
     let key = local_registry_key();
     let package = validate_local_archive(&valid_package(), "0.99.0", &|| Ok(())).unwrap();
-    let storage = temp.path().join("theme-packages");
+    let storage = temp.path().join("plugins");
     fs::write(temp.path().join("config.json"), "untouched preferences").unwrap();
     install_validated_theme(&storage, &key, &package, &|| Ok(())).unwrap();
-    let initial = read_theme_catalog(temp.path(), "0.99.0")
+    let initial = read_theme_catalog(temp.path(), temp.path(), "0.99.0")
         .themes
         .pop()
         .unwrap();
     set_package_enabled(temp.path(), &key, "fixture-theme", false).unwrap();
-    let disabled = read_theme_catalog(temp.path(), "0.99.0")
+    let disabled = read_theme_catalog(temp.path(), temp.path(), "0.99.0")
         .themes
         .pop()
         .unwrap();
     assert_eq!(initial.id, disabled.id);
     assert!(!disabled.available);
     remove_package(temp.path(), &key, "fixture-theme").unwrap();
-    assert_eq!(read_theme_catalog(temp.path(), "0.99.0").themes.len(), 12);
-    assert!(storage.join(&key).join(".lock").exists());
+    assert_eq!(read_theme_catalog(temp.path(), temp.path(), "0.99.0").themes.len(), 12);
+    assert!(storage.join("themes/.lock").exists());
     install_validated_theme(&storage, &key, &package, &|| Ok(())).unwrap();
-    let restored = read_theme_catalog(temp.path(), "0.99.0")
+    let restored = read_theme_catalog(temp.path(), temp.path(), "0.99.0")
         .themes
         .pop()
         .unwrap();
@@ -47,7 +47,7 @@ fn disable_uninstall_and_reinstall_keep_source_identity_and_configuration() {
     assert!(!restored.available);
     set_package_enabled(temp.path(), &key, "fixture-theme", true).unwrap();
     assert!(
-        read_theme_catalog(temp.path(), "0.99.0")
+        read_theme_catalog(temp.path(), temp.path(), "0.99.0")
             .themes
             .pop()
             .unwrap()

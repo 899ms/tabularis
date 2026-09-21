@@ -1003,7 +1003,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                           disabled={pendingSchemaSelection.size === 0}
                           className={`ml-auto flex items-center gap-1 px-3 py-1 rounded text-xs font-medium transition-colors ${
                             pendingSchemaSelection.size > 0
-                              ? "bg-blue-500 text-white hover:bg-blue-600"
+                              ? "bg-accent-primary text-inverse hover:bg-accent-primary/90"
                               : "bg-surface-secondary text-muted cursor-not-allowed"
                           }`}
                         >
@@ -1110,7 +1110,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                                     disabled={pendingSchemaSelection.size === 0}
                                     className={`w-full flex items-center justify-center gap-1 px-3 py-1 rounded text-xs font-medium transition-colors ${
                                       pendingSchemaSelection.size > 0
-                                        ? "bg-blue-500 text-white hover:bg-blue-600"
+                                        ? "bg-accent-primary text-inverse hover:bg-accent-primary/90"
                                         : "bg-surface-secondary text-muted cursor-not-allowed"
                                     }`}
                                   >
@@ -1317,7 +1317,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                                 disabled={pendingDbSelection.size === 0}
                                 className={`w-full flex items-center justify-center gap-1 px-3 py-1 rounded text-xs font-medium transition-colors ${
                                   pendingDbSelection.size > 0
-                                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                                    ? "bg-accent-primary text-inverse hover:bg-accent-primary/90"
                                     : "bg-surface-secondary text-muted cursor-not-allowed"
                                 }`}
                               >

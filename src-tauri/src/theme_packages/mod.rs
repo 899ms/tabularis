@@ -7,6 +7,7 @@ mod files;
 mod json;
 mod legacy;
 mod lifecycle;
+mod locations;
 mod personal;
 pub(crate) use json::parse_bounded_json;
 
@@ -28,7 +29,7 @@ pub use archive::{validate_theme_archive, ValidatedThemePackage};
 pub use storage::{install_validated_theme, recover_theme_transactions, ThemeCommit};
 
 pub use validation::{
-    is_safe_relative_path, registry_key, validate_definition_json, validate_manifest_json,
+    is_registry_namespace, is_safe_relative_path, registry_key, validate_definition_json, validate_manifest_json,
     validate_runtime_version,
 };
 
