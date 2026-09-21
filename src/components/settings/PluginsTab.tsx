@@ -608,6 +608,15 @@ export function PluginsTab({
   } | null>(null);
   const [togglingThemeId, setTogglingThemeId] = useState<string | null>(null);
   const [themeToggleError, setThemeToggleError] = useState<string | null>(null);
+  const [themeRemoveConfirm, setThemeRemoveConfirm] = useState<{
+    packageName: string;
+    registryKey: string;
+    displayName: string;
+    busy?: boolean;
+    committed?: boolean;
+    error?: string;
+    warnings?: string[];
+  } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
   const filterParam = searchParams.get("filter");
@@ -975,6 +984,31 @@ export function PluginsTab({
     [refreshCatalog, t],
   );
 
+  const doRemoveTheme = async () => {
+    if (!themeRemoveConfirm || themeRemoveConfirm.busy || themeRemoveConfirm.committed) return;
+    const { registryKey, packageName } = themeRemoveConfirm;
+    setThemeRemoveConfirm({ ...themeRemoveConfirm, busy: true, error: undefined });
+    try {
+      const result = await invoke<{ warnings: string[] }>("uninstall_theme_package", {
+        registryKey, packageName,
+      });
+      setThemeRemoveConfirm((current) => current && { ...current, committed: true, warnings: result.warnings });
+      try {
+        await Promise.all([refreshCatalog(), refreshRegistry()]);
+      } catch (failure) {
+        setThemeRemoveConfirm((current) => current && {
+          ...current, error: `${t("themePackages.committedRefreshFailed")} ${String(failure)}`,
+        });
+        return;
+      }
+      if (result.warnings.length === 0) setThemeRemoveConfirm(null);
+    } catch (failure) {
+      setThemeRemoveConfirm((current) => current && { ...current, error: String(failure) });
+    } finally {
+      setThemeRemoveConfirm((current) => current && { ...current, busy: false });
+    }
+  };
+
   const renderVersionActions = (plugin: RegistryPluginWithStatus) => (
     <PluginVersionActions
       plugin={plugin}
@@ -1069,15 +1103,33 @@ export function PluginsTab({
           actions={isLocalOnly ? undefined : renderVersionActions(plugin)}
           secondaryActions={
             isTheme && plugin.installed_version ? (
-              <button
-                type="button"
-                onClick={openAppearance}
-                className={PLUGIN_ICON_BUTTON_CLASS}
-                aria-label={t("settings.plugins.manageThemes")}
-                title={t("settings.plugins.manageThemes")}
-              >
-                <Palette size={14} />
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={openAppearance}
+                  className={PLUGIN_ICON_BUTTON_CLASS}
+                  aria-label={t("settings.plugins.manageThemes")}
+                  title={t("settings.plugins.manageThemes")}
+                >
+                  <Palette size={14} />
+                </button>
+                {themeIdentity && (
+                  <button
+                    type="button"
+                    onClick={() => setThemeRemoveConfirm({
+                      packageName: themeIdentity.packageName,
+                      registryKey: themeIdentity.registryKey,
+                      displayName: plugin.name,
+                    })}
+                    disabled={togglingThemeId !== null || installingPluginId !== null}
+                    aria-label={t("themePackages.removePackage")}
+                    title={t("themePackages.removePackage")}
+                    className={FOOTER_ICON_DANGER}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
+              </>
             ) : undefined
           }
         />
@@ -1622,6 +1674,20 @@ export function PluginsTab({
       </div>
 
       {/* Modals */}
+      {themeRemoveConfirm && (
+        <PluginRemoveModal
+          isOpen
+          pluginName={themeRemoveConfirm.displayName}
+          onClose={() => setThemeRemoveConfirm(null)}
+          onConfirm={() => void doRemoveTheme()}
+          busy={themeRemoveConfirm.busy}
+          committed={themeRemoveConfirm.committed}
+        >
+          <p className="text-sm text-secondary leading-relaxed">{t("themePackages.packageWarning")}</p>
+          {!!themeRemoveConfirm.warnings?.length && <p role="status" className="text-sm text-accent-warning whitespace-pre-wrap break-words">{themeRemoveConfirm.warnings.join("\n")}</p>}
+          {themeRemoveConfirm.error && <p role="alert" className="text-sm text-accent-error whitespace-pre-wrap break-words">{themeRemoveConfirm.error}</p>}
+        </PluginRemoveModal>
+      )}
       <PluginInstallErrorModal
         isOpen={pluginInstallError !== null}
         onClose={() => setPluginInstallError(null)}

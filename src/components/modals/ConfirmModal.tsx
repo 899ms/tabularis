@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, X } from "lucide-react";
+import { AlertTriangle, Loader2, X } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { SqlPreview } from "../ui/SqlPreview";
 
@@ -13,6 +13,10 @@ interface ConfirmModalProps {
   sql?: string;
   confirmLabel?: string;
   confirmClassName?: string;
+  cancelLabel?: string;
+  busy?: boolean;
+  confirmDisabled?: boolean;
+  children?: ReactNode;
   onConfirm: () => void;
   variant?: "danger" | "warning" | "info";
   /**
@@ -33,12 +37,18 @@ export const ConfirmModal = ({
   sql,
   confirmLabel,
   confirmClassName,
+  cancelLabel,
+  busy = false,
+  confirmDisabled = false,
+  children,
   onConfirm,
   variant = "danger",
   confirmDelaySeconds,
   overlayClassName,
 }: ConfirmModalProps) => {
   const { t } = useTranslation();
+  const titleId = useId();
+  const messageId = useId();
   const [remaining, setRemaining] = useState(confirmDelaySeconds ?? 0);
 
   // Reset the countdown whenever the modal transitions to open — done during
@@ -80,43 +90,48 @@ export const ConfirmModal = ({
   const currentVariant = variantStyles[variant];
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} overlayClassName={overlayClassName}>
-      <div className="bg-elevated border border-strong rounded-xl shadow-2xl w-[480px] overflow-hidden flex flex-col">
+    <Modal isOpen={isOpen} onClose={() => { if (!busy) onClose(); }} overlayClassName={overlayClassName}>
+      <div role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={messageId} aria-busy={busy || undefined}
+        className="bg-elevated border border-strong rounded-xl shadow-2xl w-[480px] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-default bg-base">
           <div className="flex items-center gap-3">
             <div className={`p-2 ${currentVariant.iconBg} rounded-lg`}>
               {currentVariant.icon}
             </div>
-            <h2 className="text-lg font-semibold text-primary">{title}</h2>
+            <h2 id={titleId} className="text-lg font-semibold text-primary">{title}</h2>
           </div>
-          <button onClick={onClose} className="text-secondary hover:text-primary transition-colors">
+          <button onClick={onClose} disabled={busy} aria-label={t("common.close")} className="text-secondary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             <X size={20} />
           </button>
         </div>
 
         {/* Content */}
         <div className="p-6 space-y-4">
-          <p className="text-sm text-secondary leading-relaxed">{message}</p>
+          <p id={messageId} className="text-sm text-secondary leading-relaxed">{message}</p>
           {sql && <SqlPreview sql={sql} height="120px" />}
+          {children}
         </div>
 
         {/* Footer */}
         <div className="p-4 border-t border-default bg-base/50 flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-secondary hover:text-primary transition-colors text-sm"
+            disabled={busy}
+            className="px-4 py-2 text-secondary hover:text-primary transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {t("common.cancel")}
+            {cancelLabel ?? t("common.cancel")}
           </button>
           <button
             onClick={onConfirm}
-            disabled={isCountingDown}
+            disabled={isCountingDown || busy || confirmDisabled}
+            aria-busy={busy || undefined}
             className={`${
               confirmClassName ??
               `px-4 py-2 ${currentVariant.button} rounded-lg text-sm font-medium transition-colors`
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
+            {busy && <Loader2 size={14} className="inline-block mr-2 animate-spin" aria-hidden="true" />}
             {isCountingDown
               ? `${confirmLabel ?? (variant === "danger" ? t("common.delete") : t("common.ok"))} (${remaining})`
               : (confirmLabel ?? (variant === "danger" ? t("common.delete") : t("common.ok")))}

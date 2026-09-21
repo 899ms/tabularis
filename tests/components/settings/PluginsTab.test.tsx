@@ -36,7 +36,6 @@ vi.mock("../../../src/hooks/useDatabase", () => ({ useDatabase: () => ({
 vi.mock("../../../src/components/ui/SlotAnchor", () => ({ SlotAnchor: () => null }));
 vi.mock("../../../src/components/modals/PluginInstallErrorModal", () => ({ PluginInstallErrorModal: () => null }));
 vi.mock("../../../src/components/modals/PluginReadmeModal", () => ({ PluginReadmeModal: () => null }));
-vi.mock("../../../src/components/modals/PluginRemoveModal", () => ({ PluginRemoveModal: () => null }));
 vi.mock("../../../src/components/modals/PluginStartErrorModal", () => ({ PluginStartErrorModal: () => null }));
 vi.mock("../../../src/hooks/useTheme", () => ({ useTheme: () => ({ refreshCatalog: mocks.refreshCatalog, catalog: mocks.catalog }) }));
 
@@ -381,5 +380,140 @@ describe("PluginsTab theme package toggles", () => {
     setRegistry([nord, dracula]);
     renderTab("all", "theme");
     expect(screen.queryByRole("button", { name: /^(Enable|Disable) package$/ })).not.toBeInTheDocument();
+  });
+});
+
+describe("PluginsTab theme package removal", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.refreshCatalog.mockReset().mockResolvedValue(undefined);
+    mocks.refreshRegistry.mockReset().mockResolvedValue(undefined);
+    setThemePackage(true);
+    setRegistry([]);
+    vi.mocked(invoke).mockImplementation(async (command) => {
+      if (command === "get_plugin_startup_errors") return [];
+      if (command === "uninstall_theme_package") return { warnings: [] };
+      throw new Error(`Unexpected command: ${command}`);
+    });
+  });
+
+  it.each([
+    ["installed", false, true], ["all", false, false],
+    ["installed", true, false], ["all", true, true], ["updates", true, true],
+  ])("removes an enabled or disabled package from %s (registry: %s, enabled: %s) after confirmation", async (filter, remote, available) => {
+    setThemePackage(Boolean(available));
+    if (remote) setRegistry([{ ...dracula, id: "ember-theme", name: "Ember" }]);
+    mocks.refreshCatalog.mockImplementationOnce(async () => {
+      mocks.catalog = { themes: [], issues: [] };
+    });
+    mocks.refreshRegistry.mockImplementationOnce(async () => {
+      setRegistry(remote ? [{ ...nord, id: "ember-theme", name: "Ember" }] : []);
+    });
+    renderTab(String(filter), "theme");
+    const name = remote ? "Ember" : "ember-theme";
+    expect(card(name).getAllByRole("button", { name: "Uninstall package" })).toHaveLength(1);
+    fireEvent.click(card(name).getByRole("button", { name: "Uninstall package" }));
+    const dialog = screen.getByRole("dialog", { name: "Remove Plugin" });
+    expect(dialog).toHaveAccessibleDescription(i18n.t("settings.plugins.confirmRemove", { name }));
+    expect(within(dialog).getByText(en.themePackages.packageWarning)).toBeInTheDocument();
+    expect(invoke).not.toHaveBeenCalledWith("uninstall_theme_package", expect.anything());
+    fireEvent.click(within(dialog).getByRole("button", { name: "Remove" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(invoke).toHaveBeenCalledWith("uninstall_theme_package", {
+      registryKey: "a".repeat(64), packageName: "ember-theme",
+    });
+    expect(mocks.refreshCatalog).toHaveBeenCalledTimes(1);
+    expect(mocks.refreshRegistry).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("button", { name: "Uninstall package" })).not.toBeInTheDocument();
+    expect(mocks.updateSetting).not.toHaveBeenCalled();
+    expect(mocks.refreshDrivers).not.toHaveBeenCalled();
+    expect(invoke).not.toHaveBeenCalledWith("uninstall_plugin", expect.anything());
+  });
+
+  it("cancels without uninstalling the package", () => {
+    renderTab("installed", "theme");
+    fireEvent.click(card("ember-theme").getByRole("button", { name: "Uninstall package" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(invoke).not.toHaveBeenCalledWith("uninstall_theme_package", expect.anything());
+    expect(mocks.refreshCatalog).not.toHaveBeenCalled();
+  });
+
+  it("uses the same confirmation for drivers without the theme warning", async () => {
+    vi.mocked(invoke).mockImplementation(async (command) => {
+      if (command === "get_plugin_startup_errors") return [];
+      if (command === "uninstall_plugin") return;
+      throw new Error(`Unexpected command: ${command}`);
+    });
+    renderTab("installed");
+    fireEvent.click(card("PostgreSQL").getByRole("button", { name: "Remove" }));
+    const dialog = screen.getByRole("dialog", { name: "Remove Plugin" });
+    expect(dialog).toHaveAccessibleDescription(i18n.t("settings.plugins.confirmRemove", { name: "PostgreSQL" }));
+    expect(within(dialog).queryByText(en.themePackages.packageWarning)).not.toBeInTheDocument();
+    expect(invoke).not.toHaveBeenCalledWith("uninstall_plugin", expect.anything());
+    fireEvent.click(within(dialog).getByRole("button", { name: "Remove" }));
+    await waitFor(() => expect(invoke).toHaveBeenCalledWith("uninstall_plugin", { pluginId: "postgresql" }));
+    await waitFor(() => expect(mocks.refreshDrivers).toHaveBeenCalled());
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(invoke).not.toHaveBeenCalledWith("uninstall_theme_package", expect.anything());
+  });
+
+  it("blocks duplicate removal and closing until catalog refresh finishes", async () => {
+    let finish!: () => void;
+    mocks.refreshCatalog.mockReturnValueOnce(new Promise<void>((resolve) => { finish = resolve; }));
+    renderTab("installed", "theme");
+    fireEvent.click(card("ember-theme").getByRole("button", { name: "Uninstall package" }));
+    const dialog = screen.getByRole("dialog");
+    const confirm = within(dialog).getByRole("button", { name: "Remove" });
+    fireEvent.click(confirm);
+    await waitFor(() => expect(mocks.refreshCatalog).toHaveBeenCalled());
+    expect(confirm).toBeDisabled();
+    expect(within(dialog).getAllByRole("button", { name: "Close" }).every((button) => button.hasAttribute("disabled"))).toBe(true);
+    fireEvent.click(confirm);
+    fireEvent.keyDown(dialog, { key: "Escape" });
+    expect(dialog).toBeInTheDocument();
+    expect(vi.mocked(invoke).mock.calls.filter(([command]) => command === "uninstall_theme_package")).toHaveLength(1);
+    await act(async () => { finish(); });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("keeps native failures visible and allows retrying", async () => {
+    vi.mocked(invoke).mockImplementation(async (command) => {
+      if (command === "get_plugin_startup_errors") return [];
+      throw new Error("Theme storage is locked");
+    });
+    renderTab("installed", "theme");
+    fireEvent.click(card("ember-theme").getByRole("button", { name: "Uninstall package" }));
+    const confirm = within(screen.getByRole("dialog")).getByRole("button", { name: "Remove" });
+    fireEvent.click(confirm);
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Theme storage is locked"));
+    expect(confirm).toBeEnabled();
+    expect(mocks.refreshCatalog).not.toHaveBeenCalled();
+    expect(mocks.refreshRegistry).not.toHaveBeenCalled();
+  });
+
+  it.each(["catalog", "registry"])("does not repeat a committed removal when %s refresh fails", async (source) => {
+    (source === "catalog" ? mocks.refreshCatalog : mocks.refreshRegistry).mockRejectedValueOnce(new Error("Refresh unavailable"));
+    renderTab("installed", "theme");
+    fireEvent.click(card("ember-theme").getByRole("button", { name: "Uninstall package" }));
+    const confirm = within(screen.getByRole("dialog")).getByRole("button", { name: "Remove" });
+    fireEvent.click(confirm);
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(en.themePackages.committedRefreshFailed));
+    expect(confirm).toBeDisabled();
+    expect(mocks.refreshCatalog).toHaveBeenCalledTimes(1);
+    expect(mocks.refreshRegistry).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows cleanup warnings after successful removal without allowing a second uninstall", async () => {
+    vi.mocked(invoke).mockImplementation(async (command) => command === "get_plugin_startup_errors"
+      ? [] : { warnings: ["Theme removed; deferred cleanup"] });
+    renderTab("installed", "theme");
+    fireEvent.click(card("ember-theme").getByRole("button", { name: "Uninstall package" }));
+    const confirm = within(screen.getByRole("dialog")).getByRole("button", { name: "Remove" });
+    fireEvent.click(confirm);
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("Theme removed; deferred cleanup"));
+    expect(confirm).toBeDisabled();
+    expect(mocks.refreshCatalog).toHaveBeenCalledTimes(1);
+    expect(mocks.refreshRegistry).toHaveBeenCalledTimes(1);
   });
 });
