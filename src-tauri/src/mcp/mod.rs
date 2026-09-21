@@ -20,10 +20,12 @@ use serde_json::{json, Value};
 use std::io::{self, BufRead, Write};
 use std::sync::Arc;
 
+mod cooldown;
 pub mod install;
 mod output;
 pub mod preflight;
 pub mod protocol;
+use cooldown::{DISABLE_CHECK_COOLDOWN, RELOAD_COOLDOWN};
 use output::{OutputFormatError, ToolOutputFormat};
 use protocol::*;
 
@@ -431,61 +433,6 @@ async fn resolve_driver_for_params(
             data: None,
         })
 }
-
-/// A cooldown gate: returns `true` at most once per `duration`, recording
-/// the last successful check so a caller can rate-limit an expensive
-/// recovery action (a filesystem rescan, a disk-config reconcile) triggered
-/// from a tight retry loop.
-struct Cooldown {
-    duration: std::time::Duration,
-    last: std::sync::Mutex<Option<std::time::Instant>>,
-}
-
-impl Cooldown {
-    const fn new(duration: std::time::Duration) -> Self {
-        Self {
-            duration,
-            last: std::sync::Mutex::new(None),
-        }
-    }
-
-    /// Returns `true` at most once per `duration`, recording `now` as the
-    /// new last-attempt time whenever it does.
-    fn elapsed(&self) -> bool {
-        let mut last = self.last.lock().unwrap_or_else(|e| e.into_inner());
-        let now = std::time::Instant::now();
-        let elapsed = cooldown_elapsed(*last, now, self.duration);
-        if elapsed {
-            *last = Some(now);
-        }
-        elapsed
-    }
-}
-
-/// Pure core of [`Cooldown::elapsed`]: whether `cooldown` has passed since
-/// `last` (or `last` is `None`, meaning no attempt has been recorded yet),
-/// as of `now`.
-fn cooldown_elapsed(
-    last: Option<std::time::Instant>,
-    now: std::time::Instant,
-    cooldown: std::time::Duration,
-) -> bool {
-    match last {
-        Some(t) => now.duration_since(t) >= cooldown,
-        None => true,
-    }
-}
-
-/// Minimum time between plugin-directory rescans triggered by a registry
-/// miss in [`resolve_db_driver`].
-static RELOAD_COOLDOWN: Cooldown = Cooldown::new(std::time::Duration::from_secs(2));
-
-/// Minimum time between disk-config reconcile checks (disable/uninstall
-/// detection, issue #787) run at the top of [`resolve_driver_for_params`].
-/// Independent of [`RELOAD_COOLDOWN`] — see that call site for why: sharing
-/// one instance would let a busy reconcile check consume the cooldown
-/// budget a genuine registry-miss rescan needs to stay responsive.
-static DISABLE_CHECK_COOLDOWN: Cooldown = Cooldown::new(std::time::Duration::from_secs(2));
 
 /// Resolves the schema to pass to a metadata fetch, defaulting to `"public"`
 /// on postgres-dialect drivers when the caller didn't supply one.
