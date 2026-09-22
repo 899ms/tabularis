@@ -196,7 +196,7 @@ export function ShortcutsEditModal({
           </button>
 
           {needsModifier ? (
-            <p role="alert" className="text-xs text-center text-red-400">
+            <p role="alert" className="text-xs text-center text-error-text">
               {t("settings.shortcuts.needsModifier")}
             </p>
           ) : null}
