@@ -11,7 +11,7 @@ on:
       - 'src/**'
       - 'src-tauri/**'
       - 'tests/**'
-      - 'packages/create-plugin/**'
+      - 'packages/explain/**' # imported from source by the host
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'tsconfig.json'
@@ -22,7 +22,7 @@ on:
       - 'src/**'
       - 'src-tauri/**'
       - 'tests/**'
-      - 'packages/create-plugin/**'
+      - 'packages/explain/**' # imported from source by the host
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'tsconfig.json'
@@ -60,12 +60,6 @@ jobs:
 
       - name: Build
         run: pnpm run build
-
-      - name: Test theme authoring tools
-        run: |
-          pnpm --filter @tabularis/create-plugin test
-          pnpm --filter @tabularis/create-plugin build
-          pnpm --filter @tabularis/create-plugin smoke:theme
 
       - name: Test
         run: pnpm run test:all
