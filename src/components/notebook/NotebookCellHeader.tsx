@@ -320,7 +320,7 @@ export function NotebookCellHeader({
           >
             <History size={14} />
             {historyCount != null && historyCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 text-[8px] bg-blue-500 text-white rounded-full w-3 h-3 flex items-center justify-center leading-none">
+              <span className="absolute -top-0.5 -right-0.5 text-[8px] bg-accent-primary text-inverse rounded-full w-3 h-3 flex items-center justify-center leading-none">
                 {historyCount > 9 ? "+" : historyCount}
               </span>
             )}

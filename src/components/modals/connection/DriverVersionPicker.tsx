@@ -72,7 +72,7 @@ export function DriverVersionPicker({ group, onChoose, onBack }: DriverVersionPi
         <button
           type="button"
           onClick={() => selected && onChoose(selected, selected.latestVersion)}
-          className="ml-auto cursor-pointer rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500"
+          className="ml-auto cursor-pointer rounded-md bg-accent-primary px-3 py-1.5 text-sm font-medium text-inverse hover:bg-accent-primary/90"
         >
           {t('connectionCatalogue.continue', { defaultValue: 'Continue' })}
         </button>

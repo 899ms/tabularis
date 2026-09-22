@@ -9,6 +9,7 @@ import type { BeforeMount } from "@monaco-editor/react";
 import { MonacoEditor } from "../ui/LazyMonaco";
 import type * as MonacoTypes from "monaco-editor";
 import { loadMonacoTheme } from "../../themes/themeUtils";
+import { getMonacoThemeId } from "../../themes/themeRuntime";
 
 interface AiExplainModalProps {
   isOpen: boolean;
@@ -103,7 +104,7 @@ export const AiExplainModal = ({ isOpen, onClose, query }: AiExplainModalProps) 
                 <MonacoEditor
                     height="100%"
                     language="sql"
-                    theme={editorTheme.id}
+                    theme={getMonacoThemeId(editorTheme.id)}
                     value={query}
                     beforeMount={handleBeforeMount}
                     options={{

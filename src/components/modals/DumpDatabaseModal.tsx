@@ -267,7 +267,7 @@ export const DumpDatabaseModal = ({
                  <button
                     onClick={handleExport}
                     disabled={tablesLoading}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                  >
                     <Download size={16} />
                     {t("dump.export")}

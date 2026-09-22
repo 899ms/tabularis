@@ -80,7 +80,7 @@ function ShortcutsEditModal({
           className={clsx(
             "flex items-center justify-center h-24 rounded-xl border-2 text-sm font-mono cursor-default select-none transition-colors",
             combo
-              ? "border-blue-500 bg-blue-500/10 text-blue-300"
+              ? "border-accent-primary bg-accent-primary/10 text-accent-primary"
               : "border-dashed border-default text-muted",
           )}
           tabIndex={0}
@@ -107,14 +107,14 @@ function ShortcutsEditModal({
         <div className="flex gap-3 mt-5">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 rounded-lg text-sm border border-default text-muted hover:text-primary hover:border-blue-500/50 transition-colors"
+            className="flex-1 px-4 py-2 rounded-lg text-sm border border-default text-muted hover:text-primary hover:border-accent-primary/50 transition-colors"
           >
             {t("common.cancel")}
           </button>
           <button
             onClick={handleSave}
             disabled={!combo || saving}
-            className="flex-1 px-4 py-2 rounded-lg text-sm bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-2 rounded-lg text-sm bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-40 disabled:cursor-not-allowed text-inverse font-medium transition-colors flex items-center justify-center gap-2"
           >
             {saving ? <Loader2 size={14} className="animate-spin" /> : null}
             {t("common.save")}
@@ -257,7 +257,7 @@ export function ShortcutsTab() {
                           <>
                             <button
                               onClick={() => openEdit(s)}
-                              className="px-2.5 py-1 text-xs rounded-lg border border-default text-muted hover:text-primary hover:border-blue-500/60 hover:bg-blue-500/5 transition-colors"
+                              className="px-2.5 py-1 text-xs rounded-lg border border-default text-muted hover:text-primary hover:border-accent-primary/60 hover:bg-accent-primary/5 transition-colors"
                             >
                               {t("common.edit")}
                             </button>

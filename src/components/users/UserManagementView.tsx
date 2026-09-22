@@ -118,7 +118,7 @@ function ScopeCard({
           <button
             onClick={() => void onApply(scope, toGrant, toRevoke)}
             disabled={!dirty || busy}
-            className="px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white text-[11px] transition-colors"
+            className="px-2.5 py-1 rounded-md bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-40 text-inverse text-[11px] transition-colors"
           >
             {t("userManagement.apply")}
           </button>
@@ -618,7 +618,7 @@ export function UserManagementView({ connectionId, isActive }: Props) {
               <button
                 onClick={() => void handleCreate()}
                 disabled={busy || !newUser.trim()}
-                className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs transition-colors"
+                className="px-3 py-1.5 rounded-md bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 text-inverse text-xs transition-colors"
               >
                 {t("userManagement.create")}
               </button>
@@ -683,7 +683,7 @@ export function UserManagementView({ connectionId, isActive }: Props) {
                 <button
                   onClick={() => void handleChangePassword()}
                   disabled={busy || password.length === 0}
-                  className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs transition-colors"
+                  className="px-3 py-1.5 rounded-md bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 text-inverse text-xs transition-colors"
                 >
                   {t("common.save")}
                 </button>
@@ -744,7 +744,7 @@ export function UserManagementView({ connectionId, isActive }: Props) {
                       setAddingScope(false);
                     }}
                     disabled={!addDb.trim()}
-                    className="px-2.5 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs transition-colors"
+                    className="px-2.5 py-1.5 rounded-md bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 text-inverse text-xs transition-colors"
                   >
                     {t("userManagement.add")}
                   </button>

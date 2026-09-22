@@ -2644,7 +2644,7 @@ export const NewConnectionModal = ({
                   type="button"
                   onClick={() => void handleCreateSqliteFile()}
                   disabled={isActionPending}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white border border-blue-500 rounded-md text-sm font-medium transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-2 bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 text-inverse border border-accent-primary rounded-md text-sm font-medium transition-colors"
                   title={t("connections.newSqliteDatabase.dialogTitle")}
                 >
                   {isCreatingSqliteFile ? (
@@ -3012,7 +3012,7 @@ export const NewConnectionModal = ({
             className={clsx(
               "px-3 py-1.5 text-xs font-medium transition-colors",
               loadAllDatabases === allMode
-                ? "bg-blue-600 text-white"
+                ? "bg-accent-primary text-inverse"
                 : "bg-elevated text-secondary hover:text-primary",
             )}
           >
@@ -3552,7 +3552,7 @@ export const NewConnectionModal = ({
                 className={clsx(
                   "px-3 py-1.5 text-xs font-medium transition-colors",
                   sshMode === mode
-                    ? "bg-blue-600 text-white"
+                    ? "bg-accent-primary text-inverse"
                     : "bg-elevated text-secondary hover:text-primary",
                 )}
               >
@@ -3922,7 +3922,7 @@ export const NewConnectionModal = ({
                 className={clsx(
                   "px-3 py-1.5 text-xs font-medium transition-colors",
                   k8sMode === mode
-                    ? "bg-blue-600 text-white"
+                    ? "bg-accent-primary text-inverse"
                     : "bg-elevated text-secondary hover:text-primary",
                 )}
               >
@@ -4213,7 +4213,7 @@ export const NewConnectionModal = ({
                   className={clsx(
                     "flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold",
                     step === "catalogue"
-                      ? "bg-blue-500 text-white"
+                      ? "bg-accent-primary text-inverse"
                       : "bg-green-500/80 text-white",
                   )}
                 >
@@ -4234,7 +4234,7 @@ export const NewConnectionModal = ({
                   className={clsx(
                     "flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold",
                     step === "form"
-                      ? "bg-blue-500 text-white"
+                      ? "bg-accent-primary text-inverse"
                       : "bg-surface-secondary text-muted",
                   )}
                 >
@@ -4586,7 +4586,7 @@ export const NewConnectionModal = ({
             <button
               onClick={saveConnection}
               disabled={isActionPending || status === "saving"}
-              className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-md text-sm font-medium transition-colors"
+              className="flex items-center gap-1.5 px-4 py-1.5 bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 text-inverse rounded-md text-sm font-medium transition-colors"
             >
               {status === "saving" && (
                 <Loader2 size={14} className="animate-spin" />

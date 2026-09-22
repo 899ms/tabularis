@@ -267,7 +267,7 @@ export function AppearanceSection({
                 className={clsx(
                   "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors",
                   isActive
-                    ? "bg-blue-600 text-white"
+                    ? "bg-accent-primary text-inverse"
                     : "text-secondary hover:text-primary hover:bg-surface-secondary",
                 )}
               >

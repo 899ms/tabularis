@@ -16,6 +16,7 @@ import {
 import { MonacoEditor as Editor } from "../ui/LazyMonaco";
 import { useEditorTheme } from "../../hooks/useEditorTheme";
 import { loadMonacoTheme } from "../../themes/themeUtils";
+import { getMonacoThemeId } from "../../themes/themeRuntime";
 import type { ExplainPlan, ExplainPlanSummary } from "@tabularis/explain";
 import {
   formatCost,
@@ -185,7 +186,7 @@ export function AiApprovalModal({
               <Editor
                 height="180px"
                 defaultLanguage="sql"
-                theme={editorTheme.id}
+                theme={getMonacoThemeId(editorTheme.id)}
                 value={editing ? editedQuery : approval.query}
                 onChange={(v) => setEditedQuery(v ?? "")}
                 beforeMount={(monaco) => loadMonacoTheme(editorTheme, monaco)}

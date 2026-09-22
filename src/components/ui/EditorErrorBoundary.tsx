@@ -93,7 +93,7 @@ class EditorErrorBoundaryInner extends Component<InnerProps, InnerState> {
                 <button
                   type="button"
                   onClick={this.reset}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-sm font-medium transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-md text-sm font-medium transition-colors"
                 >
                   <RotateCcw size={14} />
                   {t("editor.errorBoundary.retry")}

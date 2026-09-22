@@ -266,7 +266,7 @@ export const ViewEditorModal = ({
               <button
                 onClick={handlePreview}
                 disabled={previewLoading || !definition.trim()}
-                className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg transition-colors flex items-center gap-2"
+                className="px-3 py-1.5 text-sm bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 text-inverse rounded-lg transition-colors flex items-center gap-2"
               >
                 {previewLoading ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -339,7 +339,7 @@ export const ViewEditorModal = ({
           <button
             onClick={handleSave}
             disabled={saving || loading || !name.trim() || !definition.trim()}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 text-inverse rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
           >
             {saving && <Loader2 size={16} className="animate-spin" />}
             {isNewView ? t("views.create") : t("views.save")}
