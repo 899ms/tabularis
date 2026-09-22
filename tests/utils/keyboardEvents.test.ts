@@ -23,6 +23,11 @@ describe("keyboardEvents", () => {
       expect(isTextCompositionKeyEvent(event)).toBe(true);
     });
 
+    it("detects compose keys", () => {
+      const event = new KeyboardEvent("keydown", { key: "Compose" });
+      expect(isTextCompositionKeyEvent(event)).toBe(true);
+    });
+
     it("detects legacy IME keyCode 229", () => {
       const event = new KeyboardEvent("keydown", { key: "a", keyCode: 229 } as KeyboardEventInit);
       expect(isTextCompositionKeyEvent(event)).toBe(true);

@@ -59,12 +59,18 @@ export function ShortcutsTab() {
         (shortcut) => shortcut.id === editingShortcut.id,
       );
       if (!editedShortcut) return;
-      const conflict = shortcuts.find(
-        (shortcut) =>
-          shortcut.id !== editingShortcut.id &&
-          (keyMatchesOverlap(match, shortcut.match, isMac) ||
-            matchesReservedShortcut(shortcut.id, match, isMac)),
-      );
+      const defaultMatch = isMac
+        ? editedShortcut.macMatch
+        : editedShortcut.winMatch;
+      const usesOwnDefault = keyMatchesOverlap(match, defaultMatch, isMac);
+      const conflict = usesOwnDefault
+        ? undefined
+        : shortcuts.find(
+            (shortcut) =>
+              shortcut.id !== editingShortcut.id &&
+              (keyMatchesOverlap(match, shortcut.match, isMac) ||
+                matchesReservedShortcut(shortcut.id, match, isMac)),
+          );
       if (conflict) {
         showAlert(
           t("settings.shortcuts.conflict", {
@@ -75,20 +81,27 @@ export function ShortcutsTab() {
         return;
       }
 
-      if (isMac) {
-        await saveOverride(
-          editingShortcut.id,
-          match,
-          overrides[editingShortcut.id]?.win ?? editedShortcut.winMatch,
-        );
-      } else {
-        await saveOverride(
-          editingShortcut.id,
-          overrides[editingShortcut.id]?.mac ?? editedShortcut.macMatch,
-          match,
-        );
+      try {
+        if (isMac) {
+          await saveOverride(
+            editingShortcut.id,
+            match,
+            overrides[editingShortcut.id]?.win ?? editedShortcut.winMatch,
+          );
+        } else {
+          await saveOverride(
+            editingShortcut.id,
+            overrides[editingShortcut.id]?.mac ?? editedShortcut.macMatch,
+            match,
+          );
+        }
+        setEditingShortcut(null);
+      } catch (error) {
+        showAlert(String(error), {
+          title: t("common.error"),
+          kind: "error",
+        });
       }
-      setEditingShortcut(null);
     },
     [
       editingShortcut,
@@ -99,6 +112,20 @@ export function ShortcutsTab() {
       showAlert,
       t,
     ],
+  );
+
+  const handleReset = useCallback(
+    async (id: string) => {
+      try {
+        await resetOverride(id);
+      } catch (error) {
+        showAlert(String(error), {
+          title: t("common.error"),
+          kind: "error",
+        });
+      }
+    },
+    [resetOverride, showAlert, t],
   );
 
   return (
@@ -187,7 +214,7 @@ export function ShortcutsTab() {
                             </button>
                             {hasOverride && (
                               <button
-                                onClick={() => resetOverride(s.id)}
+                                onClick={() => void handleReset(s.id)}
                                 title={t(
                                   "settings.shortcuts.resetToDefault",
                                 )}

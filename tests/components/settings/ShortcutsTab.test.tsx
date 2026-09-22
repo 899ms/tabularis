@@ -5,6 +5,7 @@ import { ShortcutsTab } from "../../../src/components/settings/ShortcutsTab";
 import type { UserOverrides } from "../../../src/utils/keybindings";
 
 const saveOverrideMock = vi.fn().mockResolvedValue(undefined);
+const resetOverrideMock = vi.fn().mockResolvedValue(undefined);
 const showAlertMock = vi.fn();
 let isMacMock = true;
 let overridesMock: UserOverrides = {};
@@ -114,7 +115,7 @@ vi.mock("../../../src/hooks/useKeybindings", () => ({
       },
     ],
     saveOverride: saveOverrideMock,
-    resetOverride: vi.fn(),
+    resetOverride: resetOverrideMock,
     overrides: overridesMock,
     isMac: isMacMock,
   }),
@@ -151,7 +152,8 @@ function saveRecordedShortcut() {
 
 describe("ShortcutsTab", () => {
   beforeEach(() => {
-    saveOverrideMock.mockClear();
+    saveOverrideMock.mockReset().mockResolvedValue(undefined);
+    resetOverrideMock.mockReset().mockResolvedValue(undefined);
     showAlertMock.mockClear();
     isMacMock = true;
     overridesMock = {};
@@ -178,6 +180,42 @@ describe("ShortcutsTab", () => {
         { key: ",", code: "Comma", metaKey: true },
         { ctrlKey: true, key: ",", code: "Comma" },
       ),
+    );
+  });
+
+  it("should report a save failure and keep the editor open", async () => {
+    saveOverrideMock.mockRejectedValueOnce(new Error("disk full"));
+    recordShortcut({ key: ",", code: "Comma", metaKey: true });
+
+    saveRecordedShortcut();
+
+    await waitFor(() =>
+      expect(showAlertMock).toHaveBeenCalledWith("Error: disk full", {
+        title: "common.error",
+        kind: "error",
+      }),
+    );
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "common.save" })).toBeEnabled();
+  });
+
+  it("should report a reset failure", async () => {
+    overridesMock = {
+      open_settings: {
+        mac: { metaKey: true, key: "k", code: "KeyK" },
+        win: { ctrlKey: true, key: "k", code: "KeyK" },
+      },
+    };
+    resetOverrideMock.mockRejectedValueOnce(new Error("read only"));
+    render(<ShortcutsTab />);
+
+    fireEvent.click(screen.getByTitle("settings.shortcuts.resetToDefault"));
+
+    await waitFor(() =>
+      expect(showAlertMock).toHaveBeenCalledWith("Error: read only", {
+        title: "common.error",
+        kind: "error",
+      }),
     );
   });
 
@@ -261,7 +299,7 @@ describe("ShortcutsTab", () => {
     expect(saveOverrideMock).not.toHaveBeenCalled();
   });
 
-  it("should reject an editor shortcut that conflicts with a notebook shortcut", async () => {
+  it("should allow saving the edited shortcut's own default", async () => {
     recordShortcut(
       { key: "Enter", code: "Enter", metaKey: true, shiftKey: true },
       "settings.shortcuts.runAllEditor",
@@ -269,8 +307,25 @@ describe("ShortcutsTab", () => {
     saveRecordedShortcut();
 
     await waitFor(() =>
+      expect(saveOverrideMock).toHaveBeenCalledWith(
+        "run_all_editor",
+        { key: "Enter", code: "Enter", metaKey: true, shiftKey: true },
+        { ctrlKey: true, shiftKey: true, key: "Enter" },
+      ),
+    );
+    expect(showAlertMock).not.toHaveBeenCalled();
+  });
+
+  it("should reject a non-default notebook shortcut that conflicts with the data grid", async () => {
+    recordShortcut(
+      { key: "r", code: "KeyR", metaKey: true },
+      "settings.shortcuts.notebookRunAll",
+    );
+    saveRecordedShortcut();
+
+    await waitFor(() =>
       expect(showAlertMock).toHaveBeenCalledWith(
-        "settings.shortcuts.conflict: settings.shortcuts.notebookRunAll",
+        "settings.shortcuts.conflict: settings.shortcuts.refreshTable",
         { title: "common.error", kind: "error" },
       ),
     );

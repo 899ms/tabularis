@@ -116,21 +116,6 @@ const MAC_SYMBOL_MAP: Record<string, string> = {
 };
 
 /**
- * Reverse of MAC_SYMBOL_MAP: maps display strings back to canonical e.key values.
- * Needed so that parseCombo("Ctrl+→") correctly produces { key: "ArrowRight" }.
- */
-const DISPLAY_TO_KEY: Record<string, string> = {
-  "→": "ArrowRight",
-  "←": "ArrowLeft",
-  "↑": "ArrowUp",
-  "↓": "ArrowDown",
-  "⌫": "Backspace",
-  Del: "Delete",
-  Esc: "Escape",
-  Space: " ",
-};
-
-/**
  * Resolves the effective KeyMatch for the current platform, applying user overrides when present.
  */
 export function resolveMatch(
@@ -149,6 +134,7 @@ export function resolveMatch(
  * Matches either the produced character or the physical key, with exact modifiers.
  */
 export function matchesEvent(event: KeyboardEvent, match: KeyMatch): boolean {
+  if (typeof match?.key !== "string") return false;
   const keyHit = event.key.toLowerCase() === match.key.toLowerCase();
   const codeHit = match.code !== undefined && event.code === match.code;
   if (!keyHit && !codeHit) return false;
@@ -194,6 +180,7 @@ export function matchesReservedShortcut(
   match: KeyMatch,
   isMac: boolean,
 ): boolean {
+  if (typeof match?.key !== "string") return false;
   if (shortcutId === "switch_connection") {
     return connectionIndexFromShortcut(match, isMac) !== null;
   }
@@ -254,6 +241,12 @@ export function keyMatchesOverlap(
   second: KeyMatch,
   isMac = false,
 ): boolean {
+  if (
+    typeof first?.key !== "string" ||
+    typeof second?.key !== "string"
+  ) {
+    return false;
+  }
   if (!!first.shiftKey !== !!second.shiftKey) return false;
   if (!!first.altKey !== !!second.altKey) return false;
 
@@ -302,37 +295,6 @@ export function mergeShortcuts(
     ...def,
     match: resolveMatch(def, overrides, isMac),
   }));
-}
-
-/**
- * Parses a combo string like "⌘+Shift+T" or "Ctrl+ArrowRight" into a KeyMatch.
- */
-export function parseCombo(combo: string): KeyMatch {
-  const parts = combo.split("+");
-  const result: KeyMatch = { key: "" };
-
-  for (const part of parts) {
-    const p = part.trim();
-    if (p === "⌘" || p === "Cmd" || p === "Meta") {
-      result.metaKey = true;
-    } else if (p === "Ctrl" || p === "Control") {
-      result.ctrlKey = true;
-    } else if (p === "Shift") {
-      result.shiftKey = true;
-    } else if (p === "Alt" || p === "Option" || p === "⌥") {
-      result.altKey = true;
-    } else {
-      // Reverse-map display symbols back to canonical e.key values, then
-      // lowercase single-character keys (letters) for consistent matching.
-      if (DISPLAY_TO_KEY[p] !== undefined) {
-        result.key = DISPLAY_TO_KEY[p];
-      } else {
-        result.key = p.length === 1 ? p.toLowerCase() : p;
-      }
-    }
-  }
-
-  return result;
 }
 
 /**

@@ -6,7 +6,6 @@ import {
   connectionIndexFromShortcut,
   matchesReservedShortcut,
   mergeShortcuts,
-  parseCombo,
   formatEvent,
   formatMatch,
   type ShortcutDef,
@@ -141,9 +140,23 @@ describe('matchesEvent', () => {
 
     expect(matchesEvent(event, match)).toBe(false);
   });
+
+  it('rejects a malformed match without throwing', () => {
+    const malformed = { ctrlKey: true } as KeyMatch;
+
+    expect(matchesEvent(makeEvent({ ctrlKey: true }), malformed)).toBe(false);
+  });
 });
 
 describe('keyMatchesOverlap', () => {
+  it('rejects malformed matches without throwing', () => {
+    const malformed = { metaKey: true } as KeyMatch;
+
+    expect(
+      keyMatchesOverlap(malformed, { metaKey: true, key: "k" }),
+    ).toBe(false);
+  });
+
   it('detects shortcuts sharing a character alias', () => {
     const first: KeyMatch = { metaKey: true, key: ',', code: 'Comma' };
     const second: KeyMatch = { metaKey: true, key: ',', code: 'KeyM' };
@@ -312,6 +325,12 @@ describe('connectionIndexFromShortcut', () => {
 });
 
 describe('matchesReservedShortcut', () => {
+  it('rejects a malformed match without throwing', () => {
+    const malformed = { metaKey: true } as KeyMatch;
+
+    expect(matchesReservedShortcut('jump_to_edge', malformed, true)).toBe(false);
+  });
+
   it.each([
     {
       id: 'extend_cell_range',
@@ -415,54 +434,6 @@ describe('mergeShortcuts', () => {
   it('uses win matches on non-mac', () => {
     const result = mergeShortcuts(defs, {}, false);
     expect(result[0].match).toEqual(defs[0].winMatch);
-  });
-});
-
-// ─── parseCombo ───────────────────────────────────────────────────────────────
-
-describe('parseCombo', () => {
-  it('parses ⌘+T', () => {
-    expect(parseCombo('⌘+T')).toEqual({ metaKey: true, key: 't' });
-  });
-
-  it('parses Ctrl+Shift+N', () => {
-    expect(parseCombo('Ctrl+Shift+N')).toEqual({ ctrlKey: true, shiftKey: true, key: 'n' });
-  });
-
-  it('parses Ctrl+ArrowRight', () => {
-    expect(parseCombo('Ctrl+ArrowRight')).toEqual({ ctrlKey: true, key: 'ArrowRight' });
-  });
-
-  it('parses ⌘+Shift+C', () => {
-    expect(parseCombo('⌘+Shift+C')).toEqual({ metaKey: true, shiftKey: true, key: 'c' });
-  });
-
-  it('parses Ctrl+Tab', () => {
-    expect(parseCombo('Ctrl+Tab')).toEqual({ ctrlKey: true, key: 'Tab' });
-  });
-
-  it('parses Alt+F4', () => {
-    expect(parseCombo('Alt+F4')).toEqual({ altKey: true, key: 'F4' });
-  });
-
-  it('reverse-maps arrow symbol → to ArrowRight', () => {
-    expect(parseCombo('Ctrl+→')).toEqual({ ctrlKey: true, key: 'ArrowRight' });
-  });
-
-  it('reverse-maps arrow symbol ← to ArrowLeft', () => {
-    expect(parseCombo('Ctrl+←')).toEqual({ ctrlKey: true, key: 'ArrowLeft' });
-  });
-
-  it('reverse-maps ⌫ to Backspace', () => {
-    expect(parseCombo('Ctrl+⌫')).toEqual({ ctrlKey: true, key: 'Backspace' });
-  });
-
-  it('reverse-maps Space to the space character', () => {
-    expect(parseCombo('Ctrl+Space')).toEqual({ ctrlKey: true, key: ' ' });
-  });
-
-  it('reverse-maps Esc to Escape', () => {
-    expect(parseCombo('Ctrl+Esc')).toEqual({ ctrlKey: true, key: 'Escape' });
   });
 });
 

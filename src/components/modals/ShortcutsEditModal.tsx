@@ -1,10 +1,11 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Keyboard, Loader2, X } from "lucide-react";
 import clsx from "clsx";
 
 import { formatEvent } from "../../utils/keybindings";
 import type { KeyMatch } from "../../utils/keybindings";
+import { isTextCompositionKeyEvent } from "../../utils/keyboardEvents";
 
 interface ShortcutsEditModalProps {
   isOpen: boolean;
@@ -20,13 +21,6 @@ interface RecordedShortcut {
   match: KeyMatch;
 }
 
-const TEXT_COMPOSITION_KEYS = new Set([
-  "Dead",
-  "Process",
-  "Unidentified",
-  "Compose",
-]);
-
 export function ShortcutsEditModal({
   isOpen,
   label,
@@ -39,16 +33,58 @@ export function ShortcutsEditModal({
   const [recording, setRecording] = useState<RecordedShortcut | null>(null);
   const [needsModifier, setNeedsModifier] = useState(false);
   const [saving, setSaving] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
+  const handleDialogKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
       if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
         onClose();
         return;
       }
+      if (event.key !== "Tab") return;
+
+      const focusable = Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      );
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    },
+    [onClose],
+  );
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === "Escape") return;
+      if (
+        event.key === "Tab" &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
       if (["Control", "Meta", "Shift", "Alt"].includes(event.key)) return;
+      if (isTextCompositionKeyEvent(event.nativeEvent)) {
+        setRecording(null);
+        setNeedsModifier(true);
+        return;
+      }
 
       // Alt alone still produces a character (AltGr on Windows, Option on
       // macOS), so accept it only with a non-text key. Cmd is macOS-only;
@@ -57,8 +93,7 @@ export function ShortcutsEditModal({
         event.ctrlKey || event.altKey || (isMac && event.metaKey);
       const primaryModifierHeld =
         (isMac && event.metaKey) || (event.ctrlKey && !event.altKey);
-      const producesText =
-        event.key.length === 1 || TEXT_COMPOSITION_KEYS.has(event.key);
+      const producesText = event.key.length === 1;
       const safeCombo =
         primaryModifierHeld || (modifierHeld && !producesText);
       if (!safeCombo) {
@@ -80,7 +115,7 @@ export function ShortcutsEditModal({
         },
       });
     },
-    [isMac, onClose],
+    [isMac],
   );
 
   const handleSave = async () => {
@@ -96,78 +131,82 @@ export function ShortcutsEditModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div
+      role="presentation"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] backdrop-blur-sm"
+    >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="shortcut-edit-title"
-        className="bg-elevated border border-default rounded-2xl shadow-2xl w-full max-w-md p-6"
+        onKeyDown={handleDialogKeyDown}
+        className="bg-elevated border border-strong rounded-xl shadow-2xl w-[600px] max-h-[90vh] overflow-hidden flex flex-col"
       >
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between p-4 border-b border-default bg-base">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500/15 rounded-lg">
               <Keyboard size={18} className="text-blue-400" />
             </div>
             <div>
-              <h3
+              <h2
                 id="shortcut-edit-title"
-                className="text-base font-semibold text-primary"
+                className="text-lg font-semibold text-primary"
               >
                 {label}
-              </h3>
-              <p className="text-xs text-muted mt-0.5">{current}</p>
+              </h2>
+              <p className="text-xs text-secondary">{current}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label={t("common.close")}
-            className="p-1.5 rounded-lg text-muted hover:text-primary hover:bg-surface-secondary transition-colors"
+            className="p-2 bg-surface-secondary text-secondary hover:text-primary rounded transition-all"
           >
             <X size={16} />
           </button>
         </div>
 
-        <button
-          type="button"
-          aria-label={t("settings.shortcuts.pressKeys")}
-          className={clsx(
-            "flex items-center justify-center h-24 w-full rounded-xl border-2 text-sm font-mono cursor-default select-none transition-colors",
-            recording
-              ? "border-blue-500 bg-blue-500/10 text-blue-300"
-              : "border-dashed border-default text-muted",
-          )}
-          autoFocus
-          onKeyDown={handleKeyDown}
-        >
-          {recording ? (
-            <kbd className="text-2xl font-semibold tracking-wide">
-              {recording.display}
-            </kbd>
-          ) : (
-            <span className="text-sm">
-              {t("settings.shortcuts.pressKeys")}
-            </span>
-          )}
-        </button>
+        <div className="p-6 space-y-6 overflow-y-auto">
+          <button
+            type="button"
+            aria-label={t("settings.shortcuts.pressKeys")}
+            className={clsx(
+              "flex items-center justify-center h-24 w-full rounded-xl border-2 text-sm font-mono cursor-default select-none transition-colors",
+              recording
+                ? "border-blue-500 bg-blue-500/10 text-blue-300"
+                : "border-dashed border-default text-muted",
+            )}
+            autoFocus
+            onKeyDown={handleKeyDown}
+          >
+            {recording ? (
+              <kbd className="text-2xl font-semibold tracking-wide">
+                {recording.display}
+              </kbd>
+            ) : (
+              <span className="text-sm">
+                {t("settings.shortcuts.pressKeys")}
+              </span>
+            )}
+          </button>
 
-        {needsModifier ? (
-          <p role="alert" className="text-xs text-center mt-2 text-red-400">
-            {t("settings.shortcuts.needsModifier")}
-          </p>
-        ) : (
-          <p className="text-xs text-muted text-center mt-2">
-            {recording
-              ? t("common.save") + " / Esc"
-              : "Esc " + t("common.cancel")}
-          </p>
-        )}
+          {needsModifier ? (
+            <p role="alert" className="text-xs text-center text-red-400">
+              {t("settings.shortcuts.needsModifier")}
+            </p>
+          ) : null}
+        </div>
 
-        <div className="flex gap-3 mt-5">
+        <div className="p-4 border-t border-default bg-base/50 flex justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 px-4 py-2 rounded-lg text-sm border border-default text-muted hover:text-primary hover:border-blue-500/50 transition-colors"
+            className="px-4 py-2 text-secondary hover:text-primary transition-colors text-sm"
           >
             {t("common.cancel")}
           </button>
@@ -175,7 +214,7 @@ export function ShortcutsEditModal({
             type="button"
             onClick={handleSave}
             disabled={!recording || saving}
-            className="flex-1 px-4 py-2 rounded-lg text-sm bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors flex items-center justify-center gap-2"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
           >
             {saving ? <Loader2 size={14} className="animate-spin" /> : null}
             {t("common.save")}
