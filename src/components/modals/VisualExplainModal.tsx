@@ -179,7 +179,7 @@ export const VisualExplainModal = ({
             <button
               onClick={() => runExplain({ connectionId, query, analyze, schema })}
               disabled={isLoading || !query.trim() || !connectionId}
-              className="flex items-center gap-1.5 px-4 py-2 bg-accent-success hover:bg-accent-success/90 disabled:opacity-50 text-inverse rounded-lg text-sm font-medium transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 bg-accent-success hover:bg-accent-success/90 disabled:opacity-50 text-on-accent-success rounded-lg text-sm font-medium transition-colors"
             >
               <RefreshCw size={14} className={isLoading ? "animate-spin" : ""} />
               {t("editor.visualExplain.rerun")}

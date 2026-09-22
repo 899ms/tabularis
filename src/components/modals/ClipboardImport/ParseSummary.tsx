@@ -26,7 +26,7 @@ export function ParseSummary({
     <div className="flex items-center gap-3 flex-wrap bg-base/60 border border-default rounded-lg px-3 py-2">
       <FormatBadge format={format} />
       <div className="flex items-center gap-1.5 text-xs text-secondary">
-        <Table2 size={13} className="text-accent-primary" />
+        <Table2 size={13} className="text-accent" />
         <span className="font-semibold text-primary">{columnCount}</span>
         <span className="text-muted">{t('clipboardImport.columnsLabel')}</span>
       </div>

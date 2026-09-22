@@ -59,7 +59,7 @@ function ShortcutsEditModal({
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-accent-primary/15 rounded-lg">
-              <Keyboard size={18} className="text-accent-primary" />
+              <Keyboard size={18} className="text-accent" />
             </div>
             <div>
               <h3 className="text-base font-semibold text-primary">
@@ -80,7 +80,7 @@ function ShortcutsEditModal({
           className={clsx(
             "flex items-center justify-center h-24 rounded-xl border-2 text-sm font-mono cursor-default select-none transition-colors",
             combo
-              ? "border-accent-primary bg-accent-primary/10 text-accent-primary"
+              ? "border-accent-primary bg-accent-primary/10 text-accent"
               : "border-dashed border-default text-muted",
           )}
           tabIndex={0}
@@ -231,7 +231,7 @@ export function ShortcutsTab() {
                     >
                       <div className="shrink-0">
                         {s.overridable ? (
-                          <Keyboard size={14} className="text-accent-primary" />
+                          <Keyboard size={14} className="text-accent" />
                         ) : (
                           <span
                             title={t("settings.shortcuts.notOverridable")}
@@ -246,7 +246,7 @@ export function ShortcutsTab() {
                           {t(s.i18nKey as Parameters<typeof t>[0])}
                         </span>
                         {hasOverride && (
-                          <span className="ml-2 text-xs text-accent-primary font-medium">
+                          <span className="ml-2 text-xs text-accent font-medium">
                             customized
                           </span>
                         )}

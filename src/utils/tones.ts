@@ -55,9 +55,9 @@ export const TONE_SOFT_BG_CLASS: Record<Tone, string> = {
 /** Tailwind utility for text-only usages of a tone (icons, inline labels). */
 export const TONE_TEXT_CLASS: Record<Tone, string> = {
   neutral: "text-secondary",
-  primary: "text-accent-primary",
+  primary: "text-accent",
   success: "text-accent-success",
-  update: "text-accent-primary",
+  update: "text-accent",
   warning: "text-accent-warning",
   danger: "text-accent-error",
   theme: "text-accent-secondary",

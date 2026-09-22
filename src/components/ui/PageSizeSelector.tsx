@@ -93,7 +93,7 @@ export function PageSizeSelector({
     clsx(
       "w-full text-left px-3 py-1.5 text-xs rounded transition-colors flex items-center justify-between gap-2",
       isActive
-        ? "bg-accent-primary/10 text-accent-primary font-medium"
+        ? "bg-accent-primary/10 text-accent font-medium"
         : "text-primary hover:bg-surface-secondary",
     );
 
@@ -141,7 +141,7 @@ export function PageSizeSelector({
             if (e.key === "Escape") setIsOpen(false);
             e.stopPropagation();
           }}
-          className="w-full bg-base border border-strong rounded px-2 py-1 text-xs text-primary focus:outline-none focus:border-accent-primary placeholder:text-muted"
+          className="w-full bg-base border border-strong rounded px-2 py-1 text-xs text-primary focus:outline-none focus:border-focus placeholder:text-muted"
         />
       </div>
     </div>

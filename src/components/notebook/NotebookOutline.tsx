@@ -77,7 +77,7 @@ function CellTypeBadge({ cellType }: { cellType: "sql" | "markdown" }) {
   if (cellType === "sql") {
     return <span className="text-accent-success mr-1">SQL</span>;
   }
-  return <span className="text-accent-primary mr-1">MD</span>;
+  return <span className="text-accent mr-1">MD</span>;
 }
 
 export function NotebookOutline({

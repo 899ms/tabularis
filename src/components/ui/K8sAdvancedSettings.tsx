@@ -62,7 +62,7 @@ export function K8sAdvancedSettings({
                 autoCapitalize="off"
                 autoComplete="off"
                 spellCheck={false}
-                className={`w-full px-3 py-2 pr-9 bg-base border rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-accent-primary focus:outline-none transition-colors ${
+                className={`w-full px-3 py-2 pr-9 bg-base border rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors ${
                   pathOverrides.kubectlValidation.status === "error"
                     ? "border-accent-error"
                     : "border-strong"
@@ -108,7 +108,7 @@ export function K8sAdvancedSettings({
                 autoCapitalize="off"
                 autoComplete="off"
                 spellCheck={false}
-                className={`w-full px-3 py-2 pr-9 bg-base border rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-accent-primary focus:outline-none transition-colors ${
+                className={`w-full px-3 py-2 pr-9 bg-base border rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors ${
                   pathOverrides.kubeconfigValidation.status === "error"
                     ? "border-accent-error"
                     : "border-strong"

@@ -218,7 +218,7 @@ export const ViewEditorModal = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={!isNewView || loading}
-              className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-accent-primary focus:outline-none disabled:opacity-50"
+              className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-focus focus:outline-none disabled:opacity-50"
               placeholder={t("views.viewNamePlaceholder")}
               autoFocus={isNewView}
             />

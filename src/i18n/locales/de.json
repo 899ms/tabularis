@@ -499,7 +499,7 @@
     "darkTheme": "Dunkles Thema",
     "fontFamily": "Schriftfamilie",
     "fonts": {
-      "system": "Systemstandard",
+      "system": "Standard des Themes",
       "systemDesc": "Verwendet die Standardschrift deines Betriebssystems",
       "custom": "Benutzerdefinierte Schrift",
       "customPlaceholder": "z. B. Comic Sans MS",

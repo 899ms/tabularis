@@ -242,7 +242,7 @@ function FiltersBar({
             onChange={(e) =>
               update({ queryContains: e.target.value || undefined })
             }
-            className="h-9 w-full rounded border border-strong bg-base pl-9 pr-3 text-sm text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none"
+            className="h-9 w-full rounded border border-strong bg-base pl-9 pr-3 text-sm text-primary placeholder:text-muted focus:border-focus focus:outline-none"
           />
         </div>
         <div className="grid grid-cols-2 gap-2 lg:flex lg:flex-1 lg:items-center lg:gap-2">

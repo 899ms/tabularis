@@ -61,7 +61,7 @@ describe("getStatusBadgeStyle", () => {
 
 describe("getQueryKindBadgeStyle", () => {
   it("differentiates select / write / ddl", () => {
-    expect(getQueryKindBadgeStyle("select").text).toContain("accent-primary");
+    expect(getQueryKindBadgeStyle("select").text).toContain("text-accent");
     expect(getQueryKindBadgeStyle("write").text).toContain("accent-warning");
     expect(getQueryKindBadgeStyle("ddl").text).toContain("accent-secondary");
   });

@@ -275,7 +275,7 @@ function VersionDropdown({
                   )}
                 >
                   <span className="flex w-3.5 shrink-0 items-center justify-center">
-                    {isSelected && <Check size={12} className="text-accent-primary" />}
+                    {isSelected && <Check size={12} className="text-accent" />}
                   </span>
                   <span
                     className={clsx(
@@ -390,7 +390,7 @@ function PluginVersionActions({
       ? "border-accent-error/30 bg-accent-error/12 text-accent-error hover:bg-accent-error/20"
       : version.isDowngrade
         ? "border-accent-warning/30 bg-accent-warning/12 text-accent-warning hover:bg-accent-warning/20"
-        : "border-accent-primary/30 bg-accent-primary/12 text-accent-primary hover:bg-accent-primary/20";
+        : "border-accent-primary/30 bg-accent-primary/12 text-accent hover:bg-accent-primary/20";
   const disabled =
     !version.isCompatible ||
     (installingPluginId !== null && !isInstalling) ||
@@ -471,7 +471,7 @@ function PluginToggle({
       className={clsx(
         "relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent",
         "transition-colors duration-200 ease-in-out",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-focus",
         enabled ? "bg-accent-primary" : "bg-surface-tertiary",
         disabled ? "cursor-not-allowed" : "cursor-pointer",
       )}
@@ -1145,7 +1145,7 @@ export function PluginsTab({
           <div className="p-5 border-b border-default bg-surface-secondary/50">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="p-2 rounded-lg bg-accent-primary/10 text-accent-primary shrink-0">
+                <div className="p-2 rounded-lg bg-accent-primary/10 text-accent shrink-0">
                   <Plug size={18} />
                 </div>
                 <div className="min-w-0">
@@ -1241,7 +1241,7 @@ export function PluginsTab({
                 placeholder={t("settings.plugins.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-44 rounded-lg border border-default bg-base py-1.5 pl-7 pr-3 text-xs text-primary placeholder:text-muted transition-all focus:w-56 focus:border-accent-primary focus:outline-none"
+                className="w-44 rounded-lg border border-default bg-base py-1.5 pl-7 pr-3 text-xs text-primary placeholder:text-muted transition-all focus:w-56 focus:border-focus focus:outline-none"
               />
             </div>
           </div>
@@ -1330,7 +1330,7 @@ export function PluginsTab({
                   className={clsx(
                     "inline-flex h-6 items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors",
                     activeKind === id
-                      ? "bg-accent-primary/12 text-accent-primary"
+                      ? "bg-accent-primary/12 text-accent"
                       : "text-muted hover:bg-surface-secondary/60 hover:text-secondary",
                   )}
                 >

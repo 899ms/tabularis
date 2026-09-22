@@ -73,15 +73,15 @@ export const ConfirmModal = ({
     danger: {
       icon: <AlertTriangle size={20} className="text-accent-error" />,
       iconBg: "bg-accent-error/15",
-      button: "bg-accent-error hover:bg-accent-error/90 text-inverse",
+      button: "bg-accent-error hover:bg-accent-error/90 text-on-accent-error",
     },
     warning: {
       icon: <AlertTriangle size={20} className="text-accent-warning" />,
       iconBg: "bg-accent-warning/15",
-      button: "bg-accent-warning hover:bg-accent-warning/90 text-inverse",
+      button: "bg-accent-warning hover:bg-accent-warning/90 text-on-accent-warning",
     },
     info: {
-      icon: <AlertTriangle size={20} className="text-accent-primary" />,
+      icon: <AlertTriangle size={20} className="text-accent" />,
       iconBg: "bg-accent-primary/15",
       button: "bg-accent-primary hover:bg-accent-primary/90 text-inverse",
     },

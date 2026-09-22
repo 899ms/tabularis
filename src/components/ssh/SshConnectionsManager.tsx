@@ -29,7 +29,7 @@ import { Select } from "../ui/Select";
 import clsx from "clsx";
 
 const InputClass =
-  "w-full px-3 pt-2 pb-1 bg-base border border-strong rounded-lg text-primary focus:border-accent-primary focus:outline-none leading-tight";
+  "w-full px-3 pt-2 pb-1 bg-base border border-strong rounded-lg text-primary focus:border-focus focus:outline-none leading-tight";
 const LabelClass = "block text-xs uppercase font-bold text-muted";
 
 interface SshInputProps {
@@ -406,7 +406,7 @@ export function SshConnectionsManager({
                     </button>
                     <button
                       onClick={() => handleEdit(conn)}
-                      className="p-2 text-accent-primary hover:bg-accent-primary/10 rounded-lg transition-colors"
+                      className="p-2 text-accent hover:bg-accent-primary/10 rounded-lg transition-colors"
                       title={t("sshConnections.edit")}
                     >
                       <Edit2 size={16} />

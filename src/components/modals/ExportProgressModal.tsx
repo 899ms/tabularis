@@ -39,7 +39,7 @@ export const ExportProgressModal = ({
       <div className="bg-elevated border border-strong rounded-lg shadow-xl w-96 p-6 animate-in fade-in zoom-in duration-200">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
-            <FileText className="text-accent-primary" />
+            <FileText className="text-accent" />
             {status === "exporting"
               ? t("editor.exporting")
               : status === "completed"
@@ -50,7 +50,7 @@ export const ExportProgressModal = ({
 
         <div className="flex flex-col items-center justify-center py-4 space-y-4">
           {status === "exporting" && (
-            <Loader2 size={48} className="text-accent-primary animate-spin" />
+            <Loader2 size={48} className="text-accent animate-spin" />
           )}
           {status === "completed" && (
             <CheckCircle size={48} className="text-accent-success animate-in zoom-in duration-300" />

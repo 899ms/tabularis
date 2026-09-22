@@ -38,19 +38,21 @@ enforces the parts that can be checked mechanically.
 | Supporting text | `text.secondary` | `--text-secondary` | `text-secondary` |
 | Hints, placeholders | `text.muted` | `--text-muted` | `text-muted`, `placeholder:text-muted` |
 | Disabled text | `text.disabled` | `--text-disabled` | `text-disabled` |
-| Text on an accent | `text.inverse` | `--text-inverse` | `text-inverse` |
-| Primary action, links, focus | `accent.primary` | `--accent-primary` | `bg-accent-primary`, `text-accent-primary`, `border-accent-primary`, `ring-accent-primary`, `accent-accent-primary` |
+| Accent-colored text, links, icons | `text.accent` | `--text-accent` | `text-accent` |
+| Text on the primary accent fill | `text.inverse` | `--text-inverse` | `text-inverse` |
+| Text on another accent fill | derived from the fill | `--text-on-accent-*` | `text-on-accent-success`, `text-on-accent-error`, `text-on-accent-warning`, `text-on-accent-secondary`, `text-on-accent-info` |
+| Primary action fill, selection | `accent.primary` | `--accent-primary` | `bg-accent-primary`, `border-accent-primary`, `ring-accent-primary`, `accent-accent-primary` (never `text-accent-primary`) |
 | Tools, schema changes, themes | `accent.secondary` | `--accent-secondary` | `*-accent-secondary` |
 | Success, connected, run | `accent.success` | `--accent-success` | `*-accent-success` |
 | Warning, needs attention | `accent.warning` | `--accent-warning` | `*-accent-warning` |
 | Error, danger, delete | `accent.error` | `--accent-error` | `*-accent-error` |
 | Informational notice | `accent.info` | `--accent-info` | `*-accent-info` |
 | Borders | `border.subtle/default/strong` | `--border-*` | `border-subtle`, `border-default`, `border-strong` |
-| Focus ring | `border.focus` | `--border-focus` | `border-focus`, `focus-ring` |
+| Focus ring and focused input border | `border.focus` | `--border-focus` | `focus:border-focus`, `focus-visible:ring-focus`, `focus-visible:outline-focus`, `focus-ring` |
 | Data types in results | `semantic.string/number/boolean/date/null` | `--semantic-*` | `text-semantic-string` ... |
 | Primary key, foreign key, index | `semantic.primaryKey/foreignKey/index` | `--semantic-pk/fk/index` | `text-semantic-pk`, `text-semantic-fk`, `text-semantic-index` |
 | Modified, deleted, new rows | `semantic.modified/deleted/new` | `--semantic-*` | `bg-semantic-modified/20`, `text-semantic-deleted`, `border-semantic-new` |
-| UI font | `typography.fontFamily.base` | `--font-base` | inherited from `body` |
+| UI font | `typography.fontFamily.base` | `--font-base` | inherited from `body`; the "Theme default" font setting keeps it, an explicit font overrides it |
 | Code font | `typography.fontFamily.mono` | `--font-mono` | `font-mono` |
 | Result grid font (user setting) | | `--font-result` | `font-result` |
 | Corner radius | `layout.borderRadius.sm/base/lg/xl` | `--radius-*` | `rounded`, `rounded-sm`, `rounded-md`, `rounded-lg`, `rounded-xl`, `rounded-2xl` |
@@ -67,18 +69,19 @@ hover state of a solid button. The status variables `--color-error*`,
 | Element | Classes |
 | --- | --- |
 | Primary button | `bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-lg` |
-| Danger button | `bg-accent-error hover:bg-accent-error/90 text-inverse rounded-lg` |
-| Run / confirm button | `bg-accent-success hover:bg-accent-success/90 text-inverse` |
+| Danger button | `bg-accent-error hover:bg-accent-error/90 text-on-accent-error rounded-lg` |
+| Run / confirm button | `bg-accent-success hover:bg-accent-success/90 text-on-accent-success` |
 | Secondary button | `text-secondary hover:text-primary` |
-| Soft (tinted) button | `bg-accent-primary/15 border border-accent-primary/25 text-accent-primary hover:bg-accent-primary/25` |
-| Text input | `bg-base border border-strong rounded-lg text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none` |
+| Soft (tinted) button | `bg-accent-primary/15 border border-accent-primary/25 text-accent hover:bg-accent-primary/25` |
+| Text input | `bg-base border border-strong rounded-lg text-primary placeholder:text-muted focus:border-focus focus:outline-none` |
 | Checkbox / radio | `accent-accent-primary` |
-| Modal header icon tile | `bg-accent-primary/15 rounded-lg` with `text-accent-primary` icon |
+| Modal header icon tile | `bg-accent-primary/15 rounded-lg` with `text-accent` icon |
+| Link, accent label, accent icon | `text-accent hover:text-primary` |
 | Error banner | `bg-accent-error/10 border border-accent-error/30 text-accent-error rounded-lg` |
 | Warning banner | `bg-accent-warning/10 border border-accent-warning/30 text-accent-warning rounded-lg` |
 | Status chip / badge | `toneStyle()` and `TONE_*` from `src/utils/tones.ts` |
 | Modal overlay | `fixed inset-0 bg-black/50 backdrop-blur-sm` (neutral scrim, allowed) |
-| Selected row | `bg-accent-primary/10 border-l-4 border-accent-primary` |
+| Selected row | `bg-accent-primary/10 border-l-4 border-accent-primary`, row number `text-accent` |
 | Inserted / modified / deleted row | `semantic.new` / `semantic.modified` / `semantic.deleted` tokens |
 | Active rail item | `bg-accent-primary text-inverse` |
 | Glow behind an indicator | `shadow-[0_0_6px_var(--accent-primary)]` |
@@ -88,6 +91,14 @@ Meaning drives the token, not hue. Blue in a mock-up means `accent-primary`, red
 `accent-error`, green `accent-success`, amber `accent-warning`, purple `accent-secondary`.
 Two states that must be told apart use two different tokens, never two shades of one.
 
+Fills and text are different tokens on purpose. `accent.primary` may be a fluorescent
+yellow or a pale purple that is unreadable as text on the theme's background, so themes
+ship `text.accent` for words and icons in the accent hue: always `text-accent`, never
+`text-accent-primary`. Likewise `text.inverse` is only guaranteed to read on
+`accent.primary`; labels over the other fills use `text-on-accent-*`, which derives black
+or white from the fill's own lightness. Focus states use `border.focus`, a color themes
+choose to stand out against their inputs (Highlighter uses pink on a yellow accent).
+
 ## Rules
 
 1. No Tailwind palette classes (`text-blue-400`, `bg-red-900/20`, `border-amber-500/30`,
@@ -96,7 +107,10 @@ Two states that must be told apart use two different tokens, never two shades of
    `useTheme()` when a library needs a resolved color; use `var(--token)` or `tint()` in
    inline styles. Neutral black or white shadows are the only literal allowed.
 3. `text-white` only on user-picked or brand colors (connection tiles, swatch check
-   marks). Over an accent use `text-inverse`; for hover brightening use `hover:text-primary`.
+   marks). Over the primary accent use `text-inverse`, over any other accent fill
+   `text-on-accent-*`; for hover brightening use `hover:text-primary`.
+10. `text-accent-primary` does not exist: accent-colored text and icons are `text-accent`.
+    Focus borders, rings and outlines use the `focus` token, not `accent-primary`.
 4. `bg-black/50` scrims are fine; anything else black or white must be a token.
 5. Radii come from the theme: `rounded*` utilities are already mapped, never write
    `rounded-[6px]` or `borderRadius: 6`. Use `theme.layout.borderRadius.*` in inline styles.

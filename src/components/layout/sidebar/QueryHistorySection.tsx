@@ -120,7 +120,7 @@ export function QueryHistorySection({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("sidebar.searchHistory")}
-            className="w-full pl-6 pr-2 py-1 text-xs bg-surface-secondary border border-default rounded text-primary placeholder:text-muted focus:outline-none focus:border-accent-primary/50"
+            className="w-full pl-6 pr-2 py-1 text-xs bg-surface-secondary border border-default rounded text-primary placeholder:text-muted focus:outline-none focus:border-focus/50"
           />
         </div>
         <button

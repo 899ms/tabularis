@@ -362,7 +362,7 @@ export function ClipboardImportModal({ isOpen, onClose, onSuccess }: ClipboardIm
         <div className="relative flex items-start justify-between gap-4 px-5 py-4 border-b border-default bg-gradient-to-br from-accent-primary/10 via-base to-base">
           <div className="flex min-w-0 flex-1 gap-3">
             <div className="bg-accent-primary/15 p-2.5 rounded-lg ring-1 ring-accent-primary/20 shadow-inner shrink-0">
-              <Clipboard className="text-accent-primary" size={20} />
+              <Clipboard className="text-accent" size={20} />
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-2">
               <div className="min-w-0">
@@ -374,14 +374,14 @@ export function ClipboardImportModal({ isOpen, onClose, onSuccess }: ClipboardIm
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center gap-1.5 rounded-full border border-accent-primary/25 bg-accent-primary/10 px-2.5 py-1 text-[11px] text-accent-primary">
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-accent-primary/25 bg-accent-primary/10 px-2.5 py-1 text-[11px] text-accent">
                   <Clipboard size={12} className="shrink-0" />
                   <span>{selectedModeHint}</span>
                 </div>
                 {parsed && (
                   <>
                     <div className="inline-flex items-center gap-1.5 rounded-full border border-default bg-base/70 px-2.5 py-1 text-[11px] text-secondary">
-                      <Table2 size={12} className="text-accent-primary shrink-0" />
+                      <Table2 size={12} className="text-accent shrink-0" />
                       <span className="text-primary font-medium">{columns.length}</span>
                       <span>{t('clipboardImport.columnsLabel')}</span>
                     </div>
@@ -424,7 +424,7 @@ export function ClipboardImportModal({ isOpen, onClose, onSuccess }: ClipboardIm
               <button
                 type="button"
                 onClick={readClipboard}
-                className="text-xs text-accent-primary hover:underline"
+                className="text-xs text-accent hover:underline"
               >
                 {t('clipboardImport.retry')}
               </button>
@@ -658,7 +658,7 @@ interface StepHeaderProps {
 function StepHeader({ number, label }: StepHeaderProps) {
   return (
     <div className="flex items-center gap-2 min-w-0">
-      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-accent-primary/30 to-accent-primary/20 border border-accent-primary/40 text-[11px] font-bold text-accent-primary shadow-inner shrink-0">
+      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-accent-primary/30 to-accent-primary/20 border border-accent-primary/40 text-[11px] font-bold text-accent shadow-inner shrink-0">
         {number}
       </span>
       <span className="text-xs font-semibold text-primary uppercase tracking-wider truncate">{label}</span>

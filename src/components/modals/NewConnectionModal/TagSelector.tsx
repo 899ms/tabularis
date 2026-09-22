@@ -137,7 +137,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
               setEditingId(null);
               setError(null);
             }}
-            className="flex items-center gap-1 text-[11px] text-muted hover:text-accent-primary transition-colors"
+            className="flex items-center gap-1 text-[11px] text-muted hover:text-accent transition-colors"
           >
             <Settings2 size={11} />
             {managing ? t("tags.done") : t("tags.manage")}
@@ -178,7 +178,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
             <button
               type="button"
               onClick={() => setCreating(true)}
-              className="flex items-center gap-1 text-xs text-muted border border-dashed border-strong px-2 py-1 rounded-lg hover:text-accent-primary hover:border-accent-primary/50 transition-colors"
+              className="flex items-center gap-1 text-xs text-muted border border-dashed border-strong px-2 py-1 rounded-lg hover:text-accent hover:border-accent-primary/50 transition-colors"
             >
               <Plus size={11} />
               {t("tags.new")}
@@ -201,7 +201,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
                 autoFocus
                 spellCheck={false}
                 aria-label={t("tags.namePlaceholder")}
-                className="w-36 px-2 py-1 bg-elevated border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none"
+                className="w-36 px-2 py-1 bg-elevated border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-focus focus:outline-none"
               />
               <Swatches value={newColor} onPick={setNewColor} />
               <div className="flex items-center gap-1 ml-auto">
@@ -250,7 +250,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
                   autoFocus
                   spellCheck={false}
                   aria-label={t("tags.namePlaceholder")}
-                  className="w-36 px-2 py-1 bg-elevated border border-strong rounded-md text-xs text-primary focus:border-accent-primary focus:outline-none"
+                  className="w-36 px-2 py-1 bg-elevated border border-strong rounded-md text-xs text-primary focus:border-focus focus:outline-none"
                 />
                 <Swatches value={editColor} onPick={setEditColor} />
                 <div className="flex items-center gap-1 ml-auto">
@@ -288,7 +288,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
                   type="button"
                   onClick={() => startEdit(tag)}
                   aria-label={t("common.edit")}
-                  className="p-1 rounded-md text-muted hover:text-accent-primary transition-colors"
+                  className="p-1 rounded-md text-muted hover:text-accent transition-colors"
                 >
                   <Pencil size={12} />
                 </button>

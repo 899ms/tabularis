@@ -153,7 +153,7 @@ export const ConnectionGroupItem = ({ connections, mode, isDropTarget = false }:
           })}
 
           {/* Split mode badge */}
-          <div className="absolute -bottom-0.5 -right-0.5 text-[8px] font-bold bg-accent-secondary text-inverse rounded px-0.5 leading-tight">
+          <div className="absolute -bottom-0.5 -right-0.5 text-[8px] font-bold bg-accent-secondary text-on-accent-secondary rounded px-0.5 leading-tight">
             {mode === 'vertical' ? '⇔' : '⇕'}
           </div>
         </div>

@@ -165,7 +165,7 @@ export const ImportDatabaseModal = ({
             {isImporting && (
               <Loader2
                 size={48}
-                className="animate-spin text-accent-primary"
+                className="animate-spin text-accent"
               />
             )}
             {success && (
@@ -272,7 +272,7 @@ export const ImportDatabaseModal = ({
           {isImporting ? (
             <button
               onClick={handleCancel}
-              className="px-4 py-2 bg-accent-error hover:bg-accent-error/90 text-inverse rounded flex items-center gap-2 transition-colors"
+              className="px-4 py-2 bg-accent-error hover:bg-accent-error/90 text-on-accent-error rounded flex items-center gap-2 transition-colors"
             >
               <X size={16} />
               {t("common.cancel")}

@@ -1312,10 +1312,10 @@ export const DataGrid = React.memo(
                       }}
                     >
                       {displaySortState === "asc" && (
-                        <ArrowUp size={14} className="text-accent-primary" />
+                        <ArrowUp size={14} className="text-accent" />
                       )}
                       {displaySortState === "desc" && (
-                        <ArrowDown size={14} className="text-accent-primary" />
+                        <ArrowDown size={14} className="text-accent" />
                       )}
                       {displaySortState === "none" && (
                         <ArrowUpDown

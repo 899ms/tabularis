@@ -400,7 +400,7 @@ export const ImportFromAppModal = ({
               </button>
             )}
             <div className="p-2 bg-accent-primary/15 rounded-lg">
-              <Database size={20} className="text-accent-primary" />
+              <Database size={20} className="text-accent" />
             </div>
             <div>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-primary">
@@ -507,7 +507,7 @@ export const ImportFromAppModal = ({
           {!loading && step === "password" && (
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm text-secondary">
-                <Lock size={15} className="text-accent-primary shrink-0" />
+                <Lock size={15} className="text-accent shrink-0" />
                 <span>{t("connections.importPasswordModal.title")}</span>
               </div>
               <label className="block text-xs font-medium text-secondary">
@@ -701,7 +701,7 @@ const BulkGroupSelector = ({
     <div className="space-y-2 rounded-xl border border-accent-primary/30 bg-accent-primary/5 px-3.5 py-2.5">
       <div className="flex items-center gap-2">
         <label className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-secondary">
-          <ListChecks size={13} className="text-accent-primary" />
+          <ListChecks size={13} className="text-accent" />
           {t("connections.importFromApp.action.applyToAll")}
         </label>
         <Select
@@ -721,7 +721,7 @@ const BulkGroupSelector = ({
         <>
           <div className="flex items-center gap-2">
             <label className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-secondary">
-              <FolderPlus size={13} className="text-accent-primary" />
+              <FolderPlus size={13} className="text-accent" />
               {t("connections.importFromApp.group.applyToAll")}
             </label>
             <Select
@@ -747,7 +747,7 @@ const BulkGroupSelector = ({
                 autoFocus
                 onChange={(e) => onNewGroupNameChange(e.target.value)}
                 placeholder={t("connections.importFromApp.group.newPlaceholder")}
-                className="min-w-0 flex-1 rounded border border-strong bg-base px-3 py-2 text-sm text-primary focus:border-accent-primary focus:outline-none"
+                className="min-w-0 flex-1 rounded border border-strong bg-base px-3 py-2 text-sm text-primary focus:border-focus focus:outline-none"
               />
               <label className="shrink-0 text-xs text-muted">
                 {t("connections.importFromApp.group.parentLabel")}
@@ -880,7 +880,7 @@ const PreviewRow = ({
             </p>
           )}
           {isDuplicate && item.status.kind === "duplicate" && (
-            <p className="mt-0.5 text-xs text-accent-primary">
+            <p className="mt-0.5 text-xs text-accent">
               {t("connections.importFromApp.duplicateOf", {
                 name: item.status.existingName,
               })}
@@ -932,7 +932,7 @@ const PreviewRow = ({
                 value={newGroupName}
                 onChange={(e) => onNewGroupNameChange(e.target.value)}
                 placeholder={t("connections.importFromApp.group.newPlaceholder")}
-                className="min-w-0 flex-1 rounded border border-strong bg-base px-3 py-2 text-sm text-primary focus:border-accent-primary focus:outline-none"
+                className="min-w-0 flex-1 rounded border border-strong bg-base px-3 py-2 text-sm text-primary focus:border-focus focus:outline-none"
               />
               <span className="shrink-0 text-xs text-muted">
                 {t("connections.importFromApp.group.parentLabel")}
@@ -963,7 +963,7 @@ const PreviewRow = ({
 
 const StatusBadge = ({ item }: { item: ImportItem }) => {
   if (item.status.kind === "duplicate") {
-    return <Copy size={16} className="shrink-0 text-accent-primary" />;
+    return <Copy size={16} className="shrink-0 text-accent" />;
   }
   if (item.status.kind === "warnings") {
     return <AlertTriangle size={16} className="shrink-0 text-accent-warning" />;

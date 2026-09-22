@@ -67,9 +67,9 @@ export function AiDropdownButton({
                 setIsOpen(false);
               }}
               disabled={disableExplain}
-              className="flex items-center gap-2 px-3 py-1.5 text-xs text-secondary hover:bg-accent-primary/15 hover:text-accent-primary w-full text-left transition-colors disabled:opacity-30 disabled:pointer-events-none"
+              className="flex items-center gap-2 px-3 py-1.5 text-xs text-secondary hover:bg-accent-primary/15 hover:text-accent w-full text-left transition-colors disabled:opacity-30 disabled:pointer-events-none"
             >
-              <BookOpen size={12} className="text-accent-primary" />
+              <BookOpen size={12} className="text-accent" />
               {t("ai.explain")}
             </button>
           </div>

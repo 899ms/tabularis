@@ -58,9 +58,9 @@ export const SshAskpassModal = ({
           <div className="flex items-center gap-3">
             <div className="p-2 bg-accent-primary/15 rounded-lg">
               {isNotify ? (
-                <Fingerprint size={20} className="text-accent-primary" />
+                <Fingerprint size={20} className="text-accent" />
               ) : (
-                <KeyRound size={20} className="text-accent-primary" />
+                <KeyRound size={20} className="text-accent" />
               )}
             </div>
             <div>
@@ -89,7 +89,7 @@ export const SshAskpassModal = ({
               type="password"
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-accent-primary focus:outline-none"
+              className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-focus focus:outline-none"
               placeholder={t("sshAskpass.placeholder")}
               autoFocus
             />

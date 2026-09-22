@@ -238,7 +238,7 @@ const FieldInput = ({
           autoComplete="off"
           spellCheck={false}
           className={clsx(
-            "w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-accent-primary focus:outline-none transition-colors",
+            "w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors",
             isPassword && "pr-10"
           )}
         />
@@ -2613,7 +2613,7 @@ export const NewConnectionModal = ({
               autoCapitalize="off"
               autoComplete="off"
               spellCheck={false}
-              className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-accent-primary focus:outline-none transition-colors"
+              className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors"
               placeholder={
                 activeDriver.capabilities.folder_based
                   ? t("newConnection.folderPathPlaceholder")
@@ -2687,7 +2687,7 @@ export const NewConnectionModal = ({
                   autoComplete="off"
                   spellCheck={false}
                   className={clsx(
-                    "flex-1 px-3 py-2 bg-base border rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-accent-primary focus:outline-none transition-colors",
+                    "flex-1 px-3 py-2 bg-base border rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors",
                     connectionStringError ? "border-accent-error" : "border-strong",
                   )}
                   placeholder={connectionStringPlaceholder}
@@ -2785,7 +2785,7 @@ export const NewConnectionModal = ({
                     void loadDatabases();
                   }}
                   disabled={loadingDatabases || !formData.host}
-                  className="flex items-center gap-1 text-xs text-accent-primary disabled:text-muted disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center gap-1 text-xs text-accent disabled:text-muted disabled:cursor-not-allowed transition-colors"
                 >
                   {loadingDatabases ? (
                     <Loader2 size={11} className="animate-spin" />
@@ -2823,7 +2823,7 @@ export const NewConnectionModal = ({
                   autoCapitalize="off"
                   autoComplete="off"
                   spellCheck={false}
-                  className="w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-accent-primary focus:outline-none transition-colors"
+                  className="w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors"
                   placeholder={t("newConnection.dbNamePlaceholder")}
                 />
               )}
@@ -3029,7 +3029,7 @@ export const NewConnectionModal = ({
 
       {loadAllDatabases ? (
         <div className="flex items-start gap-2.5 p-3 border border-strong rounded-md bg-base">
-          <Database size={14} className="text-accent-primary shrink-0 mt-0.5" />
+          <Database size={14} className="text-accent shrink-0 mt-0.5" />
           <p className="text-xs text-secondary leading-relaxed">
             {t("newConnection.allDatabasesHint", {
               defaultValue:
@@ -3051,7 +3051,7 @@ export const NewConnectionModal = ({
             void loadDatabases();
           }}
           disabled={loadingDatabases || !formData.host}
-          className="flex items-center gap-1 text-xs text-accent-primary disabled:text-muted disabled:cursor-not-allowed transition-colors shrink-0"
+          className="flex items-center gap-1 text-xs text-accent disabled:text-muted disabled:cursor-not-allowed transition-colors shrink-0"
         >
           {loadingDatabases ? (
             <Loader2 size={11} className="animate-spin" />
@@ -3102,7 +3102,7 @@ export const NewConnectionModal = ({
                   if (databasesTabError) setDatabasesTabError(false);
                 }
               }}
-              className="text-xs text-accent-primary whitespace-nowrap shrink-0"
+              className="text-xs text-accent whitespace-nowrap shrink-0"
             >
               {availableDatabases
                 .filter((db) =>
@@ -3138,7 +3138,7 @@ export const NewConnectionModal = ({
                     <span
                       className={clsx(
                         "shrink-0",
-                        sel ? "text-accent-primary" : "text-muted",
+                        sel ? "text-accent" : "text-muted",
                       )}
                     >
                       {sel ? <CheckSquare size={13} /> : <Square size={13} />}
@@ -3271,7 +3271,7 @@ export const NewConnectionModal = ({
                 autoCapitalize="off"
                 autoComplete="off"
                 spellCheck={false}
-                className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-accent-primary focus:outline-none transition-colors"
+                className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors"
               />
               <button
                 type="button"
@@ -3309,7 +3309,7 @@ export const NewConnectionModal = ({
                 autoCapitalize="off"
                 autoComplete="off"
                 spellCheck={false}
-                className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-accent-primary focus:outline-none transition-colors"
+                className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors"
               />
               <button
                 type="button"
@@ -3347,7 +3347,7 @@ export const NewConnectionModal = ({
                 autoCapitalize="off"
                 autoComplete="off"
                 spellCheck={false}
-                className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-accent-primary focus:outline-none transition-colors"
+                className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors"
               />
               <button
                 type="button"
@@ -3591,7 +3591,7 @@ export const NewConnectionModal = ({
               <button
                 type="button"
                 onClick={() => setIsSshModalOpen(true)}
-                className="flex items-center gap-1.5 text-xs text-accent-primary font-medium transition-colors"
+                className="flex items-center gap-1.5 text-xs text-accent font-medium transition-colors"
               >
                 <Settings size={12} />
                 {t("newConnection.manageSshConnections")}
@@ -3647,7 +3647,7 @@ export const NewConnectionModal = ({
                     autoCapitalize="off"
                     autoComplete="off"
                     spellCheck={false}
-                    className="w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-accent-primary focus:outline-none transition-colors"
+                    className="w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors"
                   />
                   {formData.save_in_keychain &&
                     sshPasswordDirty &&
@@ -4205,7 +4205,7 @@ export const NewConnectionModal = ({
                 className={clsx(
                   "flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors",
                   step === "catalogue"
-                    ? "bg-accent-primary/15 text-accent-primary"
+                    ? "bg-accent-primary/15 text-accent"
                     : "text-secondary",
                 )}
               >
@@ -4214,7 +4214,7 @@ export const NewConnectionModal = ({
                     "flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold",
                     step === "catalogue"
                       ? "bg-accent-primary text-inverse"
-                      : "bg-accent-success/80 text-inverse",
+                      : "bg-accent-success/80 text-on-accent-success",
                   )}
                 >
                   {step === "catalogue" ? "1" : <Check size={10} />}
@@ -4226,7 +4226,7 @@ export const NewConnectionModal = ({
                 className={clsx(
                   "flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors",
                   step === "form"
-                    ? "bg-accent-primary/15 text-accent-primary"
+                    ? "bg-accent-primary/15 text-accent"
                     : "text-muted",
                 )}
               >
@@ -4295,7 +4295,7 @@ export const NewConnectionModal = ({
                     {activeDriver?.name ?? driver}
                   </h3>
                   {activeCatalogueDriver?.verified && (
-                    <span className="flex items-center text-accent-primary" title="Verified">
+                    <span className="flex items-center text-accent" title="Verified">
                       <ShieldCheck size={14} />
                       <span className="sr-only">Verified</span>
                     </span>
@@ -4417,7 +4417,7 @@ export const NewConnectionModal = ({
                   className={clsx(
                     "cursor-pointer flex-shrink-0 whitespace-nowrap px-4 py-2.5 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 -mb-px",
                     activeTab === tab.id
-                      ? "border-accent-primary text-accent-primary"
+                      ? "border-accent-primary text-accent"
                       : "border-transparent text-muted hover:text-secondary",
                   )}
                 >
@@ -4425,7 +4425,7 @@ export const NewConnectionModal = ({
                   {tab.id === "databases" &&
                     !loadAllDatabases &&
                     selectedDatabasesState.length > 0 && (
-                      <span className="ml-1.5 text-[9px] bg-accent-primary/20 text-accent-primary px-1.5 py-0.5 rounded-full">
+                      <span className="ml-1.5 text-[9px] bg-accent-primary/20 text-accent px-1.5 py-0.5 rounded-full">
                         {selectedDatabasesState.length}
                       </span>
                     )}

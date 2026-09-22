@@ -86,7 +86,7 @@ export function NotebookHistoryPanel({
               >
                 <span className="w-4 shrink-0 text-center">
                   {isCurrent ? (
-                    <Check size={12} className="text-accent-primary" />
+                    <Check size={12} className="text-accent" />
                   ) : (
                     <span className="text-[10px] text-muted">{index + 1}</span>
                   )}

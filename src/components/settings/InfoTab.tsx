@@ -122,7 +122,7 @@ export function InfoTab() {
           </button>
           <button
             onClick={() => setIsOpenSourceLibrariesOpen(true)}
-            className="flex items-center gap-2 bg-accent-primary/20 hover:bg-accent-primary/30 text-accent-primary px-4 py-2 rounded-lg font-medium transition-colors border border-accent-primary/30"
+            className="flex items-center gap-2 bg-accent-primary/20 hover:bg-accent-primary/30 text-accent px-4 py-2 rounded-lg font-medium transition-colors border border-accent-primary/30"
           >
             <Library size={18} />
             {t("settings.openSourceLibraries")}
@@ -341,7 +341,7 @@ export function InfoTab() {
         action={
           <button
             onClick={() => invoke("open_task_manager_window")}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-accent-primary/15 border border-accent-primary/25 text-accent-primary hover:bg-accent-primary/25 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-accent-primary/15 border border-accent-primary/25 text-accent hover:bg-accent-primary/25 transition-colors"
           >
             <Activity size={14} />
             {t("taskManager.header.open")}
@@ -371,7 +371,7 @@ export function InfoTab() {
         <div className="pt-3 flex flex-col items-center text-center">
           <button
             onClick={() => openUrl("https://github.com/TabularisDB/tabularis")}
-            className="text-accent-primary hover:text-accent-primary/90 font-medium text-sm hover:underline"
+            className="text-accent hover:text-accent/90 font-medium text-sm hover:underline"
           >
             github.com/TabularisDB/tabularis
           </button>

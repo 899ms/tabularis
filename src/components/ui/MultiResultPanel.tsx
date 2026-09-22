@@ -142,7 +142,7 @@ function ResultTab({
 
       {/* Status icon */}
       {entry.isLoading ? (
-        <Loader2 size={12} className="animate-spin text-accent-primary shrink-0" />
+        <Loader2 size={12} className="animate-spin text-accent shrink-0" />
       ) : entry.error ? (
         <XCircle size={12} className="text-accent-error shrink-0" />
       ) : (
@@ -367,11 +367,11 @@ export function MultiResultPanel({
           <span className="text-accent-error ml-1.5">{failed}<XCircle size={9} className="inline ml-0.5" /></span>
         )}
         {pending > 0 && (
-          <span className="text-accent-primary ml-1.5">{pending}<Loader2 size={9} className="inline ml-0.5 animate-spin" /></span>
+          <span className="text-accent ml-1.5">{pending}<Loader2 size={9} className="inline ml-0.5 animate-spin" /></span>
         )}
       </span>
       {isRunning ? (
-        <span className="font-mono text-accent-primary">{formatDuration(elapsed)}</span>
+        <span className="font-mono text-accent">{formatDuration(elapsed)}</span>
       ) : (
         totalTime > 0 && (
           <span className="font-mono text-muted">{formatDuration(totalTime)}</span>

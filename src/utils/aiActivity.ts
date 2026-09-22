@@ -64,7 +64,7 @@ const STATUS_STYLES: Record<AiActivityStatus, BadgeStyle> = {
 const QUERY_KIND_STYLES: Record<AiQueryKind, BadgeStyle> = {
   select: {
     bg: "bg-accent-primary/10",
-    text: "text-accent-primary",
+    text: "text-accent",
     border: "border-accent-primary/20",
   },
   write: {

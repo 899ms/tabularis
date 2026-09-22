@@ -187,7 +187,7 @@ export const DumpDatabaseModal = ({
                         type="checkbox"
                         checked={includeStructure}
                         onChange={e => setIncludeStructure(e.target.checked)}
-                        className="rounded border-default bg-base focus:ring-accent-primary w-4 h-4"
+                        className="rounded border-default bg-base focus:ring-focus w-4 h-4"
                         disabled={isExporting}
                     />
                     <span>{t("dump.includeStructure")}</span>
@@ -197,7 +197,7 @@ export const DumpDatabaseModal = ({
                         type="checkbox"
                         checked={includeData}
                         onChange={e => setIncludeData(e.target.checked)}
-                        className="rounded border-default bg-base focus:ring-accent-primary w-4 h-4"
+                        className="rounded border-default bg-base focus:ring-focus w-4 h-4"
                         disabled={isExporting}
                     />
                     <span>{t("dump.includeData")}</span>
@@ -210,7 +210,7 @@ export const DumpDatabaseModal = ({
                     <span className="text-xs font-semibold uppercase text-muted">{t("dump.selectTables")} ({selectedTables.size}/{effectiveTables.length})</span>
                     <button
                         onClick={handleSelectAll}
-                        className="text-xs text-accent-primary hover:underline"
+                        className="text-xs text-accent hover:underline"
                         disabled={isExporting || tablesLoading}
                     >
                         {selectedTables.size === effectiveTables.length ? t("dump.deselectAll") : t("dump.selectAll")}
@@ -228,7 +228,7 @@ export const DumpDatabaseModal = ({
                                 <div key={table}
                                     onClick={() => !isExporting && handleToggleTable(table)}
                                     className={`flex items-center gap-2 p-2 rounded cursor-pointer border transition-colors ${isSelected ? 'bg-accent-primary/10 border-accent-primary/50' : 'hover:bg-surface-secondary border-transparent'} ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                    <div className={`w-4 h-4 flex items-center justify-center ${isSelected ? 'text-accent-primary' : 'text-muted'}`}>
+                                    <div className={`w-4 h-4 flex items-center justify-center ${isSelected ? 'text-accent' : 'text-muted'}`}>
                                         {isSelected ? <CheckSquare size={16} /> : <Square size={16} />}
                                     </div>
                                     <span className="truncate text-sm select-none" title={table}>{table}</span>
@@ -258,7 +258,7 @@ export const DumpDatabaseModal = ({
              {isExporting ? (
                  <button
                     onClick={handleStop}
-                    className="px-4 py-2 bg-accent-error hover:bg-accent-error/90 text-inverse rounded flex items-center gap-2 transition-colors"
+                    className="px-4 py-2 bg-accent-error hover:bg-accent-error/90 text-on-accent-error rounded flex items-center gap-2 transition-colors"
                  >
                     <Loader2 size={16} className="animate-spin" />
                     {t("editor.stop")}

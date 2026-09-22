@@ -12,6 +12,10 @@
  *   3. `rgb()`/`rgba()`/`hsl()` literals other than neutral black/white shadows
  *   4. `text-white` painted over an accent background (use `text-inverse`)
  *      and `hover:text-white` (use `hover:text-primary`)
+ *   5. `text-accent-primary`: accent.primary is a fill; text and icons in the
+ *      accent hue use `text-accent` (the theme's text.accent token)
+ *   6. focus states colored with `accent-primary` instead of the `focus` token
+ *   7. `text-inverse` over a non-primary accent fill (use `text-on-accent-*`)
  *
  * Files whose colors are an identity rather than a theme choice (brand icons,
  * driver colors, user-picked swatches) are listed in ALLOWLIST with the rules
@@ -66,6 +70,10 @@ const WHITE_ON_ACCENT = /(?<![a-zA-Z0-9-])text-white(?![a-zA-Z0-9-/])/;
 const ACCENT_BG = /(?:bg|from)-accent-(?:primary|secondary|success|warning|error|info)/;
 const HOVER_WHITE = /(?<![a-zA-Z0-9-])(?:group-hover|hover|focus|active):(?:enabled:)?text-white(?![a-zA-Z0-9-/])/;
 const COMMENT_LINE = /^\s*(?:\/\/|\/?\*)/;
+const ACCENT_AS_TEXT = /(?<![a-zA-Z0-9-])(?:[a-z-]+:)*text-accent-primary(?![a-zA-Z0-9-])/g;
+const ACCENT_FOCUS = /(?<![a-zA-Z0-9-])(?:[a-z-]+:)*(?:focus|focus-within|focus-visible|peer-focus-visible):(?:border|ring|outline)-accent-primary(?![a-zA-Z0-9-])/g;
+const NON_PRIMARY_FILL = /(?<![a-zA-Z0-9-])(?:hover:)?bg-accent-(secondary|success|warning|error|info)(?![a-zA-Z0-9-])/;
+const INVERSE = /(?<![a-zA-Z0-9-])text-inverse(?![a-zA-Z0-9-/])/;
 
 const verbose = process.argv.includes("--verbose");
 const findings = [];
@@ -112,6 +120,18 @@ function checkFile(full, rel, ext) {
       }
       if (HOVER_WHITE.test(line)) {
         findings.push(`${at}: "hover:text-white" assumes a dark theme (use "hover:text-primary")`);
+      }
+    }
+    if (!allowed(rel, "palette")) {
+      for (const match of line.matchAll(ACCENT_AS_TEXT)) {
+        findings.push(`${at}: "${match[0]}" paints text with the accent fill; use "text-accent" (theme text.accent)`);
+      }
+      for (const match of line.matchAll(ACCENT_FOCUS)) {
+        findings.push(`${at}: "${match[0]}" colors a focus state with the accent; use the "focus" token (border-focus, ring-focus, outline-focus)`);
+      }
+      const fill = NON_PRIMARY_FILL.exec(line);
+      if (fill && INVERSE.test(line)) {
+        findings.push(`${at}: "text-inverse" is only guaranteed on accent.primary; over bg-accent-${fill[1]} use "text-on-accent-${fill[1]}"`);
       }
     }
   });

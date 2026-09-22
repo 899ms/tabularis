@@ -154,7 +154,7 @@ export const RunRoutineModal = ({
               return (
                 <div key={param.ordinal_position}>
                   <label className="text-xs uppercase font-bold text-muted mb-1 flex items-center gap-2">
-                    <Variable size={12} className="text-accent-primary" />
+                    <Variable size={12} className="text-accent" />
                     <span>{param.name || `#${param.ordinal_position}`}</span>
                     <span className="font-mono normal-case font-normal">
                       {param.mode} {param.data_type}
@@ -175,7 +175,7 @@ export const RunRoutineModal = ({
                             value: e.target.value,
                           })
                         }
-                        className="flex-1 px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-accent-primary focus:outline-none disabled:opacity-50"
+                        className="flex-1 px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-focus focus:outline-none disabled:opacity-50"
                         placeholder={param.data_type}
                         autoFocus={
                           paramIdx === parameters.findIndex((p) => !isOutputOnly(p))
@@ -233,7 +233,7 @@ export const RunRoutineModal = ({
           <button
             onClick={handleRun}
             disabled={isLoading || isBuilding}
-            className="px-4 py-2 bg-accent-success hover:bg-accent-success/90 disabled:opacity-50 text-inverse rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-accent-success hover:bg-accent-success/90 disabled:opacity-50 text-on-accent-success rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
           >
             {isBuilding && <Loader2 size={16} className="animate-spin" />}
             {t("routines.runButton")}

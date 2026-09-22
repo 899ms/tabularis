@@ -517,7 +517,7 @@
     "darkTheme": "Thème sombre",
     "fontFamily": "Famille de police",
     "fonts": {
-      "system": "Police système par défaut",
+      "system": "Police du thème",
       "systemDesc": "Utilise la police par défaut de votre OS",
       "custom": "Police personnalisée",
       "customPlaceholder": "ex. Comic Sans MS",

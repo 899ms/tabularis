@@ -143,7 +143,7 @@ export const CreateIndexModal = ({
                 <input autoCorrect="off" autoCapitalize="off" autoComplete="off" spellCheck={false}
                     value={indexName}
                     onChange={(e) => { setIndexName(e.target.value); setError(''); }}
-                    className={`w-full bg-base border rounded-lg px-3 py-2 text-primary text-sm focus:border-accent-primary focus:outline-none font-mono ${!indexName.trim() && error ? 'border-accent-error' : 'border-strong'}`}
+                    className={`w-full bg-base border rounded-lg px-3 py-2 text-primary text-sm focus:border-focus focus:outline-none font-mono ${!indexName.trim() && error ? 'border-accent-error' : 'border-strong'}`}
                     placeholder="idx_table_column"
                     autoFocus
                 />
@@ -165,7 +165,7 @@ export const CreateIndexModal = ({
                                     onChange={() => toggleColumn(col.name)}
                                     className="accent-accent-primary"
                                 />
-                                <span className={`text-sm font-mono ${selectedColumns.includes(col.name) ? 'text-accent-primary' : 'text-secondary'}`}>
+                                <span className={`text-sm font-mono ${selectedColumns.includes(col.name) ? 'text-accent' : 'text-secondary'}`}>
                                     {col.name}
                                 </span>
                             </label>

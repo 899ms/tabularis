@@ -208,7 +208,7 @@ export function AppearanceSection({
             className={clsx(
               "ml-1 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium border transition-colors",
               customOpen
-                ? "bg-accent-primary/15 border-accent-primary/40 text-accent-primary"
+                ? "bg-accent-primary/15 border-accent-primary/40 text-accent"
                 : "bg-elevated border-strong text-secondary hover:text-primary hover:bg-surface-secondary",
             )}
           >
@@ -236,7 +236,7 @@ export function AppearanceSection({
                 placeholder="rrggbb"
                 prefixed={false}
                 aria-label="custom hex input"
-                className="px-3 py-1.5 bg-elevated border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-accent-primary focus:outline-none transition-colors font-mono w-28 uppercase"
+                className="px-3 py-1.5 bg-elevated border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors font-mono w-28 uppercase"
               />
             </div>
           </div>
@@ -301,7 +301,7 @@ export function AppearanceSection({
               autoCapitalize="off"
               autoComplete="off"
               spellCheck={false}
-              className="w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-accent-primary focus:outline-none transition-colors"
+              className="w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors"
             />
             {(() => {
               const q = iconSearch.toLowerCase().trim();
@@ -327,7 +327,7 @@ export function AppearanceSection({
                           className={clsx(
                             "aspect-square flex items-center justify-center rounded-md transition-all",
                             selected
-                              ? "bg-accent-primary/20 text-accent-primary ring-1 ring-accent-primary/50 shadow-[0_0_0_2px_rgba(59,130,246,0.15)]"
+                              ? "bg-accent-primary/20 text-accent ring-1 ring-accent-primary/50 shadow-[0_0_0_2px_rgba(59,130,246,0.15)]"
                               : "text-secondary hover:bg-surface-secondary hover:text-primary",
                           )}
                         >

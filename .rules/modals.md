@@ -46,7 +46,7 @@ return (
       <div className="flex items-center justify-between p-4 border-b border-default bg-base">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-accent-{tone}/15 rounded-lg">
-            <Icon size={20} className="text-accent-{tone}" />
+            <Icon size={20} className="text-accent" />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-primary">{t("xxx.title")}</h2>
@@ -97,7 +97,7 @@ return (
 ### Header
 - `p-4 border-b border-default bg-base` - Padding, bottom border, base background
 - Icon container: `p-2 bg-accent-{tone}/15 rounded-lg` - Tinted theme accent
-- Icon: `text-accent-{tone}` - Theme accent, where `{tone}` is `primary` (information, configuration, connections), `secondary` (tools, integrations, schema changes), `success`, `warning` or `error`
+- Icon: `text-accent` for information, configuration and connections; `text-accent-secondary` (tools, integrations, schema changes), `text-accent-success`, `text-accent-warning` or `text-accent-error` for the other tones
 - Title: `text-lg font-semibold text-primary`
 - Subtitle: `text-xs text-secondary`
 
@@ -111,7 +111,7 @@ return (
 - `text-xs uppercase font-bold text-muted` - Small, uppercase, muted color
 
 **Inputs:**
-- `w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-accent-primary focus:outline-none`
+- `w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-focus focus:outline-none`
 
 **Textareas:**
 - Same as inputs with `resize-none` to prevent manual resizing
@@ -130,7 +130,7 @@ return (
 - `px-4 py-2 text-secondary hover:text-primary transition-colors text-sm`
 
 **Danger Action:**
-- `px-4 py-2 bg-accent-error hover:bg-accent-error/90 text-inverse rounded-lg text-sm font-medium transition-colors`
+- `px-4 py-2 bg-accent-error hover:bg-accent-error/90 text-on-accent-error rounded-lg text-sm font-medium transition-colors`
 
 **Icon Buttons:**
 - `p-2 bg-surface-secondary text-secondary hover:text-primary rounded transition-all`
@@ -140,7 +140,7 @@ return (
 
 ### Icon Colors (Semantic)
 - **`accent-secondary`** (`bg-accent-secondary/15`, `text-accent-secondary`): Tools, integrations, advanced features, schema changes
-- **`accent-primary`** (`bg-accent-primary/15`, `text-accent-primary`): Information, configuration, connections
+- **`accent-primary`** (`bg-accent-primary/15`, icon `text-accent`): Information, configuration, connections
 - **`accent-success`** (`bg-accent-success/15`, `text-accent-success`): Success, confirmation, enabled states
 - **`accent-error`** (`bg-accent-error/15`, `text-accent-error`): Danger, delete, error states
 - **`accent-warning`** (`bg-accent-warning/15`, `text-accent-warning`): Warnings
@@ -287,7 +287,7 @@ export const CreateModal = ({ isOpen, onClose, onSubmit }: CreateModalProps) => 
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-accent-primary focus:outline-none"
+              className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-focus focus:outline-none"
               placeholder={t("create.namePlaceholder")}
               autoFocus
             />

@@ -264,7 +264,7 @@ export function AiTab() {
                   className={clsx(
                     "relative flex items-center gap-2.5 px-4 py-3 rounded-lg text-sm font-medium transition-all border",
                     isSelected
-                      ? "bg-accent-primary/10 border-accent-primary text-accent-primary ring-1 ring-accent-primary/30"
+                      ? "bg-accent-primary/10 border-accent-primary text-accent ring-1 ring-accent-primary/30"
                       : "bg-base border-default text-secondary hover:border-strong hover:text-primary",
                   )}
                 >
@@ -275,7 +275,7 @@ export function AiTab() {
                       size={14}
                       className={clsx(
                         "shrink-0 ml-auto",
-                        isSelected ? "text-accent-primary" : "text-accent-success",
+                        isSelected ? "text-accent" : "text-accent-success",
                       )}
                     />
                   )}
@@ -300,7 +300,7 @@ export function AiTab() {
                   </span>
                   {aiKeyStatus[settings.aiProvider]?.fromEnv && (
                     <span
-                      className="text-accent-primary flex items-center gap-1 text-xs bg-accent-primary/5 px-2 py-0.5 rounded-full border border-accent-primary/10"
+                      className="text-accent flex items-center gap-1 text-xs bg-accent-primary/5 px-2 py-0.5 rounded-full border border-accent-primary/10"
                       title={t("settings.ai.fromEnvTooltip")}
                     >
                       <Code2 size={12} /> {t("settings.ai.fromEnv")}
@@ -379,7 +379,7 @@ export function AiTab() {
                       </div>
                     </div>
                     {aiKeyStatus[settings.aiProvider]?.fromEnv && (
-                      <p className="text-xs text-accent-primary flex items-center gap-1.5">
+                      <p className="text-xs text-accent flex items-center gap-1.5">
                         <Info size={12} />
                         {t("settings.ai.envVariableDetected")}
                       </p>
@@ -395,7 +395,7 @@ export function AiTab() {
                           placeholder={t("settings.ai.enterKey", {
                             provider: getProviderLabel(settings.aiProvider),
                           })}
-                          className="w-full bg-base border border-strong rounded-lg pl-3 pr-10 py-2 text-primary text-sm focus:outline-none focus:border-accent-primary transition-colors"
+                          className="w-full bg-base border border-strong rounded-lg pl-3 pr-10 py-2 text-primary text-sm focus:outline-none focus:border-focus transition-colors"
                           onChange={(e) => setKeyInput(e.target.value)}
                           autoFocus={editingKey}
                         />
@@ -450,7 +450,7 @@ export function AiTab() {
                     updateSetting("aiCustomOpenaiUrl", e.target.value)
                   }
                   placeholder="https://api.example.com/v1"
-                  className="w-full bg-base border border-strong rounded-lg px-3 py-2 text-primary text-sm focus:outline-none focus:border-accent-primary transition-colors"
+                  className="w-full bg-base border border-strong rounded-lg px-3 py-2 text-primary text-sm focus:outline-none focus:border-focus transition-colors"
                 />
                 <p className="text-xs text-muted">
                   {t("settings.ai.endpointUrlDesc")}
@@ -514,7 +514,7 @@ export function AiTab() {
                         parseInt(e.target.value) || 11434,
                       )
                     }
-                    className="w-24 bg-base border border-strong rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent-primary transition-colors"
+                    className="w-24 bg-base border border-strong rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-focus transition-colors"
                   />
                   <p className="text-xs text-muted">(Default: 11434)</p>
                 </div>
@@ -684,7 +684,7 @@ export function AiTab() {
                     <textarea autoCorrect="off" autoCapitalize="off" autoComplete="off" spellCheck={false}
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
-                      className="w-full h-36 bg-base border border-strong rounded-lg p-3 text-primary text-sm font-mono focus:outline-none focus:border-accent-primary transition-colors resize-y"
+                      className="w-full h-36 bg-base border border-strong rounded-lg p-3 text-primary text-sm font-mono focus:outline-none focus:border-focus transition-colors resize-y"
                       placeholder={t(
                         `settings.ai.enter${type === "system" ? "System" : type === "explain" ? "Explain" : type === "cellname" ? "Cellname" : "Tabrename"}Prompt`,
                       )}

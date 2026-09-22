@@ -57,8 +57,8 @@ export const PluginStartErrorModal = ({
 
           {onConfigureInterpreter && (
             <div className="bg-accent-primary/10 border border-accent-primary/25 rounded-lg p-3 flex items-start gap-3">
-              <Settings size={15} className="text-accent-primary mt-0.5 shrink-0" />
-              <p className="text-xs text-accent-primary">
+              <Settings size={15} className="text-accent mt-0.5 shrink-0" />
+              <p className="text-xs text-accent">
                 {t("settings.plugins.startError.interpreterHint")}
               </p>
             </div>

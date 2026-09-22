@@ -132,7 +132,7 @@ export const PluginInstallConfirmModal = ({
         <div className="flex items-center justify-between px-5 py-4 border-b border-default bg-base">
           <div className="flex items-center gap-3 min-w-0">
             <div className="p-2 bg-accent-primary/15 rounded-lg">
-              <Download size={18} className="text-accent-primary" />
+              <Download size={18} className="text-accent" />
             </div>
             <div className="min-w-0">
               <h2 className="text-base font-semibold text-primary">
@@ -193,11 +193,11 @@ export const PluginInstallConfirmModal = ({
                 {request.slug}
               </p>
               <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
-                <span className="rounded-md border border-accent-primary/15 bg-accent-primary/10 px-1.5 py-px text-accent-primary font-medium">
+                <span className="rounded-md border border-accent-primary/15 bg-accent-primary/10 px-1.5 py-px text-accent font-medium">
                   v{targetVersion ?? "—"}
                 </span>
                 {kind && (
-                  <span className="rounded-md border border-accent-primary/15 bg-accent-primary/10 px-1.5 py-px text-accent-primary">
+                  <span className="rounded-md border border-accent-primary/15 bg-accent-primary/10 px-1.5 py-px text-accent">
                     {kind}
                   </span>
                 )}

@@ -403,7 +403,7 @@ const SchemaDiagramContent = ({
       {loading && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-base/80 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-3 text-secondary">
-            <Loader2 size={32} className="animate-spin text-accent-primary" />
+            <Loader2 size={32} className="animate-spin text-accent" />
             <span>Generating Diagram...</span>
           </div>
         </div>

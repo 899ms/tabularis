@@ -116,7 +116,7 @@ export function InstallGate({ driver, status, error, onInstall, onBack }: Instal
         <button
           type="button"
           onClick={() => setShowReadme(true)}
-          className="inline-flex cursor-pointer items-center gap-1.5 text-xs text-accent-primary transition-colors hover:text-accent-primary"
+          className="inline-flex cursor-pointer items-center gap-1.5 text-xs text-accent transition-colors hover:text-accent"
         >
           <BookOpen size={13} />
           {t("connectionCatalogue.viewDetails", { defaultValue: "More details" })}

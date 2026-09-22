@@ -216,7 +216,7 @@ export function LogsTab() {
           <select
             value={levelFilter}
             onChange={(e) => setLevelFilter(e.target.value)}
-            className="bg-base border border-strong rounded px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-accent-primary"
+            className="bg-base border border-strong rounded px-3 py-1.5 text-sm text-primary focus:outline-none focus:border-focus"
           >
             <option value="">{t("settings.allLevels")}</option>
             <option value="DEBUG">{t("settings.debug")}</option>
@@ -281,7 +281,7 @@ export function LogsTab() {
                             <div>
                               <button
                                 onClick={() => toggleLogExpansion(i)}
-                                className="flex items-center gap-1 hover:text-accent-primary transition-colors text-left"
+                                className="flex items-center gap-1 hover:text-accent transition-colors text-left"
                               >
                                 {isExpanded ? (
                                   <ChevronDown

@@ -10,7 +10,7 @@ const FORMAT_LABELS: Record<ClipboardFormat, string> = {
 
 const FORMAT_COLORS: Record<ClipboardFormat, string> = {
   tsv: 'bg-accent-success/15 text-accent-success border-accent-success/20',
-  csv: 'bg-accent-primary/15 text-accent-primary border-accent-primary/20',
+  csv: 'bg-accent-primary/15 text-accent border-accent-primary/20',
   'json-array': 'bg-accent-warning/15 text-accent-warning border-accent-warning/20',
   'markdown-table': 'bg-accent-secondary/15 text-accent-secondary border-accent-secondary/20',
   unknown: 'bg-surface-secondary text-muted border-strong',

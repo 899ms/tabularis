@@ -284,7 +284,7 @@ export const TriggerEditorModal = ({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={!isNewTrigger}
-                  className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-accent-primary focus:outline-none disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-focus focus:outline-none disabled:opacity-50"
                   placeholder={t("triggers.triggerNamePlaceholder")}
                   autoFocus={isNewTrigger}
                 />
@@ -301,7 +301,7 @@ export const TriggerEditorModal = ({
                   value={tableName}
                   onChange={(e) => setTableName(e.target.value)}
                   disabled={!isNewTrigger}
-                  className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-accent-primary focus:outline-none disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary focus:border-focus focus:outline-none disabled:opacity-50"
                   placeholder={t("triggers.tableNamePlaceholder")}
                 />
               </div>

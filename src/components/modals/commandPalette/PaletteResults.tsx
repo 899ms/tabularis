@@ -41,7 +41,7 @@ const ICONS: Record<PaletteIcon, ComponentType<LucideProps>> = {
 
 const ICON_COLORS: Partial<Record<PaletteIcon, string>> = {
   routine: "text-accent-success",
-  table: "text-accent-primary",
+  table: "text-accent",
   trigger: "text-accent-warning",
   view: "text-accent-secondary",
 };
@@ -57,7 +57,7 @@ function PaletteItemIcon({
   return (
     <Icon
       size={size}
-      className={`shrink-0 ${ICON_COLORS[icon] ?? "text-accent-primary"}`}
+      className={`shrink-0 ${ICON_COLORS[icon] ?? "text-accent"}`}
     />
   );
 }
@@ -189,7 +189,7 @@ export const PaletteResults = ({
               aria-label={action.label}
               title={action.label}
               onClick={() => onExecute(action)}
-              className="rounded p-1.5 text-muted transition-colors hover:bg-surface-tertiary hover:text-primary focus-visible:bg-surface-tertiary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary"
+              className="rounded p-1.5 text-muted transition-colors hover:bg-surface-tertiary hover:text-primary focus-visible:bg-surface-tertiary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
             >
               <PaletteItemIcon
                 icon={action.icon ?? "command"}

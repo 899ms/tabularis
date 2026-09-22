@@ -18,7 +18,7 @@ import {
 } from "../../types/proxy";
 
 const textInputClass =
-  "w-full max-w-xs px-3 py-2 bg-base border border-strong rounded-lg text-sm text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none transition-colors";
+  "w-full max-w-xs px-3 py-2 bg-base border border-strong rounded-lg text-sm text-primary placeholder:text-muted focus:border-focus focus:outline-none transition-colors";
 
 export interface ProxyFieldsProps {
   /** When set, shows inherit/custom/disabled mode selector (overrides). */

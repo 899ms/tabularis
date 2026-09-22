@@ -99,7 +99,7 @@ function ScopeCard({
     <div className="rounded-lg border border-default bg-elevated p-3 space-y-2.5">
       <div className="flex items-center gap-2">
         {scope.database === null ? (
-          <Globe size={13} className="text-accent-primary shrink-0" />
+          <Globe size={13} className="text-accent shrink-0" />
         ) : (
           <Table2 size={13} className="text-muted shrink-0" />
         )}
@@ -443,7 +443,7 @@ export function UserManagementView({ connectionId, isActive }: Props) {
               onChange={(e) => setFilter(e.target.value)}
               placeholder={t("userManagement.filterPlaceholder")}
               spellCheck={false}
-              className="w-full pl-7 pr-2 py-1.5 bg-elevated border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none"
+              className="w-full pl-7 pr-2 py-1.5 bg-elevated border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-focus focus:outline-none"
             />
           </div>
           <button
@@ -459,7 +459,7 @@ export function UserManagementView({ connectionId, isActive }: Props) {
               setActionError(null);
             }}
             title={t("userManagement.newUser")}
-            className="p-1.5 rounded-md text-accent-primary hover:bg-surface-secondary transition-colors"
+            className="p-1.5 rounded-md text-accent hover:bg-surface-secondary transition-colors"
           >
             <Plus size={14} />
           </button>
@@ -536,7 +536,7 @@ export function UserManagementView({ connectionId, isActive }: Props) {
                 placeholder={t("userManagement.userPlaceholder")}
                 autoFocus
                 spellCheck={false}
-                className="flex-1 px-2 py-1.5 bg-base border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none"
+                className="flex-1 px-2 py-1.5 bg-base border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-focus focus:outline-none"
               />
               <span className="text-muted text-xs">@</span>
               <input autoCorrect="off" autoCapitalize="off" autoComplete="off"
@@ -545,7 +545,7 @@ export function UserManagementView({ connectionId, isActive }: Props) {
                 onChange={(e) => setNewHost(e.target.value)}
                 placeholder="%"
                 spellCheck={false}
-                className="w-28 px-2 py-1.5 bg-base border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none"
+                className="w-28 px-2 py-1.5 bg-base border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-focus focus:outline-none"
               />
             </div>
             <input autoCorrect="off" autoCapitalize="off" autoComplete="off" spellCheck={false}
@@ -553,7 +553,7 @@ export function UserManagementView({ connectionId, isActive }: Props) {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder={t("userManagement.passwordPlaceholder")}
-              className="w-full max-w-md px-2 py-1.5 bg-base border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none"
+              className="w-full max-w-md px-2 py-1.5 bg-base border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-focus focus:outline-none"
             />
 
             {/* Initial privileges (optional) */}
@@ -584,7 +584,7 @@ export function UserManagementView({ connectionId, isActive }: Props) {
                   list="user-mgmt-databases"
                   placeholder={t("userManagement.scopePlaceholder")}
                   spellCheck={false}
-                  className="flex-1 px-2 py-1.5 bg-base border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none"
+                  className="flex-1 px-2 py-1.5 bg-base border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-focus focus:outline-none"
                 />
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-1.5">
@@ -678,7 +678,7 @@ export function UserManagementView({ connectionId, isActive }: Props) {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t("userManagement.newPasswordPlaceholder")}
                   autoFocus
-                  className="flex-1 px-2 py-1.5 bg-elevated border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none"
+                  className="flex-1 px-2 py-1.5 bg-elevated border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-focus focus:outline-none"
                 />
                 <button
                   onClick={() => void handleChangePassword()}
@@ -701,7 +701,7 @@ export function UserManagementView({ connectionId, isActive }: Props) {
                 )}
                 <button
                   onClick={() => setAddingScope((v) => !v)}
-                  className="ml-auto flex items-center gap-1 text-[11px] text-accent-primary transition-colors"
+                  className="ml-auto flex items-center gap-1 text-[11px] text-accent transition-colors"
                 >
                   <Plus size={11} />
                   {t("userManagement.addScope")}
@@ -718,7 +718,7 @@ export function UserManagementView({ connectionId, isActive }: Props) {
                     placeholder={t("userManagement.databasePlaceholder")}
                     autoFocus
                     spellCheck={false}
-                    className="w-44 px-2 py-1.5 bg-base border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none"
+                    className="w-44 px-2 py-1.5 bg-base border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-focus focus:outline-none"
                   />
                   <span className="text-muted text-xs">.</span>
                   <input autoCorrect="off" autoCapitalize="off" autoComplete="off"
@@ -727,7 +727,7 @@ export function UserManagementView({ connectionId, isActive }: Props) {
                     onChange={(e) => setAddTable(e.target.value)}
                     placeholder={t("userManagement.tablePlaceholder")}
                     spellCheck={false}
-                    className="w-44 px-2 py-1.5 bg-base border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none"
+                    className="w-44 px-2 py-1.5 bg-base border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-focus focus:outline-none"
                   />
                   <button
                     onClick={() => {

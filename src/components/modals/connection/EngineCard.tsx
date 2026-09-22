@@ -99,7 +99,7 @@ export function EngineCard({ group, onSelect }: EngineCardProps) {
           {group.displayName}
           {group.verified && (
             <span
-              className="ml-1.5 inline-flex translate-y-px items-center align-baseline text-accent-primary"
+              className="ml-1.5 inline-flex translate-y-px items-center align-baseline text-accent"
               title={t("connectionCatalogue.verified", { defaultValue: "Verified" })}
             >
               <ShieldCheck size={13} aria-hidden />

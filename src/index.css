@@ -73,6 +73,15 @@
   --color-semantic-deleted: var(--semantic-deleted);
   --color-semantic-new: var(--semantic-new);
 
+  /* Label color over a solid accent fill. text.inverse is only guaranteed
+     readable on accent.primary, so the other fills derive black or white
+     from their own lightness (see :root below). */
+  --color-on-accent-secondary: var(--text-on-accent-secondary);
+  --color-on-accent-success: var(--text-on-accent-success);
+  --color-on-accent-warning: var(--text-on-accent-warning);
+  --color-on-accent-error: var(--text-on-accent-error);
+  --color-on-accent-info: var(--text-on-accent-info);
+
   /* Tailwind radius tokens follow the theme's layout.borderRadius. `rounded-sm`,
      `rounded-lg` and `rounded-xl` already share their names with the theme
      variables; the remaining steps are aliased here so a theme with square
@@ -146,6 +155,13 @@
   --color-info-bg: color-mix(in srgb, var(--accent-info) 12%, transparent);
   --color-info-border: color-mix(in srgb, var(--accent-info) 35%, transparent);
 
+  /* Fallback when relative color syntax is unavailable: the theme's inverse text. */
+  --text-on-accent-secondary: var(--text-inverse);
+  --text-on-accent-success: var(--text-inverse);
+  --text-on-accent-warning: var(--text-inverse);
+  --text-on-accent-error: var(--text-inverse);
+  --text-on-accent-info: var(--text-inverse);
+
   --border-subtle: #1e293b;
   --border-default: #334155;
   --border-strong: #5b6b82;
@@ -167,6 +183,18 @@
   --radius-base: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
+}
+
+/* Black or white label depending on the fill's lightness: L* above ~49 (relative
+   luminance ~0.18, the WCAG crossover) snaps to black, below to white. */
+@supports (color: lch(from red calc((49.44 - l) * infinity) 0 0)) {
+  :root {
+    --text-on-accent-secondary: lch(from var(--accent-secondary) calc((49.44 - l) * infinity) 0 0);
+    --text-on-accent-success: lch(from var(--accent-success) calc((49.44 - l) * infinity) 0 0);
+    --text-on-accent-warning: lch(from var(--accent-warning) calc((49.44 - l) * infinity) 0 0);
+    --text-on-accent-error: lch(from var(--accent-error) calc((49.44 - l) * infinity) 0 0);
+    --text-on-accent-info: lch(from var(--accent-info) calc((49.44 - l) * infinity) 0 0);
+  }
 }
 
 html,
@@ -246,7 +274,7 @@ code {
   .text-accent { color: var(--text-accent); }
   .text-inverse { color: var(--text-inverse); }
   
-  .text-accent-primary { color: var(--accent-primary); }
+  /* Accent-colored text uses .text-accent (theme text.accent), never the accent fill. */
   .text-accent-secondary { color: var(--accent-secondary); }
   .text-accent-success { color: var(--accent-success); }
   .text-accent-warning { color: var(--accent-warning); }

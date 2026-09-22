@@ -35,7 +35,7 @@ const README_PROSE =
   "[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-2 " +
   "[&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-2 " +
   "[&_li]:mb-1 " +
-  "[&_a]:text-accent-primary [&_a]:underline [&_a]:cursor-pointer " +
+  "[&_a]:text-accent [&_a]:underline [&_a]:cursor-pointer " +
   "[&_blockquote]:border-l-2 [&_blockquote]:border-muted [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-muted " +
   "[&_hr]:border-default [&_hr]:my-4 " +
   "[&_img]:max-w-full [&_img]:rounded " +
@@ -127,7 +127,7 @@ export function PluginReadmeModal({
         <div className="flex items-center justify-between p-4 border-b border-default bg-base">
           <div className="flex items-center gap-3 min-w-0">
             <div className="p-2 bg-accent-primary/15 rounded-lg">
-              <BookOpen size={18} className="text-accent-primary" />
+              <BookOpen size={18} className="text-accent" />
             </div>
             <div className="min-w-0">
               <h2 className="truncate text-lg font-semibold capitalize text-primary">

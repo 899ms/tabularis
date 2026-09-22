@@ -159,7 +159,7 @@ export const SidebarViewItem = ({
               <div
                 className="flex items-center gap-2 px-2 py-1 text-xs text-muted select-none"
               >
-                <Folder size={12} className="text-accent-primary/70" />
+                <Folder size={12} className="text-accent/70" />
                 <span>{t("sidebar.columns")}</span>
                 <span className="ml-auto text-[10px] opacity-50">
                   {columns.length}

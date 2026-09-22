@@ -67,7 +67,7 @@ export const TabSwitcherModal = ({
                 className={getTabSwitcherRowClassName(isActive)}
               >
                 {tab.type === "table" ? (
-                  <TableIcon size={14} className="text-accent-primary shrink-0" />
+                  <TableIcon size={14} className="text-accent shrink-0" />
                 ) : tab.type === "notebook" ? (
                   <BookOpen size={14} className="text-accent-warning shrink-0" />
                 ) : tab.type === "query_builder" ? (

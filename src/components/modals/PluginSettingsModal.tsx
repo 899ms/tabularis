@@ -104,7 +104,7 @@ export const PluginSettingsModal = ({
   const renderField = (def: PluginSettingDefinition) => {
     const value = dynamicValues[def.key];
     const inputClass =
-      "bg-base border-default text-primary placeholder:text-muted focus:border-accent-primary/50 focus:outline-none";
+      "bg-base border-default text-primary placeholder:text-muted focus:border-focus/50 focus:outline-none";
     const canReset = def.default !== undefined;
     const isDefaultValue = canReset && Object.is(value, def.default);
 
@@ -185,7 +185,7 @@ export const PluginSettingsModal = ({
         <div className="flex items-center justify-between p-4 border-b border-default bg-base">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-accent-primary/15 rounded-lg">
-              <Settings size={20} className="text-accent-primary" />
+              <Settings size={20} className="text-accent" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-primary">
@@ -215,7 +215,7 @@ export const PluginSettingsModal = ({
                 value={interpreter}
                 placeholder={t("settings.plugins.pluginSettings.interpreterPlaceholder")}
                 onChange={(e) => setInterpreter(e.target.value)}
-                className="flex-1 bg-base border border-default rounded-lg px-3 py-2 text-sm text-primary placeholder:text-muted focus:outline-none focus:border-accent-primary/50"
+                className="flex-1 bg-base border border-default rounded-lg px-3 py-2 text-sm text-primary placeholder:text-muted focus:outline-none focus:border-focus/50"
                 autoFocus
               />
               <button

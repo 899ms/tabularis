@@ -277,12 +277,12 @@ export const MemoRow = React.memo(function MemoRow(rowCtx: MemoRowProps) {
           className={`px-2 py-1.5 text-xs text-center border-b border-r border-default sticky left-0 z-10 cursor-pointer select-none w-[50px] min-w-[50px] ${
             isInsertion
               ? isSelected
-                ? "bg-accent-primary/20 text-accent-primary font-bold"
+                ? "bg-accent-primary/20 text-accent font-bold"
                 : "bg-semantic-new/15 text-semantic-new font-bold"
               : isPendingDelete
                 ? "bg-semantic-deleted/25 text-semantic-deleted line-through"
                 : isSelected
-                  ? "bg-accent-primary/20 text-accent-primary font-bold"
+                  ? "bg-accent-primary/20 text-accent font-bold"
                   : "bg-base text-muted hover:bg-surface-secondary"
           }`}
         >
@@ -725,7 +725,7 @@ export const MemoRow = React.memo(function MemoRow(rowCtx: MemoRowProps) {
                               e.stopPropagation();
                               onForeignKeyNavigate(fkForPreview, rawCellValue);
                             }}
-                            className="opacity-0 group-hover/fkcell:opacity-100 transition-opacity p-0.5 rounded text-muted hover:text-accent-primary hover:bg-surface-tertiary flex-shrink-0"
+                            className="opacity-0 group-hover/fkcell:opacity-100 transition-opacity p-0.5 rounded text-muted hover:text-accent hover:bg-surface-tertiary flex-shrink-0"
                             title={t("dataGrid.openReferenced", {
                               table: fkForPreview.ref_table,
                             })}

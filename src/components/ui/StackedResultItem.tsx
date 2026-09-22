@@ -124,7 +124,7 @@ export function StackedResultItem({
 
         {/* Status icon */}
         {entry.isLoading ? (
-          <Loader2 size={12} className="animate-spin text-accent-primary shrink-0" />
+          <Loader2 size={12} className="animate-spin text-accent shrink-0" />
         ) : entry.error ? (
           <XCircle size={12} className="text-accent-error shrink-0" />
         ) : (

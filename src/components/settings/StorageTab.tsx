@@ -23,7 +23,7 @@ import {
 import { SettingSection, SettingRow } from "./SettingControls";
 
 const buttonClass =
-  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-base border border-strong text-sm text-secondary hover:text-accent-primary hover:border-accent-primary/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-secondary disabled:hover:border-strong";
+  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-base border border-strong text-sm text-secondary hover:text-accent hover:border-accent-primary/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-secondary disabled:hover:border-strong";
 
 const primaryButtonClass =
   "flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent-primary text-sm text-inverse hover:bg-accent-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed";

@@ -128,7 +128,7 @@ export function ResultColorsSection() {
                         onChange={(c) => setColor(key, c || undefined)}
                         prefixed={false}
                         aria-label={`${key} hex input`}
-                        className="px-3 py-1.5 bg-elevated border border-strong rounded-md text-sm text-primary focus:border-accent-primary focus:outline-none font-mono w-28 uppercase"
+                        className="px-3 py-1.5 bg-elevated border border-strong rounded-md text-sm text-primary focus:border-focus focus:outline-none font-mono w-28 uppercase"
                       />
                     </div>
                     <div className="flex items-center justify-end gap-2 pt-1">

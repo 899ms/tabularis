@@ -1004,7 +1004,7 @@ export const Connections = () => {
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => void confirmInlineSubgroupInput()}
                 disabled={!subgroupInputValue.trim()}
-                className="p-1 rounded bg-accent-warning hover:bg-accent-warning/90 text-inverse disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="p-1 rounded bg-accent-warning hover:bg-accent-warning/90 text-on-accent-warning disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Plus size={12} />
               </button>
@@ -1090,8 +1090,8 @@ export const Connections = () => {
 
         <div className="relative">
           <div className="flex items-center gap-1.5 mb-2">
-            <Database size={12} className="text-accent-primary" />
-            <span className="text-[10px] font-bold text-accent-primary/80 uppercase tracking-[0.15em]">
+            <Database size={12} className="text-accent" />
+            <span className="text-[10px] font-bold text-accent/80 uppercase tracking-[0.15em]">
               Database Manager
             </span>
           </div>
@@ -1159,9 +1159,9 @@ export const Connections = () => {
                     className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-secondary hover:text-primary hover:bg-surface-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-left"
                   >
                     {isCreatingSqliteDatabase ? (
-                      <Loader2 size={15} className="shrink-0 text-accent-primary animate-spin" />
+                      <Loader2 size={15} className="shrink-0 text-accent animate-spin" />
                     ) : (
-                      <Database size={15} className="shrink-0 text-accent-primary" />
+                      <Database size={15} className="shrink-0 text-accent" />
                     )}
                     <span className="flex-1">
                       {t("connections.newSqliteDatabase.menuLabel")}
@@ -1175,7 +1175,7 @@ export const Connections = () => {
                     }}
                     className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-secondary hover:text-primary hover:bg-surface-secondary transition-colors text-left"
                   >
-                    <FolderInput size={15} className="shrink-0 text-accent-primary" />
+                    <FolderInput size={15} className="shrink-0 text-accent" />
                     <span className="flex-1">{t("connections.importFromApp.menuLabel")}</span>
                     <BetaBadge />
                   </button>
@@ -1208,7 +1208,7 @@ export const Connections = () => {
       {/* ── Selection bar (bulk actions) ──────────────────────────────────── */}
       {selectedIds.size > 0 && (
         <div className="flex items-center gap-2.5 px-6 py-2.5 bg-elevated border-b border-accent-primary/40 shadow-sm shrink-0">
-          <span className="text-sm font-semibold text-accent-primary">
+          <span className="text-sm font-semibold text-accent">
             {t("connections.selectedCount", { count: selectedIds.size })}
           </span>
           <div className="flex-1" />
@@ -1217,7 +1217,7 @@ export const Connections = () => {
               setExportSelectionOnly(true);
               setIsExportModalOpen(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-base border border-strong text-sm text-secondary hover:text-accent-primary hover:border-accent-primary/50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-base border border-strong text-sm text-secondary hover:text-accent hover:border-accent-primary/50 transition-colors"
           >
             <Download size={14} />
             {t("connections.exportSelected")}
@@ -1282,7 +1282,7 @@ export const Connections = () => {
               <button
                 onClick={() => void handleCreateSqliteDatabase()}
                 disabled={isCreatingSqliteDatabase}
-                className="flex items-center gap-2 bg-elevated border border-strong hover:border-accent-primary/50 text-secondary hover:text-accent-primary disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2.5 rounded-xl font-semibold text-sm transition-all hover:-translate-y-px"
+                className="flex items-center gap-2 bg-elevated border border-strong hover:border-accent-primary/50 text-secondary hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2.5 rounded-xl font-semibold text-sm transition-all hover:-translate-y-px"
               >
                 {isCreatingSqliteDatabase ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -1293,7 +1293,7 @@ export const Connections = () => {
               </button>
               <button
                 onClick={() => setIsImportAppModalOpen(true)}
-                className="flex items-center gap-2 bg-elevated border border-strong hover:border-accent-primary/50 text-secondary hover:text-accent-primary px-4 py-2.5 rounded-xl font-semibold text-sm transition-all hover:-translate-y-px"
+                className="flex items-center gap-2 bg-elevated border border-strong hover:border-accent-primary/50 text-secondary hover:text-accent px-4 py-2.5 rounded-xl font-semibold text-sm transition-all hover:-translate-y-px"
               >
                 <FolderInput size={14} />
                 {t("connections.importFromApp.menuLabel")}
@@ -1315,7 +1315,7 @@ export const Connections = () => {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder={t("connections.searchPlaceholder")}
-                  className="w-full pl-10 pr-9 py-2.5 bg-elevated border border-strong rounded-xl text-sm text-primary placeholder:text-muted focus:border-accent-primary/70 focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-9 py-2.5 bg-elevated border border-strong rounded-xl text-sm text-primary placeholder:text-muted focus:border-focus/70 focus:outline-none transition-colors"
                 />
                 {search && (
                   <button
@@ -1350,7 +1350,7 @@ export const Connections = () => {
                   <button
                     onClick={() => void handleCreateGroup()}
                     disabled={!newGroupName.trim()}
-                    className="p-2 rounded-lg bg-accent-warning hover:bg-accent-warning/90 text-inverse disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="p-2 rounded-lg bg-accent-warning hover:bg-accent-warning/90 text-on-accent-warning disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <Plus size={14} />
                   </button>
@@ -1384,7 +1384,7 @@ export const Connections = () => {
                     setExportSelectionOnly(false);
                     setIsExportModalOpen(true);
                   }}
-                  className="p-1.5 rounded-lg text-muted hover:text-accent-primary hover:bg-accent-primary/10 transition-all duration-150"
+                  className="p-1.5 rounded-lg text-muted hover:text-accent hover:bg-accent-primary/10 transition-all duration-150"
                   title={t("connections.export")}
                 >
                   <Download size={14} />
@@ -1398,7 +1398,7 @@ export const Connections = () => {
                   className={clsx(
                     "p-1.5 rounded-lg transition-all duration-150",
                     viewMode === "grid"
-                      ? "bg-accent-primary/15 text-accent-primary shadow-sm"
+                      ? "bg-accent-primary/15 text-accent shadow-sm"
                       : "text-muted hover:text-secondary hover:bg-surface-secondary",
                   )}
                   title={t("connections.gridView")}
@@ -1410,7 +1410,7 @@ export const Connections = () => {
                   className={clsx(
                     "p-1.5 rounded-lg transition-all duration-150",
                     viewMode === "list"
-                      ? "bg-accent-primary/15 text-accent-primary shadow-sm"
+                      ? "bg-accent-primary/15 text-accent shadow-sm"
                       : "text-muted hover:text-secondary hover:bg-surface-secondary",
                   )}
                   title={t("connections.listView")}

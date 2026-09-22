@@ -122,7 +122,7 @@ export const Select = ({
     >
       {searchable && (
         <div className="p-2 border-b border-default bg-elevated">
-          <div className="flex items-center gap-2 bg-base border border-strong rounded px-2 py-1.5 focus-within:border-accent-primary transition-colors">
+          <div className="flex items-center gap-2 bg-base border border-strong rounded px-2 py-1.5 focus-within:border-focus transition-colors">
             <Search size={14} className="text-muted shrink-0" />
             <input autoCorrect="off" autoCapitalize="off" autoComplete="off" spellCheck={false}
               ref={searchInputRef}
@@ -159,7 +159,7 @@ export const Select = ({
                   "w-full text-left py-2 pr-3 text-sm rounded transition-colors flex items-center gap-1",
                   depth === 0 ? "px-3" : "pl-0",
                   value === option
-                    ? "bg-accent-primary/10 text-accent-primary font-medium"
+                    ? "bg-accent-primary/10 text-accent font-medium"
                     : "text-primary hover:bg-surface-secondary"
                 )}
                 title={getLabel(option)}

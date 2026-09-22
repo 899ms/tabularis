@@ -270,7 +270,7 @@ export const JsonInput: React.FC<JsonInputProps> = ({
             } ${
               error
                 ? "border-accent-error focus:border-accent-error"
-                : "border-strong focus:border-accent-primary"
+                : "border-strong focus:border-focus"
             }`}
           />
         )}
@@ -304,7 +304,7 @@ export const JsonInput: React.FC<JsonInputProps> = ({
                 disabled={!hasDiff}
                 className={`px-2 py-1 text-xs rounded border transition-colors flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed ${
                   diffEnabled && hasDiff
-                    ? "bg-accent-primary/30 text-accent-primary border-accent-primary/50"
+                    ? "bg-accent-primary/30 text-accent border-accent-primary/50"
                     : "bg-surface-secondary text-secondary border-default hover:bg-surface-tertiary"
                 }`}
                 title={t("jsonInput.diff", { defaultValue: "Diff" })}
@@ -326,7 +326,7 @@ export const JsonInput: React.FC<JsonInputProps> = ({
                 aria-pressed={sideBySide}
                 className={`px-2 py-1 text-xs rounded border transition-colors flex items-center gap-1 ${
                   sideBySide
-                    ? "bg-accent-primary/30 text-accent-primary border-accent-primary/50"
+                    ? "bg-accent-primary/30 text-accent border-accent-primary/50"
                     : "bg-surface-secondary text-secondary border-default hover:bg-surface-tertiary"
                 }`}
                 title={t("jsonInput.sideBySide", { defaultValue: "Side by side" })}

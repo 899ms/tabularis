@@ -164,7 +164,7 @@ export const CreateTableModal = ({ isOpen, onClose, onSuccess, schema }: CreateT
         <div className="flex items-center justify-between p-4 border-b border-default bg-base">
           <div className="flex items-center gap-3">
              <div className="bg-accent-primary/15 p-2 rounded-lg">
-                <Plus className="text-accent-primary" size={20} />
+                <Plus className="text-accent" size={20} />
              </div>
              <div>
                 <h2 className="text-lg font-semibold text-primary">{t('createTable.title')}</h2>
@@ -185,7 +185,7 @@ export const CreateTableModal = ({ isOpen, onClose, onSuccess, schema }: CreateT
                 <input autoCorrect="off" autoCapitalize="off" autoComplete="off" spellCheck={false}
                     value={tableName}
                     onChange={(e) => { setTableName(e.target.value); setError(''); }}
-                    className={`w-full bg-base border rounded-lg px-3 py-2 text-primary focus:border-accent-primary focus:outline-none transition-all font-mono ${!tableName.trim() && error ? 'border-accent-error' : 'border-strong'}`}
+                    className={`w-full bg-base border rounded-lg px-3 py-2 text-primary focus:border-focus focus:outline-none transition-all font-mono ${!tableName.trim() && error ? 'border-accent-error' : 'border-strong'}`}
                     placeholder={t('createTable.tableNamePlaceholder')}
                     autoFocus
                 />
@@ -223,7 +223,7 @@ export const CreateTableModal = ({ isOpen, onClose, onSuccess, schema }: CreateT
                                         <input autoCorrect="off" autoCapitalize="off" autoComplete="off" spellCheck={false}
                                             value={col.name}
                                             onChange={(e) => updateColumn(col.id, 'name', e.target.value)}
-                                            className={`w-full bg-transparent text-sm text-primary focus:outline-none border-b font-mono placeholder:text-muted ${!col.name.trim() ? 'border-accent-error/50' : 'border-transparent focus:border-accent-primary'}`}
+                                            className={`w-full bg-transparent text-sm text-primary focus:outline-none border-b font-mono placeholder:text-muted ${!col.name.trim() ? 'border-accent-error/50' : 'border-transparent focus:border-focus'}`}
                                             placeholder="col_name"
                                         />
                                     </td>
@@ -252,7 +252,7 @@ export const CreateTableModal = ({ isOpen, onClose, onSuccess, schema }: CreateT
                                         <input autoCorrect="off" autoCapitalize="off" autoComplete="off" spellCheck={false}
                                             value={col.length}
                                             onChange={(e) => updateColumn(col.id, 'length', e.target.value)}
-                                            className="w-full bg-transparent text-xs text-secondary focus:outline-none border-b border-transparent focus:border-accent-primary text-center disabled:opacity-30"
+                                            className="w-full bg-transparent text-xs text-secondary focus:outline-none border-b border-transparent focus:border-focus text-center disabled:opacity-30"
                                             placeholder={availableTypes.find((t) => t.name === col.type)?.default_length || "-"}
                                             disabled={
                                               !availableTypes.find((t) => t.name === col.type)?.requires_length &&
@@ -291,7 +291,7 @@ export const CreateTableModal = ({ isOpen, onClose, onSuccess, schema }: CreateT
                                             value={col.isAutoInc ? '' : col.defaultValue}
                                             onChange={(e) => updateColumn(col.id, 'defaultValue', e.target.value)}
                                             disabled={col.isAutoInc}
-                                            className="w-full bg-transparent text-xs text-secondary focus:outline-none border-b border-transparent focus:border-accent-primary disabled:opacity-30"
+                                            className="w-full bg-transparent text-xs text-secondary focus:outline-none border-b border-transparent focus:border-focus disabled:opacity-30"
                                             placeholder="NULL"
                                         />
                                     </td>

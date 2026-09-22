@@ -118,7 +118,7 @@ export const SidebarRoutineItem = ({
               {parameters.length > 0 ? (
                 <>
                   <div className="flex items-center gap-2 px-2 py-1 text-xs text-muted select-none">
-                    <Folder size={12} className="text-accent-primary/70" />
+                    <Folder size={12} className="text-accent/70" />
                     <span>{t("sidebar.parameters")}</span>
                     {/* mr-3.5 lines the count up with the group counts of
                         Functions / Procedures (px-2 + mr-3.5 = same edge). */}

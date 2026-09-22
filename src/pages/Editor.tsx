@@ -4006,7 +4006,7 @@ export const Editor = ({ commandScopeId }: EditorProps) => {
         {!activeTab.readOnly && activeTab.isLoading ? (
           <button
             onClick={stopQuery}
-            className="flex items-center gap-2 px-3 py-1.5 bg-accent-error hover:bg-accent-error/90 text-inverse rounded text-sm font-medium shrink-0 whitespace-nowrap"
+            className="flex items-center gap-2 px-3 py-1.5 bg-accent-error hover:bg-accent-error/90 text-on-accent-error rounded text-sm font-medium shrink-0 whitespace-nowrap"
           >
             <Square size={16} fill="currentColor" /> {t("editor.stop")}
           </button>
@@ -4019,7 +4019,7 @@ export const Editor = ({ commandScopeId }: EditorProps) => {
               aria-keyshortcuts={isMac ? "Meta+Enter" : "Control+Enter"}
               title={runTitle}
               className={clsx(
-                "flex items-center gap-2 px-3 py-1.5 text-inverse text-sm font-medium disabled:opacity-50 hover:brightness-110",
+                "flex items-center gap-2 px-3 py-1.5 text-on-accent-success text-sm font-medium disabled:opacity-50 hover:brightness-110",
                 isTableTab ? "rounded" : "rounded-l",
               )}
             >
@@ -4027,11 +4027,11 @@ export const Editor = ({ commandScopeId }: EditorProps) => {
             </button>
             {!isTableTab && (
               <>
-                <div className="h-5 w-[1px] bg-inverse/30"></div>
+                <div className="h-5 w-[1px] bg-on-accent-success/30"></div>
                 <button
                   onClick={handleRunDropdownToggle}
                   disabled={!activeConnectionId}
-                  className="px-1.5 py-1.5 text-inverse rounded-r hover:brightness-110 disabled:opacity-50"
+                  className="px-1.5 py-1.5 text-on-accent-success rounded-r hover:brightness-110 disabled:opacity-50"
                 >
                   <ChevronDown size={14} />
                 </button>
@@ -4250,8 +4250,8 @@ export const Editor = ({ commandScopeId }: EditorProps) => {
             className={clsx(
               "flex items-center gap-2 px-2 @[640px]:px-3 py-1.5 rounded text-sm font-medium border transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
               exportMenuOpen
-                ? "bg-accent-primary/15 border-accent-primary/40 text-accent-primary"
-                : "bg-surface-secondary enabled:hover:bg-accent-primary/15 enabled:hover:border-accent-primary/40 enabled:hover:text-accent-primary text-primary border-strong",
+                ? "bg-accent-primary/15 border-accent-primary/40 text-accent"
+                : "bg-surface-secondary enabled:hover:bg-accent-primary/15 enabled:hover:border-accent-primary/40 enabled:hover:text-accent text-primary border-strong",
             )}
           >
             <Download size={16} />
@@ -4274,7 +4274,7 @@ export const Editor = ({ commandScopeId }: EditorProps) => {
               <button
                 role="menuitem"
                 onClick={handleExportCSV}
-                className="flex items-center gap-2.5 text-left px-3 py-2 text-sm text-secondary hover:bg-accent-primary/15 hover:text-accent-primary transition-colors"
+                className="flex items-center gap-2.5 text-left px-3 py-2 text-sm text-secondary hover:bg-accent-primary/15 hover:text-accent transition-colors"
               >
                 <FileText size={14} className="shrink-0 opacity-80" />
                 <span className="flex-1">CSV</span>
@@ -4283,7 +4283,7 @@ export const Editor = ({ commandScopeId }: EditorProps) => {
               <button
                 role="menuitem"
                 onClick={handleExportJSON}
-                className="flex items-center gap-2.5 text-left px-3 py-2 text-sm text-secondary hover:bg-accent-primary/15 hover:text-accent-primary transition-colors"
+                className="flex items-center gap-2.5 text-left px-3 py-2 text-sm text-secondary hover:bg-accent-primary/15 hover:text-accent transition-colors"
               >
                 <FileJson size={14} className="shrink-0 opacity-80" />
                 <span className="flex-1">JSON</span>
@@ -4292,7 +4292,7 @@ export const Editor = ({ commandScopeId }: EditorProps) => {
               <button
                 role="menuitem"
                 onClick={handleExportMarkdown}
-                className="flex items-center gap-2.5 text-left px-3 py-2 text-sm text-secondary hover:bg-accent-primary/15 hover:text-accent-primary transition-colors"
+                className="flex items-center gap-2.5 text-left px-3 py-2 text-sm text-secondary hover:bg-accent-primary/15 hover:text-accent transition-colors"
               >
                 <FileText size={14} className="shrink-0 opacity-80" />
                 <span className="flex-1">Markdown</span>
@@ -4991,7 +4991,7 @@ export const Editor = ({ commandScopeId }: EditorProps) => {
                           </span>
                         </button>
                         <div className="w-px self-stretch bg-default"></div>
-                        <span className="px-2.5 @[560px]:px-4 py-2 text-sm font-medium text-accent-primary select-none hover:bg-surface-secondary transition-colors whitespace-nowrap">
+                        <span className="px-2.5 @[560px]:px-4 py-2 text-sm font-medium text-accent select-none hover:bg-surface-secondary transition-colors whitespace-nowrap">
                           {t("editor.pendingCount", {
                             count:
                               Object.keys(activeTab.pendingChanges || {})

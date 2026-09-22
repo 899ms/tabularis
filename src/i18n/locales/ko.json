@@ -462,7 +462,7 @@
     "darkTheme": "다크 테마",
     "fontFamily": "글꼴",
     "fonts": {
-      "system": "시스템 기본값",
+      "system": "테마 기본값",
       "systemDesc": "운영체제 기본 글꼴을 사용합니다",
       "custom": "사용자 지정 글꼴",
       "customPlaceholder": "예: Comic Sans MS",

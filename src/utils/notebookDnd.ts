@@ -38,7 +38,7 @@ export function createCellDragPreview(
   const badge = doc.createElement("span");
   badge.className =
     type === "sql"
-      ? "shrink-0 rounded bg-accent-primary/15 px-1.5 py-0.5 text-xs font-medium text-accent-primary"
+      ? "shrink-0 rounded bg-accent-primary/15 px-1.5 py-0.5 text-xs font-medium text-accent"
       : "shrink-0 rounded bg-accent-secondary/15 px-1.5 py-0.5 text-xs font-medium text-accent-secondary";
   badge.textContent = typeLabel;
 

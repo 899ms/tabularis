@@ -45,7 +45,7 @@ export function DriverVersionPicker({ group, onChoose, onBack }: DriverVersionPi
               <span className="flex items-center gap-2">
                 <span className="font-medium text-primary">{d.name}</span>
                 {d.verified && (
-                  <span className="text-[10px] text-accent-primary">
+                  <span className="text-[10px] text-accent">
                     ✓ {t('connectionCatalogue.verified', { defaultValue: 'Verified' })}
                   </span>
                 )}

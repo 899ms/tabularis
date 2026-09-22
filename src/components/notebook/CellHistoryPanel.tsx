@@ -58,7 +58,7 @@ function HistoryEntry({
       <button
         type="button"
         onClick={onRestore}
-        className="p-1 text-muted hover:text-accent-primary rounded transition-colors opacity-0 group-hover:opacity-100 shrink-0"
+        className="p-1 text-muted hover:text-accent rounded transition-colors opacity-0 group-hover:opacity-100 shrink-0"
         title={`Restore execution #${index + 1}`}
       >
         <RotateCcw size={12} />

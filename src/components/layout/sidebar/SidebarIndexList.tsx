@@ -47,7 +47,7 @@ export const SidebarIndexList = ({
                 onIndexContextMenu ? (e) => onIndexContextMenu(e, idx.name) : undefined
               }
             >
-              <List size={12} className={idx.is_unique ? "text-accent-primary" : "text-accent-success"} />
+              <List size={12} className={idx.is_unique ? "text-accent" : "text-accent-success"} />
               <span className="truncate flex-1">
                 {idx.name}{" "}
                 <span className="text-muted">({idx.columns.join(", ")})</span>

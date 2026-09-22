@@ -260,7 +260,7 @@ export const NewRowModal = ({
 
           {schemaLoading ? (
             <div className="flex justify-center p-4">
-              <Loader2 className="animate-spin text-accent-primary" />
+              <Loader2 className="animate-spin text-accent" />
             </div>
           ) : (
             columns.map((col) => {

@@ -310,7 +310,7 @@ const VisualQueryBuilderContent = () => {
             <div className="p-5 border-b border-default">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-                  <Filter size={16} className="text-accent-primary" />
+                  <Filter size={16} className="text-accent" />
                   WHERE Conditions
                 </div>
                 <button
@@ -322,7 +322,7 @@ const VisualQueryBuilderContent = () => {
                     logicalOperator: 'AND',
                     isAggregate: false
                   }])}
-                  className="text-accent-primary transition-colors p-1.5 hover:bg-accent-primary/10 rounded"
+                  className="text-accent transition-colors p-1.5 hover:bg-accent-primary/10 rounded"
                   title="Add condition"
                 >
                   <Plus size={16} />
@@ -354,7 +354,7 @@ const VisualQueryBuilderContent = () => {
                         ))}
                         className={`flex-1 px-3 py-1 text-xs font-medium rounded transition-colors ${
                           condition.logicalOperator === 'OR' 
-                            ? 'bg-accent-secondary text-inverse' 
+                            ? 'bg-accent-secondary text-on-accent-secondary' 
                             : 'bg-surface-tertiary text-secondary hover:bg-surface-tertiary'
                         }`}
                       >
@@ -367,7 +367,7 @@ const VisualQueryBuilderContent = () => {
                   <select
                     value={condition.column}
                     onChange={(e) => setWhereConditions(whereConditions.map(c => c.id === condition.id ? { ...c, column: e.target.value } : c))}
-                    className="w-full bg-surface-secondary border border-strong rounded-md px-3 py-2.5 text-sm text-primary focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-colors appearance-none cursor-pointer"
+                    className="w-full bg-surface-secondary border border-strong rounded-md px-3 py-2.5 text-sm text-primary focus:border-focus focus:ring-1 focus:ring-focus transition-colors appearance-none cursor-pointer"
                     style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3E%3C/svg%3E")', backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
                   >
                     <option value="">Select column</option>
@@ -397,7 +397,7 @@ const VisualQueryBuilderContent = () => {
                     <select
                       value={condition.operator}
                       onChange={(e) => setWhereConditions(whereConditions.map(c => c.id === condition.id ? { ...c, operator: e.target.value } : c))}
-                      className="bg-surface-secondary border border-strong rounded-md px-3 py-2.5 text-sm text-primary focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-colors w-24 appearance-none cursor-pointer"
+                      className="bg-surface-secondary border border-strong rounded-md px-3 py-2.5 text-sm text-primary focus:border-focus focus:ring-1 focus:ring-focus transition-colors w-24 appearance-none cursor-pointer"
                       style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3E%3C/svg%3E")', backgroundPosition: 'right 0.35rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em 1.25em', paddingRight: '2rem' }}
                     >
                       <option value="=">=</option>
@@ -415,7 +415,7 @@ const VisualQueryBuilderContent = () => {
                         value={condition.value}
                         onChange={(e) => setWhereConditions(whereConditions.map(c => c.id === condition.id ? { ...c, value: e.target.value } : c))}
                         placeholder="Value"
-                        className="w-full bg-surface-secondary border border-strong rounded-md pl-3 pr-9 py-2.5 text-sm text-primary placeholder:text-muted focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-colors"
+                        className="w-full bg-surface-secondary border border-strong rounded-md pl-3 pr-9 py-2.5 text-sm text-primary placeholder:text-muted focus:border-focus focus:ring-1 focus:ring-focus transition-colors"
                       />
                       <button
                         onClick={() => setWhereConditions(whereConditions.filter(c => c.id !== condition.id))}
@@ -439,7 +439,7 @@ const VisualQueryBuilderContent = () => {
                 </div>
                 <button
                   onClick={() => setGroupBy([...groupBy, ''])}
-                  className="text-accent-primary transition-colors p-1.5 hover:bg-accent-primary/10 rounded"
+                  className="text-accent transition-colors p-1.5 hover:bg-accent-primary/10 rounded"
                   title="Add grouping"
                 >
                   <Plus size={16} />
@@ -453,7 +453,7 @@ const VisualQueryBuilderContent = () => {
                   <select
                     value={col}
                     onChange={(e) => setGroupBy(groupBy.map((c, i) => i === idx ? e.target.value : c))}
-                    className="flex-1 bg-surface-secondary border border-strong rounded-md px-3 py-2.5 text-sm text-primary focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-colors appearance-none cursor-pointer"
+                    className="flex-1 bg-surface-secondary border border-strong rounded-md px-3 py-2.5 text-sm text-primary focus:border-focus focus:ring-1 focus:ring-focus transition-colors appearance-none cursor-pointer"
                     style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3E%3C/svg%3E")', backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
                   >
                     <option value="">Select column</option>
@@ -481,7 +481,7 @@ const VisualQueryBuilderContent = () => {
                 </div>
                 <button
                   onClick={() => setOrderBy([...orderBy, { id: Date.now().toString(), column: '', direction: 'ASC' }])}
-                  className="text-accent-primary transition-colors p-1.5 hover:bg-accent-primary/10 rounded"
+                  className="text-accent transition-colors p-1.5 hover:bg-accent-primary/10 rounded"
                   title="Add sorting"
                 >
                   <Plus size={16} />
@@ -495,7 +495,7 @@ const VisualQueryBuilderContent = () => {
                   <select
                     value={order.column}
                     onChange={(e) => setOrderBy(orderBy.map(o => o.id === order.id ? { ...o, column: e.target.value } : o))}
-                    className="flex-1 bg-surface-secondary border border-strong rounded-md px-3 py-2.5 text-sm text-primary focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-colors appearance-none cursor-pointer"
+                    className="flex-1 bg-surface-secondary border border-strong rounded-md px-3 py-2.5 text-sm text-primary focus:border-focus focus:ring-1 focus:ring-focus transition-colors appearance-none cursor-pointer"
                     style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3E%3C/svg%3E")', backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
                   >
                     <option value="">Select column</option>
@@ -506,7 +506,7 @@ const VisualQueryBuilderContent = () => {
                   <select
                     value={order.direction}
                     onChange={(e) => setOrderBy(orderBy.map(o => o.id === order.id ? { ...o, direction: e.target.value as 'ASC' | 'DESC' } : o))}
-                    className="bg-surface-secondary border border-strong rounded-md px-3 py-2.5 text-sm text-primary focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-colors w-28 appearance-none cursor-pointer"
+                    className="bg-surface-secondary border border-strong rounded-md px-3 py-2.5 text-sm text-primary focus:border-focus focus:ring-1 focus:ring-focus transition-colors w-28 appearance-none cursor-pointer"
                     style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3E%3C/svg%3E")', backgroundPosition: 'right 0.35rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.25em 1.25em', paddingRight: '2rem' }}
                   >
                     <option value="ASC">ASC ↑</option>
@@ -535,7 +535,7 @@ const VisualQueryBuilderContent = () => {
                 onChange={(e) => setLimit(e.target.value)}
                 placeholder="e.g., 100"
                 min="1"
-                className="w-full bg-surface-secondary border border-strong rounded-md px-3 py-2.5 text-sm text-primary placeholder:text-muted focus:border-accent-primary focus:ring-1 focus:ring-accent-primary transition-colors"
+                className="w-full bg-surface-secondary border border-strong rounded-md px-3 py-2.5 text-sm text-primary placeholder:text-muted focus:border-focus focus:ring-1 focus:ring-focus transition-colors"
               />
             </div>
           </div>

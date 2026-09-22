@@ -69,7 +69,7 @@ export function AiActivitySessionsTab() {
               })}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-9 w-full rounded border border-strong bg-base pl-9 pr-3 text-sm text-primary placeholder:text-muted focus:border-accent-primary focus:outline-none"
+              className="h-9 w-full rounded border border-strong bg-base pl-9 pr-3 text-sm text-primary placeholder:text-muted focus:border-focus focus:outline-none"
             />
           </div>
           <Select
@@ -218,7 +218,7 @@ function SessionCard({ session, expanded, onToggle }: SessionCardProps) {
                 {session.sessionId.slice(0, 8)}…
               </span>
               {session.clientHint && (
-                <span className="px-1.5 py-0.5 text-[10px] uppercase font-medium rounded bg-accent-primary/10 text-accent-primary border border-accent-primary/20">
+                <span className="px-1.5 py-0.5 text-[10px] uppercase font-medium rounded bg-accent-primary/10 text-accent border border-accent-primary/20">
                   {session.clientHint}
                 </span>
               )}

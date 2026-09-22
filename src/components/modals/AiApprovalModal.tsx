@@ -241,7 +241,7 @@ export function AiApprovalModal({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder={t("aiApproval.reasonPlaceholder")}
-              className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-sm text-primary focus:outline-none focus:border-accent-primary"
+              className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-sm text-primary focus:outline-none focus:border-focus"
               autoFocus
             />
           </section>
@@ -252,7 +252,7 @@ export function AiApprovalModal({
           <button
             onClick={handleDeny}
             disabled={submitting}
-            className="flex items-center gap-2 px-4 py-2 bg-accent-error hover:bg-accent-error/90 disabled:opacity-50 text-inverse rounded-lg text-sm font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-accent-error hover:bg-accent-error/90 disabled:opacity-50 text-on-accent-error rounded-lg text-sm font-medium transition-colors"
           >
             <X size={14} />
             {t("aiApproval.deny")}
@@ -268,7 +268,7 @@ export function AiApprovalModal({
             <button
               onClick={handleApprove}
               disabled={submitting}
-              className="flex items-center gap-2 px-4 py-2 bg-accent-success hover:bg-accent-success/90 disabled:opacity-50 text-inverse rounded-lg text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-accent-success hover:bg-accent-success/90 disabled:opacity-50 text-on-accent-success rounded-lg text-sm font-medium transition-colors"
             >
               <Check size={14} />
               {t("aiApproval.approve")}
@@ -342,7 +342,7 @@ function PlanSummaryBox({ plan, summary }: PlanSummaryBoxProps) {
         summary.highestCostNode.relation,
       ),
       icon: Layers2,
-      iconClass: "text-accent-primary",
+      iconClass: "text-accent",
     },
     summary.slowestNode && {
       key: "slowest-step",

@@ -99,7 +99,7 @@ function ChartTypeSelector({
               onClick={() => onConfigChange({ ...config, type })}
               className={`px-1.5 py-0.5 text-[10px] rounded transition-colors ${
                 config.type === type
-                  ? "bg-accent-primary/20 text-accent-primary font-semibold"
+                  ? "bg-accent-primary/20 text-accent font-semibold"
                   : "text-muted hover:text-secondary hover:bg-surface-secondary"
               }`}
             >

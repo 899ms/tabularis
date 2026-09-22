@@ -132,7 +132,7 @@ const QuerySelectionContent = ({ queries, onSelect, onRunAll, onRunSelected, onC
 
               {/* Index badge */}
               <span className={`w-5 h-5 mt-0.5 shrink-0 flex items-center justify-center rounded text-[11px] font-bold tabular-nums ${
-                isFocused || isSelected ? 'text-accent-primary' : 'text-muted'
+                isFocused || isSelected ? 'text-accent' : 'text-muted'
               }`}>
                 {i + 1}
               </span>
@@ -147,7 +147,7 @@ const QuerySelectionContent = ({ queries, onSelect, onRunAll, onRunSelected, onC
               {/* Inline run button — visible on hover */}
               <button
                 onClick={(e) => { e.stopPropagation(); onSelect(q); }}
-                className="mt-0.5 shrink-0 p-1.5 rounded-md text-muted opacity-0 group-hover:opacity-100 hover:bg-accent-primary/20 hover:text-accent-primary transition-all"
+                className="mt-0.5 shrink-0 p-1.5 rounded-md text-muted opacity-0 group-hover:opacity-100 hover:bg-accent-primary/20 hover:text-accent transition-all"
                 title={t('editor.querySelection.runSingle')}
               >
                 <Play size={13} fill="currentColor" />
@@ -163,7 +163,7 @@ const QuerySelectionContent = ({ queries, onSelect, onRunAll, onRunSelected, onC
         <div className="flex items-center gap-2">
           <button
             onClick={() => onRunAll(queries)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-accent-success hover:bg-accent-success/90 text-inverse text-xs font-semibold rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 bg-accent-success hover:bg-accent-success/90 text-on-accent-success text-xs font-semibold rounded-lg transition-colors"
           >
             <Play size={12} fill="currentColor" />
             {t('editor.querySelection.runAll')}

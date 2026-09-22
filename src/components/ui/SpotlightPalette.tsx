@@ -130,7 +130,7 @@ export const SpotlightPalette = ({
           {isBusy ? (
             <Loader2
               size={18}
-              className="shrink-0 animate-spin text-accent-primary"
+              className="shrink-0 animate-spin text-accent"
             />
           ) : (
             <Search size={18} className="shrink-0 text-secondary" />

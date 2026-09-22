@@ -103,7 +103,7 @@ export function SchemaEditor({
       <div className="bg-elevated/80 px-3 py-2 border-b border-strong flex items-center justify-between shrink-0">
         {selected.size > 0 ? (
           <>
-            <span className="text-xs font-semibold text-accent-primary">
+            <span className="text-xs font-semibold text-accent">
               {t('clipboardImport.nSelected', { count: selected.size })}
             </span>
             <div className="flex items-center gap-2">
@@ -231,7 +231,7 @@ export function SchemaEditor({
                         <input autoCorrect="off" autoCapitalize="off" autoComplete="off" spellCheck={false}
                           value={col.name}
                           onChange={(e) => onColumnChange(i, { name: e.target.value })}
-                          className="w-full bg-transparent text-sm text-primary focus:outline-none border-b border-transparent focus:border-accent-primary font-mono"
+                          className="w-full bg-transparent text-sm text-primary focus:outline-none border-b border-transparent focus:border-focus font-mono"
                         />
                       )}
                       {col.confidence === 'low' && (

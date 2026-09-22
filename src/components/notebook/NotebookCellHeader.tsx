@@ -63,7 +63,7 @@ function CellTypeBadge({ cellType }: { cellType: NotebookCellType }) {
   }
 
   return (
-    <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-accent-primary/15 text-accent-primary">
+    <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-accent-primary/15 text-accent">
       {t("editor.notebook.markdownCell")}
     </span>
   );
@@ -195,7 +195,7 @@ export function NotebookCellHeader({
                 setIsEditingName(false);
               }
             }}
-            className="text-[10px] text-secondary bg-base border border-strong rounded px-1 py-0.5 outline-none focus:border-accent-primary w-32"
+            className="text-[10px] text-secondary bg-base border border-strong rounded px-1 py-0.5 outline-none focus:border-focus w-32"
             placeholder={t("editor.notebook.cellNamePlaceholder")}
             autoFocus
           />
@@ -303,7 +303,7 @@ export function NotebookCellHeader({
             aria-pressed={!!isQueryPlanVisible}
             className={`p-1 rounded transition-colors ${
               isQueryPlanVisible
-                ? "text-accent-primary bg-accent-primary/15"
+                ? "text-accent bg-accent-primary/15"
                 : "text-muted hover:text-primary hover:bg-surface-secondary"
             }`}
           >

@@ -14,7 +14,7 @@ interface JsonCellProps {
 }
 
 const TOKEN_CLASS: Record<JsonToken["type"], string> = {
-  key: "text-accent-primary",
+  key: "text-accent",
   string: "text-accent-success",
   number: "text-accent-warning",
   boolean: "text-accent-secondary",

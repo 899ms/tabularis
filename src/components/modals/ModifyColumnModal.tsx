@@ -202,7 +202,7 @@ export const ModifyColumnModal = ({
         <div className="flex items-center justify-between p-4 border-b border-default bg-base">
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg ${isEdit ? 'bg-accent-secondary/15' : 'bg-accent-primary/15'}`}>
-              {isEdit ? <Columns size={20} className="text-accent-secondary" /> : <Plus size={20} className="text-accent-primary" />}
+              {isEdit ? <Columns size={20} className="text-accent-secondary" /> : <Plus size={20} className="text-accent" />}
             </div>
             <h2 className="text-lg font-semibold text-primary">
               {isEdit ? t("modifyColumn.titleEdit") : t("modifyColumn.titleAdd")}
@@ -232,7 +232,7 @@ export const ModifyColumnModal = ({
             <input autoCorrect="off" autoCapitalize="off" autoComplete="off" spellCheck={false}
               value={form.name}
               onChange={(e) => { setForm({ ...form, name: e.target.value }); setError(""); }}
-              className={`w-full bg-base border rounded-lg px-3 py-2 text-primary text-sm focus:border-accent-primary focus:outline-none font-mono ${!form.name.trim() && error ? 'border-accent-error' : 'border-strong'}`}
+              className={`w-full bg-base border rounded-lg px-3 py-2 text-primary text-sm focus:border-focus focus:outline-none font-mono ${!form.name.trim() && error ? 'border-accent-error' : 'border-strong'}`}
               placeholder="column_name"
               autoFocus
             />

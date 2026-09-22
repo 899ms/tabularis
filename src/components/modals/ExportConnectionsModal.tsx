@@ -52,7 +52,7 @@ export const ExportConnectionsModal = ({
     {
       value: "noSecrets",
       icon: EyeOff,
-      color: "text-accent-primary",
+      color: "text-accent",
       label: t("connections.exportModal.noSecrets"),
       description: t("connections.exportModal.noSecretsDesc"),
     },
@@ -95,7 +95,7 @@ export const ExportConnectionsModal = ({
         <div className="flex items-center justify-between p-4 border-b border-default bg-base">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-accent-primary/15 rounded-lg">
-              <Download size={20} className="text-accent-primary" />
+              <Download size={20} className="text-accent" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-primary">

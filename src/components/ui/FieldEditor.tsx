@@ -197,7 +197,7 @@ export const FieldEditor = ({
       value={String(value ?? "")}
       onChange={(e) => onChange(e.target.value)}
       placeholder={defaultPlaceholder}
-      className={`w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary font-mono resize-none min-h-[80px] focus:border-accent-primary focus:outline-none ${className}`}
+      className={`w-full px-3 py-2 bg-base border border-strong rounded-lg text-primary font-mono resize-none min-h-[80px] focus:border-focus focus:outline-none ${className}`}
     />
   );
 
@@ -237,7 +237,7 @@ export const FieldEditor = ({
           <button
             type="button"
             onClick={() => onChange(isInsertion ? null : USE_DEFAULT_SENTINEL)}
-            className="px-2 py-1 text-xs bg-accent-primary/10 text-accent-primary rounded border border-accent-primary/25 hover:bg-accent-primary/15 transition-colors flex items-center gap-1"
+            className="px-2 py-1 text-xs bg-accent-primary/10 text-accent rounded border border-accent-primary/25 hover:bg-accent-primary/15 transition-colors flex items-center gap-1"
             title={t("dataGrid.setDefault")}
           >
             <FileDigit size={12} />

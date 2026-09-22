@@ -113,7 +113,7 @@ export const WhatsNewModal = ({
                     event.preventDefault();
                     void openUrl("https://github.com/sponsors/debba");
                   }}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent-secondary px-3 py-2 text-xs font-medium text-inverse transition-colors hover:bg-accent-secondary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-secondary"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent-secondary px-3 py-2 text-xs font-medium text-on-accent-secondary transition-colors hover:bg-accent-secondary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-secondary"
                 >
                   <Heart size={14} className="shrink-0" aria-hidden="true" />
                   {t("whatsNew.supportAction")}
@@ -179,7 +179,7 @@ export const WhatsNewModal = ({
                       onClick={() =>
                         openUrl(`${entry.url}${UTM_SUFFIX}`)
                       }
-                      className="flex items-center gap-1.5 text-xs text-accent-primary transition-colors"
+                      className="flex items-center gap-1.5 text-xs text-accent transition-colors"
                     >
                       {t("whatsNew.readMore")}
                       <ExternalLink size={12} />
@@ -198,7 +198,7 @@ export const WhatsNewModal = ({
 
                 {entry.bugFixes.length > 0 && (
                   <ChangelogSection
-                    icon={<Bug size={14} className="text-accent-primary" />}
+                    icon={<Bug size={14} className="text-accent" />}
                     label={t("whatsNew.bugFixes")}
                     items={entry.bugFixes}
                     dotColor="before:bg-accent-primary/60"
@@ -284,7 +284,7 @@ function InlineMarkdown({ text }: { text: string }) {
               e.preventDefault();
               if (href) openUrl(href);
             }}
-            className="text-accent-primary underline underline-offset-2 transition-colors cursor-pointer"
+            className="text-accent underline underline-offset-2 transition-colors cursor-pointer"
           >
             {children}
           </a>

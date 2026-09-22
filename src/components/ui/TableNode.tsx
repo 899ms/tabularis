@@ -59,7 +59,7 @@ export const TableNodeComponent = memo(({ data }: NodeProps<TableNode>) => {
                 <div className="flex items-center gap-2 flex-1 select-none">
                   <input
                     type="checkbox"
-                    className="rounded border-strong bg-surface-tertiary text-accent-primary focus:ring-0 w-3 h-3 cursor-pointer"
+                    className="rounded border-strong bg-surface-tertiary text-accent focus:ring-0 w-3 h-3 cursor-pointer"
                     checked={!!data.selectedColumns[col.name]}
                     onChange={(e) => data.onColumnCheck(col.name, e.target.checked)}
                     onClick={(e) => e.stopPropagation()}

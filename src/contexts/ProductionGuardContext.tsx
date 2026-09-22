@@ -111,7 +111,7 @@ export function ProductionGuardProvider({ children }: { children: ReactNode }) {
             <button
               onClick={() => finish(true)}
               disabled={remaining > 0}
-              className="px-4 py-2 bg-accent-error hover:bg-accent-error/90 text-inverse rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-accent-error hover:bg-accent-error/90 text-on-accent-error rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {remaining > 0
                 ? `${t("environment.warnConfirm")} (${remaining})`

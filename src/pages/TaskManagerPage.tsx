@@ -123,13 +123,13 @@ const TabularisSelfPanel = ({ stats }: { stats: TabularisSelfStats }) => {
   return (
     <div className="bg-elevated border border-default rounded-xl p-5">
       <h2 className="text-sm font-semibold text-primary mb-4 flex items-center gap-2">
-        <Activity size={15} className="text-accent-primary" />
+        <Activity size={15} className="text-accent" />
         {t("taskManager.tabularisProcess.title")}
         <span className="ml-auto text-xs text-muted font-mono">PID {stats.pid}</span>
       </h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
-          icon={<Cpu size={14} className="text-accent-primary" />}
+          icon={<Cpu size={14} className="text-accent" />}
           label={t("taskManager.tabularisProcess.cpu")}
           value={formatCpuPercent(stats.cpu_percent)}
         />
@@ -268,9 +268,9 @@ const Th = ({ label, col, current, asc, onClick }: ThProps) => (
       {label}
       {current === col ? (
         asc ? (
-          <ArrowUp size={12} className="text-accent-primary" />
+          <ArrowUp size={12} className="text-accent" />
         ) : (
-          <ArrowDown size={12} className="text-accent-primary" />
+          <ArrowDown size={12} className="text-accent" />
         )
       ) : (
         <ArrowUpDown size={12} className="opacity-40" />
@@ -384,7 +384,7 @@ const ProcessRow = ({
             <button
               onClick={() => onRestart(proc.plugin_id)}
               disabled={busy}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs bg-accent-primary/10 border border-accent-primary/20 text-accent-primary hover:bg-accent-primary/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs bg-accent-primary/10 border border-accent-primary/20 text-accent hover:bg-accent-primary/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               title={t("taskManager.pluginProcesses.restart")}
             >
               {isRestarting ? (
@@ -478,7 +478,7 @@ export const TaskManagerPage = () => {
         <div className="flex items-center justify-between px-6 py-4 border-b border-default bg-elevated shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-accent-primary/20 border border-accent-primary/30">
-              <Activity size={18} className="text-accent-primary" />
+              <Activity size={18} className="text-accent" />
             </div>
             <div>
               <h1 className="text-base font-semibold text-primary">{t("taskManager.header.title")}</h1>
@@ -507,14 +507,14 @@ export const TaskManagerPage = () => {
           {/* System stats */}
           <div className="bg-elevated border border-default rounded-xl p-5">
             <h2 className="text-sm font-semibold text-primary mb-4 flex items-center gap-2">
-              <Cpu size={15} className="text-accent-primary" />
+              <Cpu size={15} className="text-accent" />
               {t("taskManager.systemResources.title")}
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               {/* CPU */}
               <div className="bg-base rounded-lg p-3 border border-default">
                 <div className="flex items-center gap-2 mb-2">
-                  <Cpu size={14} className="text-accent-primary" />
+                  <Cpu size={14} className="text-accent" />
                   <span className="text-xs text-muted font-medium uppercase tracking-wide">{t("taskManager.systemResources.cpu")}</span>
                 </div>
                 <p className="text-xl font-bold text-primary">
@@ -595,7 +595,7 @@ export const TaskManagerPage = () => {
           {/* Plugin processes table */}
           <div className="bg-elevated border border-default rounded-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-default flex items-center gap-2">
-              <Plug size={15} className="text-accent-primary" />
+              <Plug size={15} className="text-accent" />
               <h2 className="text-sm font-semibold text-primary">{t("taskManager.pluginProcesses.title")}</h2>
               {processes.length > 0 && (
                 <span className="ml-auto text-xs text-muted bg-surface-secondary px-2 py-0.5 rounded-full">

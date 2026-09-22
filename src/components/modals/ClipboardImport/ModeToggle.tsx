@@ -44,7 +44,7 @@ export function ModeToggle({ value, onChange }: ModeToggleProps) {
               <div
                 className={`p-1.5 rounded-md transition-colors ${
                   active
-                    ? 'bg-accent-primary/20 text-accent-primary'
+                    ? 'bg-accent-primary/20 text-accent'
                     : 'bg-surface-secondary/50 text-muted group-hover:text-secondary'
                 }`}
               >

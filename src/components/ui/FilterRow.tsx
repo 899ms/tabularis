@@ -98,7 +98,7 @@ export const FilterRow = ({
           value={filter.value}
           onChange={(e) => onChange({ ...filter, value: e.target.value })}
           onKeyDown={handleValueKeyDown}
-          className="flex-1 min-w-0 bg-base border border-default rounded px-2 py-1 text-xs text-secondary font-mono focus:outline-none focus:border-accent-primary/60 transition-colors"
+          className="flex-1 min-w-0 bg-base border border-default rounded px-2 py-1 text-xs text-secondary font-mono focus:outline-none focus:border-focus/60 transition-colors"
           placeholder={t("toolbar.valuePlaceholder")}
           autoComplete="off"
         />
@@ -114,7 +114,7 @@ export const FilterRow = ({
             value={filter.value}
             onChange={(e) => onChange({ ...filter, value: e.target.value })}
             onKeyDown={handleValueKeyDown}
-            className="flex-1 min-w-0 bg-base border border-default rounded px-2 py-1 text-xs text-secondary font-mono focus:outline-none focus:border-accent-primary/60 transition-colors"
+            className="flex-1 min-w-0 bg-base border border-default rounded px-2 py-1 text-xs text-secondary font-mono focus:outline-none focus:border-focus/60 transition-colors"
             placeholder={t("toolbar.fromPlaceholder")}
           />
           <span className="text-[10px] text-muted shrink-0 font-mono uppercase tracking-wider">AND</span>
@@ -126,7 +126,7 @@ export const FilterRow = ({
             value={filter.value2 ?? ""}
             onChange={(e) => onChange({ ...filter, value2: e.target.value })}
             onKeyDown={handleValueKeyDown}
-            className="flex-1 min-w-0 bg-base border border-default rounded px-2 py-1 text-xs text-secondary font-mono focus:outline-none focus:border-accent-primary/60 transition-colors"
+            className="flex-1 min-w-0 bg-base border border-default rounded px-2 py-1 text-xs text-secondary font-mono focus:outline-none focus:border-focus/60 transition-colors"
             placeholder={t("toolbar.toPlaceholder")}
           />
         </div>
@@ -138,7 +138,7 @@ export const FilterRow = ({
         className={`shrink-0 px-2.5 py-1 rounded text-xs font-medium border transition-colors ${
           isApplied
             ? "bg-accent-success/20 border-accent-success/50 text-accent-success"
-            : "bg-accent-primary/15 border-accent-primary/40 text-accent-primary hover:bg-accent-primary/25 hover:border-accent-primary/60"
+            : "bg-accent-primary/15 border-accent-primary/40 text-accent hover:bg-accent-primary/25 hover:border-accent-primary/60"
         }`}
       >
         {isApplied ? t("toolbar.applied") : t("toolbar.apply")}
@@ -149,7 +149,7 @@ export const FilterRow = ({
         <button
           onClick={() => onDuplicate(filter)}
           title={t("toolbar.duplicateFilter")}
-          className="w-6 h-6 flex items-center justify-center rounded text-muted hover:text-accent-primary hover:bg-accent-primary/15 transition-colors"
+          className="w-6 h-6 flex items-center justify-center rounded text-muted hover:text-accent hover:bg-accent-primary/15 transition-colors"
         >
           <Plus size={12} />
         </button>

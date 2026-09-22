@@ -89,7 +89,7 @@ export const ConnectionDiagnosticsModal = ({
             {error ? (
               <AlertCircle size={18} className="text-accent-error" />
             ) : (
-              <Plug size={18} className="text-accent-primary" />
+              <Plug size={18} className="text-accent" />
             )}
           </div>
           <div className="flex-1 min-w-0">

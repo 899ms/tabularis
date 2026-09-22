@@ -49,7 +49,7 @@ export function McpSafetySection() {
     <>
       <SettingSection
         title={t("mcp.output.title")}
-        icon={<Braces size={14} className="text-accent-primary" />}
+        icon={<Braces size={14} className="text-accent" />}
       >
         <SettingRow
           label={t("mcp.output.formatLabel")}

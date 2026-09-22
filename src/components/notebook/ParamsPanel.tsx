@@ -34,7 +34,7 @@ function ParamRow({
         type="text"
         value={param.value}
         onChange={(e) => onValueChange(e.target.value)}
-        className="flex-1 text-[11px] bg-surface-secondary border border-strong rounded px-1.5 py-0.5 text-primary font-mono outline-none focus:border-accent-primary min-w-0"
+        className="flex-1 text-[11px] bg-surface-secondary border border-strong rounded px-1.5 py-0.5 text-primary font-mono outline-none focus:border-focus min-w-0"
       />
       <button
         type="button"
@@ -81,7 +81,7 @@ function AddParamForm({
           setError("");
         }}
         placeholder={t("editor.notebook.paramName")}
-        className="w-24 text-[11px] bg-surface-secondary border border-strong rounded px-1.5 py-0.5 text-primary font-mono outline-none focus:border-accent-primary"
+        className="w-24 text-[11px] bg-surface-secondary border border-strong rounded px-1.5 py-0.5 text-primary font-mono outline-none focus:border-focus"
         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
       />
       <span className="text-[10px] text-muted">=</span>
@@ -90,7 +90,7 @@ function AddParamForm({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={t("editor.notebook.paramValue")}
-        className="flex-1 text-[11px] bg-surface-secondary border border-strong rounded px-1.5 py-0.5 text-primary font-mono outline-none focus:border-accent-primary min-w-0"
+        className="flex-1 text-[11px] bg-surface-secondary border border-strong rounded px-1.5 py-0.5 text-primary font-mono outline-none focus:border-focus min-w-0"
         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
       />
       <button

@@ -517,7 +517,7 @@
     "darkTheme": "Dark Theme",
     "fontFamily": "Font Family",
     "fonts": {
-      "system": "System Default",
+      "system": "Theme default",
       "systemDesc": "Uses your OS default font",
       "custom": "Custom Font",
       "customPlaceholder": "e.g., Comic Sans MS",

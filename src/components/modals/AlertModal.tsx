@@ -15,7 +15,7 @@ interface AlertModalProps {
 const iconConfig: Record<AlertKind, { Icon: typeof Info; bgClass: string; textClass: string }> = {
   error: { Icon: AlertCircle, bgClass: "bg-accent-error/15", textClass: "text-accent-error" },
   warning: { Icon: AlertTriangle, bgClass: "bg-accent-warning/15", textClass: "text-accent-warning" },
-  info: { Icon: Info, bgClass: "bg-accent-primary/15", textClass: "text-accent-primary" },
+  info: { Icon: Info, bgClass: "bg-accent-primary/15", textClass: "text-accent" },
 };
 
 export const AlertModal = ({ isOpen, onClose, title, message, kind }: AlertModalProps) => {

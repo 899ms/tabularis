@@ -221,7 +221,7 @@ const SidebarTableItemImpl = ({
                     e.preventDefault();
                   }}
                 >
-                  <Folder size={12} className="text-accent-primary/70" />
+                  <Folder size={12} className="text-accent/70" />
                   <span>{t("sidebar.columns")}</span>
                   <span className="ml-auto text-[10px] opacity-50">
                     {columns.length}

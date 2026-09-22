@@ -576,7 +576,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
 
         <div className="p-4 border-b border-default font-semibold text-sm text-primary flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <Database size={16} className="text-accent-primary shrink-0" />
+            <Database size={16} className="text-accent shrink-0" />
             <div className="flex flex-col min-w-0">
               <span>{t("sidebar.explorer")}</span>
               {activeConnectionName && (
@@ -619,7 +619,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                         }}
                         className="w-full flex items-center gap-3 px-3 py-2 text-sm text-secondary hover:bg-surface-secondary hover:text-primary transition-colors text-left whitespace-nowrap"
                       >
-                        <Download size={16} className="text-accent-primary shrink-0" />
+                        <Download size={16} className="text-accent shrink-0" />
                         <span>{t("dump.dumpDatabase")}</span>
                       </button>
                       <button
@@ -668,7 +668,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                 </button>
                 <button
                   onClick={() => setDumpModal({ database: activeDatabaseName ?? "" })}
-                  className="text-muted hover:text-accent-primary transition-colors p-1 hover:bg-surface-secondary rounded"
+                  className="text-muted hover:text-accent transition-colors p-1 hover:bg-surface-secondary rounded"
                   title={t("dump.dumpDatabase")}
                 >
                   <Download size={16} />
@@ -788,7 +788,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                       value={favoritesFilter}
                       onChange={(e) => setFavoritesFilter(e.target.value)}
                       placeholder={t("sidebar.searchFavorites")}
-                      className="w-full pl-6 pr-2 py-1 text-xs bg-surface-secondary border border-default rounded text-primary placeholder:text-muted focus:outline-none focus:border-accent-primary/50"
+                      className="w-full pl-6 pr-2 py-1 text-xs bg-surface-secondary border border-default rounded text-primary placeholder:text-muted focus:outline-none focus:border-focus/50"
                     />
                   </div>
                 </div>
@@ -961,7 +961,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                               >
                                 <div
                                   className={`w-4 h-4 flex items-center justify-center shrink-0 ${
-                                    isSelected ? "text-accent-primary" : "text-muted"
+                                    isSelected ? "text-accent" : "text-muted"
                                   }`}
                                 >
                                   {isSelected ? (
@@ -987,7 +987,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                               setPendingSchemaSelection(new Set(schemas));
                             }
                           }}
-                          className="text-xs text-accent-primary hover:underline"
+                          className="text-xs text-accent hover:underline"
                         >
                           {pendingSchemaSelection.size === schemas.length
                             ? t("sidebar.deselectAll")
@@ -1027,7 +1027,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                             }}
                             className={`p-1 rounded transition-colors mr-1.5 ${
                               selectedSchemas.length < schemas.length
-                                ? "text-accent-primary bg-accent-primary/10"
+                                ? "text-accent bg-accent-primary/10"
                                 : "text-muted hover:text-secondary hover:bg-surface-secondary"
                             }`}
                             title={t("sidebar.editSchemas")}
@@ -1053,7 +1053,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                                         setPendingSchemaSelection(new Set(schemas));
                                       }
                                     }}
-                                    className="text-xs text-accent-primary hover:underline"
+                                    className="text-xs text-accent hover:underline"
                                   >
                                     {pendingSchemaSelection.size === schemas.length
                                       ? t("sidebar.deselectAll")
@@ -1083,7 +1083,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                                       >
                                         <div
                                           className={`w-4 h-4 flex items-center justify-center shrink-0 ${
-                                            isSelected ? "text-accent-primary" : "text-muted"
+                                            isSelected ? "text-accent" : "text-muted"
                                           }`}
                                         >
                                           {isSelected ? (
@@ -1241,7 +1241,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                         }}
                         className={`p-1 rounded transition-colors ${
                           selectedDatabases.length < allAvailableDatabases.length && allAvailableDatabases.length > 0
-                            ? "text-accent-primary bg-accent-primary/10"
+                            ? "text-accent bg-accent-primary/10"
                             : "text-muted hover:text-secondary hover:bg-surface-secondary"
                         }`}
                         title={t("sidebar.manageDatabases")}
@@ -1267,7 +1267,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                                     setPendingDbSelection(new Set(allAvailableDatabases));
                                   }
                                 }}
-                                className="text-xs text-accent-primary hover:underline"
+                                className="text-xs text-accent hover:underline"
                               >
                                 {pendingDbSelection.size === allAvailableDatabases.length
                                   ? t("sidebar.deselectAll")
@@ -1298,7 +1298,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                                       isSelected ? "text-primary hover:bg-surface-secondary" : "text-muted hover:bg-surface-secondary"
                                     }`}
                                   >
-                                    <div className={`w-4 h-4 flex items-center justify-center shrink-0 ${isSelected ? "text-accent-primary" : "text-muted"}`}>
+                                    <div className={`w-4 h-4 flex items-center justify-center shrink-0 ${isSelected ? "text-accent" : "text-muted"}`}>
                                       {isSelected ? <CheckSquare size={14} /> : <Square size={14} />}
                                     </div>
                                     <span className="text-sm truncate select-none">{dbName}</span>
@@ -1368,7 +1368,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                         value={dbFilter}
                         onChange={(e) => setDbFilter(e.target.value)}
                         placeholder={t("sidebar.filterDatabases")}
-                        className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-6 py-1 border border-default focus:outline-none focus:border-accent-primary/50"
+                        className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-6 py-1 border border-default focus:outline-none focus:border-focus/50"
                       />
                       {dbFilter && (
                         <button
@@ -1488,7 +1488,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                       : activeDatabaseName;
                     return dbLabel ? (
                       <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-default">
-                        <Database size={14} className="text-accent-primary shrink-0" />
+                        <Database size={14} className="text-accent shrink-0" />
                         <span className="text-sm font-medium text-secondary truncate">
                           {dbLabel}
                         </span>
@@ -1546,7 +1546,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                             value={tableFilter}
                             onChange={(e) => setTableFilter(e.target.value)}
                             placeholder={t("sidebar.filterTables")}
-                            className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-10 py-1 border border-default focus:outline-none focus:border-accent-primary/50"
+                            className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-10 py-1 border border-default focus:outline-none focus:border-focus/50"
                           />
                           {tableFilter && (
                             <button
@@ -1732,7 +1732,7 @@ export const ExplorerSidebar = ({ sidebarWidth, startResize, onCollapse, sidebar
                               value={triggerFilterFlat}
                               onChange={(e) => setTriggerFilterFlat(e.target.value)}
                               placeholder={t("sidebar.filterTriggers")}
-                              className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-6 py-1 border border-default focus:outline-none focus:border-accent-primary/50"
+                              className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-6 py-1 border border-default focus:outline-none focus:border-focus/50"
                               onClick={(e) => e.stopPropagation()}
                             />
                             {triggerFilterFlat && (

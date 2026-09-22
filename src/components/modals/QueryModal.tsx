@@ -81,7 +81,7 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-base border border-strong rounded px-3 py-2 text-primary focus:outline-none focus:border-accent-primary"
+              className="w-full bg-base border border-strong rounded px-3 py-2 text-primary focus:outline-none focus:border-focus"
               placeholder="My Query"
               autoFocus
             />

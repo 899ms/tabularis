@@ -228,7 +228,7 @@ describe("notebookDnd", () => {
       });
       const sqlBadge = sql.querySelector("span");
       const mdBadge = md.querySelector("span");
-      expect(sqlBadge?.className).toContain("text-accent-primary");
+      expect(sqlBadge?.className).toContain("text-accent");
       expect(mdBadge?.className).toContain("text-accent-secondary");
     });
 

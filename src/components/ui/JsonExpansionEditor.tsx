@@ -77,7 +77,7 @@ export const JsonExpansionEditor = ({
               disabled={!hasDiff}
               className={`px-2 py-1 rounded border transition-colors flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed ${
                 showDiff
-                  ? "bg-accent-primary/30 text-accent-primary border-accent-primary/50"
+                  ? "bg-accent-primary/30 text-accent border-accent-primary/50"
                   : "bg-surface-secondary text-secondary border-default hover:bg-surface-tertiary"
               }`}
               title={t("jsonInput.diff", { defaultValue: "Diff" })}
@@ -98,7 +98,7 @@ export const JsonExpansionEditor = ({
                 aria-pressed={sideBySide}
                 className={`px-2 py-1 rounded border transition-colors flex items-center gap-1 ${
                   sideBySide
-                    ? "bg-accent-primary/30 text-accent-primary border-accent-primary/50"
+                    ? "bg-accent-primary/30 text-accent border-accent-primary/50"
                     : "bg-surface-secondary text-secondary border-default hover:bg-surface-tertiary"
                 }`}
                 title={t("jsonInput.sideBySide", { defaultValue: "Side by side" })}
