@@ -547,7 +547,7 @@ export const ImportFromAppModal = ({
               <button
                 onClick={handleContinue}
                 disabled={!canContinueFromPicker || loading}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {t("common.continue", { defaultValue: "Continue" })}
               </button>
@@ -555,7 +555,7 @@ export const ImportFromAppModal = ({
               <button
                 onClick={handleDecryptImport}
                 disabled={loading || !password}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {t("connections.importPasswordModal.unlock")}
               </button>
@@ -563,7 +563,7 @@ export const ImportFromAppModal = ({
               <button
                 onClick={handleApply}
                 disabled={loading || importCount === 0}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {t("connections.importFromApp.importCount", { count: importCount })}
               </button>

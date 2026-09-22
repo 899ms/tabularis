@@ -5,6 +5,7 @@ import { UpdateContext, type UpdateCheckResult } from "./UpdateContext";
 import { toErrorMessage } from "../utils/errors";
 
 export const UpdateProvider = ({ children }: { children: ReactNode }) => {
+  const [availableUpdate, setAvailableUpdate] = useState<UpdateCheckResult | null>(null);
   const [updateInfo, setUpdateInfo] = useState<UpdateCheckResult | null>(null);
   const [isChecking, setIsChecking] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -37,6 +38,7 @@ export const UpdateProvider = ({ children }: { children: ReactNode }) => {
       const result = await invoke<UpdateCheckResult>("check_for_updates", {
         force,
       });
+      setAvailableUpdate(result.hasUpdate ? result : null);
       if (result.hasUpdate) {
         // A manual check (force) always surfaces an available update. Only a
         // background check honours a previous "remind me later" dismissal,
@@ -52,7 +54,7 @@ export const UpdateProvider = ({ children }: { children: ReactNode }) => {
 
         if (dismissed) {
           setUpdateInfo(null);
-          setIsUpToDate(true);
+          setIsUpToDate(false);
         } else {
           setUpdateInfo(result);
           setIsUpToDate(false);
@@ -123,6 +125,7 @@ export const UpdateProvider = ({ children }: { children: ReactNode }) => {
   return (
     <UpdateContext.Provider
       value={{
+        availableUpdate,
         updateInfo,
         isChecking,
         isDownloading,

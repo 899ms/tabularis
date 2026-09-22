@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Power, Edit, Copy, Trash2, ArrowLeftRight } from 'lucide-react';
+import clsx from 'clsx';
 import type { SavedConnection } from '../../contexts/DatabaseContext';
 import type { MigrationDirection } from '../../utils/connections';
 
@@ -18,6 +19,15 @@ export interface ActionButtonsProps {
   onMigrate?: () => void;
 }
 
+const BUTTON_CLASS = 'p-1.5 rounded-lg text-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed';
+
+/** Hover tints follow the shared tones: primary for edits, success to connect, danger to disconnect/delete. */
+const HOVER = {
+  primary: 'hover:text-accent-primary hover:bg-accent-primary/10',
+  success: 'hover:text-accent-success hover:bg-accent-success/10',
+  danger: 'hover:text-accent-error hover:bg-accent-error/10',
+};
+
 export const ActionButtons = ({
   isOpen, isDriverEnabled, onConnect, onDisconnect, onEdit, onDuplicate, onDelete,
   migrationDirection, onMigrate,
@@ -28,7 +38,7 @@ export const ActionButtons = ({
       {migrationDirection && onMigrate && (
         <button
           onClick={e => { e.stopPropagation(); onMigrate(); }}
-          className="p-1.5 rounded-lg text-muted hover:text-blue-400 hover:bg-blue-400/10 transition-colors"
+          className={clsx(BUTTON_CLASS, HOVER.primary)}
           title={
             migrationDirection === 'to-plugin'
               ? t('migration.switchToPlugin')
@@ -41,7 +51,7 @@ export const ActionButtons = ({
       {isOpen ? (
         <button
           onClick={e => { e.stopPropagation(); onDisconnect(); }}
-          className="p-1.5 rounded-lg text-muted hover:text-red-400 hover:bg-red-400/10 transition-colors"
+          className={clsx(BUTTON_CLASS, HOVER.danger)}
           title={t('connections.disconnect')}
         >
           <Power size={13} />
@@ -50,7 +60,7 @@ export const ActionButtons = ({
         <button
           onClick={e => { e.stopPropagation(); if (isDriverEnabled) onConnect(); }}
           disabled={!isDriverEnabled}
-          className="p-1.5 rounded-lg text-muted hover:text-green-400 hover:bg-green-400/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className={clsx(BUTTON_CLASS, HOVER.success)}
           title={isDriverEnabled ? t('connections.connect') : t('connections.pluginDisabled')}
         >
           <Power size={13} />
@@ -59,7 +69,7 @@ export const ActionButtons = ({
       <button
         onClick={e => { e.stopPropagation(); if (isDriverEnabled) onEdit(); }}
         disabled={!isDriverEnabled}
-        className="p-1.5 rounded-lg text-muted hover:text-blue-400 hover:bg-blue-400/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className={clsx(BUTTON_CLASS, HOVER.primary)}
         title={t('connections.edit')}
       >
         <Edit size={13} />
@@ -67,14 +77,14 @@ export const ActionButtons = ({
       <button
         onClick={e => { e.stopPropagation(); if (isDriverEnabled) onDuplicate(); }}
         disabled={!isDriverEnabled}
-        className="p-1.5 rounded-lg text-muted hover:text-purple-400 hover:bg-purple-400/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className={clsx(BUTTON_CLASS, HOVER.primary)}
         title={t('connections.clone')}
       >
         <Copy size={13} />
       </button>
       <button
         onClick={e => { e.stopPropagation(); void onDelete(); }}
-        className="p-1.5 rounded-lg text-muted hover:text-red-400 hover:bg-red-400/10 transition-colors"
+        className={clsx(BUTTON_CLASS, HOVER.danger)}
         title={t('connections.delete')}
       >
         <Trash2 size={13} />

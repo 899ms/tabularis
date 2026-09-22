@@ -209,7 +209,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
                   type="button"
                   onClick={() => void handleCreate()}
                   disabled={!newName.trim()}
-                  className="px-2 py-1 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs transition-colors"
+                  className="px-2 py-1 rounded-md bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 text-inverse text-xs transition-colors"
                 >
                   {t("tags.add")}
                 </button>
@@ -258,7 +258,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
                     type="button"
                     onClick={() => void handleEditSave()}
                     disabled={!editName.trim()}
-                    className="px-2 py-1 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs transition-colors"
+                    className="px-2 py-1 rounded-md bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 text-inverse text-xs transition-colors"
                   >
                     {t("common.save")}
                   </button>

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Modal } from "../ui/Modal";
+import { ThemeDeepLinkInstall } from "./ThemeDeepLinkInstall";
 import type { RegistryPluginWithStatus } from "../../types/plugins";
 import type { DeepLinkInstallRequest } from "../../hooks/useDeepLinkInstall";
 
@@ -89,6 +90,7 @@ export const PluginInstallConfirmModal = ({
   }, [request]);
 
   if (!request) return null;
+  if (preview?.kind === "theme") return <ThemeDeepLinkInstall request={request} preview={preview} onClose={onCancel} />;
 
   const requestedRegistry = request.registry ?? null;
   const showsRegistryMismatch =
@@ -324,7 +326,7 @@ export const PluginInstallConfirmModal = ({
                     })
                   : undefined
               }
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
+              className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-lg text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
             >
               {busy ? (
                 <>

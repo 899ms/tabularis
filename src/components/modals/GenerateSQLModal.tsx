@@ -17,6 +17,7 @@ import {
 } from "../../utils/sqlGenerator";
 import { toBindParamName } from "../../utils/queryParameters";
 import type { TableTarget } from "../../types/databaseObjects";
+import type { TableInfo } from "../../contexts/DatabaseContext";
 import type { CommandRuntime } from "../../types/commands";
 import { openEditor as navigateToEditor } from "../../utils/editorNavigation";
 
@@ -68,7 +69,7 @@ export const GenerateSQLModal = ({
       setLoading(true);
       try {
         const schemaParam = schema ? { schema } : {};
-        const [fetchedColumns, foreignKeys, indexes] = await Promise.all([
+        const [fetchedColumns, foreignKeys, indexes, tables] = await Promise.all([
           invoke<TableColumn[]>("get_columns", {
             connectionId,
             tableName,
@@ -84,6 +85,10 @@ export const GenerateSQLModal = ({
             tableName,
             ...schemaParam,
           }),
+          invoke<TableInfo[]>("get_tables", {
+            connectionId,
+            ...schemaParam,
+          }),
         ]);
 
         setColumns(fetchedColumns);
@@ -93,6 +98,7 @@ export const GenerateSQLModal = ({
           foreignKeys,
           indexes,
           dialect,
+          tables.find((table) => table.name === tableName)?.comment,
         );
         setSql(generatedSQL);
       } catch (err) {
@@ -271,7 +277,7 @@ export const GenerateSQLModal = ({
             </button>
             <button
               onClick={handleCopy}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
               {copied ? t("generateSQL.copied") : t("generateSQL.copy")}

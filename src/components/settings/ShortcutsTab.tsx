@@ -217,7 +217,7 @@ export function ShortcutsTab() {
                           <>
                             <button
                               onClick={() => openEdit(s)}
-                              className="px-2.5 py-1 text-xs rounded-lg border border-default text-muted hover:text-primary hover:border-blue-500/60 hover:bg-blue-500/5 transition-colors"
+                              className="px-2.5 py-1 text-xs rounded-lg border border-default text-muted hover:text-primary hover:border-accent-primary/60 hover:bg-accent-primary/5 transition-colors"
                             >
                               {t("common.edit")}
                             </button>

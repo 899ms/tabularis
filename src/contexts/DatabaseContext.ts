@@ -5,6 +5,7 @@ import type { ConnectionMetadata, DriverCapabilities } from '../types/plugins';
 export interface TableInfo {
   name: string;
   schema?: string; // database/schema the table belongs to (populated in multiDb mode)
+  comment?: string | null;
 }
 
 export interface ViewInfo {
@@ -50,6 +51,8 @@ export interface SavedConnection {
     ssh_connection_id?: string;
     k8s_enabled?: boolean;
     k8s_connection_id?: string;
+    ssm_enabled?: boolean;
+    ssm_target?: string;
     startup_script?: string;
     /** SSL/TLS mode (e.g. "verify-ca"); empty/absent means SSL is off. Used
      * by findUnsupportedFeatures to detect a plugin capability gap. */
@@ -163,9 +166,9 @@ export interface DatabaseContextType {
   databaseDataMap: Record<string, SchemaData>;
   connections: SavedConnection[];
   connectionGroups: ConnectionGroup[];
-  loadConnections: () => Promise<void>;
+  loadConnections: (options?: { ifNeeded?: boolean }) => Promise<void>;
   isLoadingConnections: boolean;
-  connect: (connectionId: string) => Promise<void>;
+  connect: (connectionId: string, options?: { activate?: boolean }) => Promise<void>;
   disconnect: (connectionId?: string) => Promise<void>;
   /**
    * Remove a connection from THIS window's UI without closing its backend pool.

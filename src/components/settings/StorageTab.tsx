@@ -23,10 +23,10 @@ import {
 import { SettingSection, SettingRow } from "./SettingControls";
 
 const buttonClass =
-  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-base border border-strong text-sm text-secondary hover:text-blue-400 hover:border-blue-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-secondary disabled:hover:border-strong";
+  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-base border border-strong text-sm text-secondary hover:text-accent-primary hover:border-accent-primary/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-secondary disabled:hover:border-strong";
 
 const primaryButtonClass =
-  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-sm text-white hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent-primary text-sm text-inverse hover:bg-accent-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
 interface PendingChoice {
   path: string;
@@ -269,7 +269,7 @@ function ModeOption({ checked, onSelect, label, description }: ModeOptionProps) 
       className={clsx(
         "flex items-start gap-2.5 rounded-lg border px-3 py-2 cursor-pointer transition-colors",
         checked
-          ? "border-blue-500/60 bg-blue-500/10"
+          ? "border-accent-primary/60 bg-accent-primary/10"
           : "border-default hover:border-strong",
       )}
     >
@@ -278,7 +278,7 @@ function ModeOption({ checked, onSelect, label, description }: ModeOptionProps) 
         name="storage-new-folder-mode"
         checked={checked}
         onChange={onSelect}
-        className="mt-0.5 accent-blue-500"
+        className="mt-0.5 accent-accent-primary"
       />
       <span className="min-w-0">
         <span className="block text-sm text-primary">{label}</span>

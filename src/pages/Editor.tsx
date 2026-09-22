@@ -133,7 +133,7 @@ import { NotebookView } from "../components/notebook/NotebookView";
 import { UserManagementView } from "../components/users/UserManagementView";
 import { useSqlAutocompleteRegistration } from "../hooks/useSqlAutocompleteRegistration";
 import { createNotebook, renameNotebook } from "../utils/notebookStore";
-import { type OnMount, type Monaco } from "@monaco-editor/react";
+import type { OnMount, Monaco } from "@monaco-editor/react";
 import { useAlert } from "../hooks/useAlert";
 import { useToast } from "../hooks/useToast";
 import { useDatabase } from "../hooks/useDatabase";
@@ -3742,7 +3742,7 @@ export const Editor = ({ commandScopeId }: EditorProps) => {
             <p className="mb-4">{t("editor.noTabs")}</p>
             <button
               onClick={() => addTab({ type: "console" })}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded transition-colors"
+              className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded transition-colors"
             >
               {t("editor.newConsole")}
             </button>
@@ -3852,7 +3852,23 @@ export const Editor = ({ commandScopeId }: EditorProps) => {
                   }}
                 />
               )}
-              {tab.type === "table" ? (
+              {tab.isLoading ? (
+                // Running indicator: the type icon gives way to a spinner so
+                // the tab whose query is executing stands out even when it is
+                // not the active one.
+                <span
+                  className="flex shrink-0"
+                  title={t("editor.executingQuery")}
+                  aria-label={t("editor.executingQuery")}
+                  role="status"
+                >
+                  <Loader2
+                    size={12}
+                    className="animate-spin"
+                    style={{ color: tabAccentColor }}
+                  />
+                </span>
+              ) : tab.type === "table" ? (
                 <TableIcon size={12} className="text-accent shrink-0" />
               ) : tab.type === "query_builder" ? (
                 <Network size={12} className="text-accent-secondary shrink-0" />

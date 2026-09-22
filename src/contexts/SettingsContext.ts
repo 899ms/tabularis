@@ -68,6 +68,8 @@ export interface Settings {
   aiCustomOpenaiUrl?: string;
   aiCustomOpenaiModel?: string;
   autoCheckUpdatesOnStartup?: boolean;
+  /** Last plugin release shown in a startup notification, keyed by plugin id. */
+  notifiedPluginVersions?: Record<string, string>;
   releaseChannel?: "stable" | "nightly";
   loggingEnabled?: boolean;
   maxLogEntries?: number;
@@ -116,6 +118,7 @@ export interface Settings {
   aiAuditEnabled?: boolean;
   aiAuditMaxEntries?: number;
   aiSessionGapMinutes?: number;
+  mcpOutputFormat?: "json" | "toon";
   mcpReadonlyDefault?: boolean;
   mcpReadonlyConnections?: string[];
   mcpApprovalMode?: "off" | "writes_only" | "all";
@@ -251,6 +254,7 @@ export const DEFAULT_SETTINGS: Settings = {
   aiAuditEnabled: true,
   aiAuditMaxEntries: 5000,
   aiSessionGapMinutes: 10,
+  mcpOutputFormat: "json",
   mcpReadonlyDefault: false,
   mcpReadonlyConnections: [],
   mcpApprovalMode: "writes_only",

@@ -1,4 +1,5 @@
 import { render, fireEvent, screen, waitFor } from "@testing-library/react";
+import { invoke } from "@tauri-apps/api/core";
 import { useState } from "react";
 import { vi } from "vitest";
 import { DataGrid } from "../../../src/components/ui/DataGrid";
@@ -16,7 +17,10 @@ vi.mock("../../../src/hooks/useAlert", () => ({
   useAlert: () => ({ showAlert: vi.fn() }),
 }));
 
-const { showToastMock } = vi.hoisted(() => ({ showToastMock: vi.fn() }));
+const { showToastMock, openRowEditorMock } = vi.hoisted(() => ({
+  showToastMock: vi.fn(),
+  openRowEditorMock: vi.fn(),
+}));
 
 vi.mock("../../../src/hooks/useToast", () => ({
   useToast: () => ({ showToast: showToastMock }),
@@ -32,7 +36,7 @@ vi.mock("../../../src/hooks/useRightSidebar", () => ({
     activePanel: null,
     rowEditorData: null,
     isPinned: false,
-    openRowEditor: vi.fn(),
+    openRowEditor: openRowEditorMock,
     updateRowEditorData: vi.fn(),
     close: vi.fn(),
     toggle: vi.fn(),
@@ -91,6 +95,7 @@ describe("DataGrid layout", () => {
             is_pk: false,
             is_nullable: false,
             is_auto_increment: false,
+            comment: "Customer display name",
           },
         ]}
         selectedRows={new Set()}
@@ -107,9 +112,140 @@ describe("DataGrid layout", () => {
     expect(tooltips[0]).toHaveClass("hidden", "left-0");
     expect(tooltips[1]).toHaveClass("hidden", "right-0");
     expect(tooltips[1]).not.toHaveClass("left-0");
+    expect(tooltips[1]).toHaveTextContent("Customer display name");
   });
 });
 
+describe("DataGrid read-only cell viewers (#654)", () => {
+  beforeEach(() => {
+    vi.mocked(invoke).mockReset();
+    vi.mocked(invoke).mockResolvedValue("json-viewer-session");
+    openRowEditorMock.mockReset();
+  });
+
+  const payload = { status: "ok" };
+
+  const renderReadOnlyJsonGrid = () =>
+    render(
+      <DataGrid
+        columns={["payload"]}
+        data={[[payload]]}
+        tableName={null}
+        pkColumns={null}
+        selectedRows={new Set()}
+        onSelectionChange={vi.fn()}
+        readonly
+      />,
+    );
+
+  const cell = (container: HTMLElement) =>
+    container.querySelector('td[data-col-index="0"]')!;
+
+  const expectReadOnlyViewer = async () => {
+    await waitFor(() =>
+      expect(invoke).toHaveBeenCalledWith("open_json_viewer_window", {
+        value: payload,
+        originalValue: payload,
+        colName: "payload",
+        rowLabel: "Row 1",
+        readOnly: true,
+        cellKey: null,
+      }),
+    );
+  };
+
+  it("opens structured query results on double-click", async () => {
+    const { container } = renderReadOnlyJsonGrid();
+
+    fireEvent.doubleClick(cell(container));
+
+    await expectReadOnlyViewer();
+  });
+
+  it("opens structured query results from the keyboard", async () => {
+    const { container } = renderReadOnlyJsonGrid();
+    const grid = container.querySelector('div[tabindex="0"]')!;
+
+    fireEvent.click(cell(container));
+    fireEvent.keyDown(grid, { key: "Enter" });
+
+    await expectReadOnlyViewer();
+  });
+
+  it("opens generated JSON columns in the read-only viewer", async () => {
+    const { container } = render(
+      <DataGrid
+        columns={["id", "payload"]}
+        data={[[1, payload]]}
+        columnMetadata={[
+          {
+            name: "id",
+            data_type: "integer",
+            is_pk: true,
+            is_nullable: false,
+            is_auto_increment: false,
+          },
+          {
+            name: "payload",
+            data_type: "jsonb",
+            is_pk: false,
+            is_nullable: true,
+            is_auto_increment: false,
+            is_generated: true,
+          },
+        ]}
+        tableName="events"
+        pkColumns={["id"]}
+        selectedRows={new Set()}
+        onSelectionChange={vi.fn()}
+      />,
+    );
+
+    fireEvent.doubleClick(
+      container.querySelector('td[data-col-index="1"]')!,
+    );
+
+    await waitFor(() =>
+      expect(invoke).toHaveBeenCalledWith("open_json_viewer_window", {
+        value: payload,
+        originalValue: payload,
+        colName: "payload",
+        rowLabel: "id=1",
+        readOnly: true,
+        cellKey: 'pk:{"id":1}:payload',
+      }),
+    );
+    expect(openRowEditorMock).not.toHaveBeenCalled();
+  });
+
+  it("does not open the editable row sidebar for read-only blob cells", () => {
+    const { container } = render(
+      <DataGrid
+        columns={["payload"]}
+        data={[["BLOB:3:application/octet-stream:AQID"]]}
+        columnMetadata={[
+          {
+            name: "payload",
+            data_type: "bytea",
+            is_pk: false,
+            is_nullable: true,
+            is_auto_increment: false,
+          },
+        ]}
+        tableName="events"
+        pkColumns={["id"]}
+        selectedRows={new Set()}
+        onSelectionChange={vi.fn()}
+        readonly
+      />,
+    );
+
+    fireEvent.doubleClick(cell(container));
+
+    expect(openRowEditorMock).not.toHaveBeenCalled();
+    expect(invoke).not.toHaveBeenCalled();
+  });
+});
 
 describe("DataGrid keyboard navigation", () => {
   // The row virtualizer sizes its viewport from offsetWidth/offsetHeight, which

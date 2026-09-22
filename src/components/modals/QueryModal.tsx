@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { X, Save } from 'lucide-react';
-import MonacoEditor, { type BeforeMount } from '@monaco-editor/react';
+import type { BeforeMount } from "@monaco-editor/react";
+import { MonacoEditor } from "../ui/LazyMonaco";
 import { useTranslation } from 'react-i18next';
 import { useEditorTheme } from '../../hooks/useEditorTheme';
 import { loadMonacoTheme } from '../../themes/themeUtils';
+import { getMonacoThemeId } from '../../themes/themeRuntime';
 import { Modal } from '../ui/Modal';
 import { Select } from '../ui/Select';
 
@@ -66,8 +68,8 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
     <Modal isOpen={isOpen} onClose={onClose} overlayClassName="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="bg-elevated border border-default rounded-xl shadow-2xl w-full max-w-2xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
-          <button onClick={onClose} className="text-secondary hover:text-white transition-colors">
+          <h3 className="text-lg font-semibold text-primary">{title}</h3>
+          <button onClick={onClose} className="text-secondary hover:text-primary transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -79,7 +81,7 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-base border border-strong rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-base border border-strong rounded px-3 py-2 text-primary focus:outline-none focus:border-blue-500"
               placeholder="My Query"
               autoFocus
             />
@@ -104,7 +106,7 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
                 <MonacoEditor
                     height="100%"
                     defaultLanguage="sql"
-                    theme={editorTheme.id}
+                    theme={getMonacoThemeId(editorTheme.id)}
                     beforeMount={handleBeforeMount}
                     value={sql}
                     onChange={(val) => setSql(val || '')}
@@ -127,14 +129,14 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-secondary hover:text-white hover:bg-surface-secondary rounded transition-colors"
+              className="px-4 py-2 text-secondary hover:text-primary hover:bg-surface-secondary rounded transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium disabled:opacity-50 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded font-medium disabled:opacity-50 transition-colors"
             >
               <Save size={16} />
               {isSaving ? 'Saving...' : 'Save'}

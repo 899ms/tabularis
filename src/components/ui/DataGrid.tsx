@@ -381,6 +381,12 @@ export const DataGrid = React.memo(
       return new Map(columnMetadata.map((col) => [col.name, col.data_type]));
     }, [columnMetadata]);
 
+    // Create column comment map for O(1) lookup in header tooltips.
+    const columnCommentMap = useMemo(() => {
+      if (!columnMetadata) return null;
+      return new Map(columnMetadata.map((col) => [col.name, col.comment]));
+    }, [columnMetadata]);
+
     // Create column length map for O(1) lookup during blob rendering decisions
     const columnLengthMap = useMemo(() => {
       if (!columnMetadata) return null;
@@ -889,10 +895,39 @@ export const DataGrid = React.memo(
 
     const handleCellDoubleClick = useCallback(
       (rowIndex: number, colIndex: number, value: unknown) => {
-      if (!tableName || readonlyProp) return;
-
       const mergedRow = mergedRows[rowIndex];
       if (!mergedRow) return;
+
+      const colName = columns[colIndex];
+      const isGeneratedColumn =
+        generatedColumns?.has(colName.toLowerCase()) ?? false;
+
+      const colType = columnTypeMap?.get(colName);
+
+      // Open the dedicated viewer for structured cells before checking whether
+      // the grid is editable, so query and notebook results remain inspectable.
+      const rawCellValue = mergedRow.rowData[colIndex];
+      if (isJsonCellTarget(colType, rawCellValue) || Array.isArray(rawCellValue)) {
+        const isInsertion = mergedRow.type === "insertion";
+        openJsonViewerWindow(
+          value,
+          rawCellValue,
+          colName,
+          mergedRow.rowData,
+          rowIndex,
+          isInsertion,
+          mergedRow.tempId,
+          (readonlyProp ?? false) || isGeneratedColumn,
+        );
+        return;
+      }
+
+      if (isGeneratedColumn) {
+        return;
+      }
+
+      if (!tableName || readonlyProp) return;
+
       // No usable row identity (no primary key and no safe all-columns
       // fallback, see resolveRowIdentity) → explain instead of silently
       // ignoring the double-click (#598).
@@ -908,12 +943,6 @@ export const DataGrid = React.memo(
           }),
           { title: t("common.error"), kind: "warning" },
         );
-        return;
-      }
-
-      const colName = columns[colIndex];
-
-      if (generatedColumns?.has(colName.toLowerCase())) {
         return;
       }
 
@@ -961,34 +990,12 @@ export const DataGrid = React.memo(
         }
       }
 
-      const colType = columnTypeMap?.get(colName);
-
       if (
         colType &&
         (isBlobColumn(colType, columnLengthMap?.get(colName)) ||
           isBlobWireFormat(value))
       ) {
         openInSidebar(rowIndex, colName);
-        return;
-      }
-
-      // Open the dedicated viewer for structured cells instead of the inline
-      // textarea, which would stringify an array into a cramped, comma-joined
-      // box. Array values always qualify (like json/jsonb columns); JSON found
-      // inside text columns still follows the detect-json-in-text setting.
-      const rawCellValue = mergedRow.rowData[colIndex];
-      if (isJsonCellTarget(colType, rawCellValue) || Array.isArray(rawCellValue)) {
-        const isInsertion = mergedRow.type === "insertion";
-        openJsonViewerWindow(
-          value,
-          rawCellValue,
-          colName,
-          mergedRow.rowData,
-          rowIndex,
-          isInsertion,
-          mergedRow.tempId,
-          readonlyProp ?? false,
-        );
         return;
       }
 
@@ -1246,6 +1253,8 @@ export const DataGrid = React.memo(
               // Only populated when column metadata is present (i.e. table
               // browse), not for arbitrary query results.
               const colType = columnTypeMap?.get(colName);
+              const colComment = columnCommentMap?.get(colName);
+              const hasMetadataTooltip = Boolean(colType || colComment);
               const tooltipAlignment =
                 index === columns.length - 1 ? "right-0" : "left-0";
 
@@ -1271,7 +1280,7 @@ export const DataGrid = React.memo(
                       );
                     }
                   }}
-                  title={colType ? undefined : t("dataGrid.selectColumn")}
+                  title={hasMetadataTooltip ? undefined : t("dataGrid.selectColumn")}
                 >
                   <span>{colName}</span>
                   {onSort && (
@@ -1288,7 +1297,7 @@ export const DataGrid = React.memo(
                       title={
                         // Suppress the native sort-hint title while the type
                         // tooltip is shown, to avoid two overlapping tooltips.
-                        colType
+                        hasMetadataTooltip
                           ? undefined
                           : displaySortState === "none"
                             ? t("dataGrid.sortByAsc", { col: colName })
@@ -1316,12 +1325,21 @@ export const DataGrid = React.memo(
                       )}
                     </button>
                   )}
-                  {colType && (
+                  {hasMetadataTooltip && (
                     <span
                       role="tooltip"
-                      className={`pointer-events-none absolute ${tooltipAlignment} top-full z-20 mt-1 hidden whitespace-nowrap rounded-lg border border-strong bg-tooltip px-2 py-1 text-xs font-normal normal-case tracking-normal text-secondary shadow-xl group-hover/header:block`}
+                      className={`pointer-events-none absolute ${tooltipAlignment} top-full z-20 mt-1 hidden max-w-sm whitespace-normal rounded-lg border border-strong bg-tooltip px-2 py-1 text-left text-xs font-normal normal-case tracking-normal text-secondary shadow-xl group-hover/header:block group-focus-within/header:block`}
                     >
-                      <span className="text-primary">{colName}</span>: {colType}
+                      {colType && (
+                        <span className="block whitespace-nowrap">
+                          <span className="text-primary">{colName}</span>: {colType}
+                        </span>
+                      )}
+                      {colComment && (
+                        <span className="mt-1 block whitespace-pre-wrap text-secondary">
+                          {colComment}
+                        </span>
+                      )}
                     </span>
                   )}
                 </div>
@@ -1336,6 +1354,7 @@ export const DataGrid = React.memo(
         sortClause,
         onSort,
         columnTypeMap,
+        columnCommentMap,
       ],
     );
 

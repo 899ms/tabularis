@@ -58,6 +58,8 @@ pub struct AppConfig {
     pub check_for_updates: Option<bool>,
     pub auto_check_updates_on_startup: Option<bool>,
     pub last_dismissed_version: Option<String>,
+    /// Last plugin release shown in a startup notification, keyed by plugin id.
+    pub notified_plugin_versions: Option<HashMap<String, String>>,
     pub er_diagram_default_layout: Option<String>,
     pub schema_preferences: Option<HashMap<String, String>>,
     pub selected_schemas: Option<HashMap<String, Vec<String>>>,
@@ -130,6 +132,11 @@ pub struct AppConfig {
     /// Inactivity gap (in minutes) after which a new MCP session id is minted.
     /// Default: 10.
     pub ai_session_gap_minutes: Option<u32>,
+
+    // ----- MCP Tool Output -----
+    /// Default text encoding for MCP tool results: `"json"` or `"toon"`.
+    /// Per-call `output_format` arguments override this preference. Default: `"json"`.
+    pub mcp_output_format: Option<String>,
 
     // ----- MCP Read-only Mode -----
     /// Default behaviour for MCP `run_query`: when true, every connection is
@@ -270,6 +277,7 @@ pub fn get_cached_config() -> AppConfig {
 pub const DEFAULT_AI_AUDIT_ENABLED: bool = true;
 pub const DEFAULT_AI_AUDIT_MAX_ENTRIES: u32 = 5000;
 pub const DEFAULT_AI_SESSION_GAP_MINUTES: u32 = 10;
+pub const DEFAULT_MCP_OUTPUT_FORMAT: &str = "json";
 pub const DEFAULT_MCP_READONLY_DEFAULT: bool = false;
 pub const DEFAULT_MCP_APPROVAL_MODE: &str = "writes_only";
 pub const DEFAULT_MCP_APPROVAL_TIMEOUT_SECONDS: u32 = 120;
@@ -409,6 +417,9 @@ pub fn save_config(app: AppHandle, config: AppConfig) -> Result<(), String> {
         if config.last_dismissed_version.is_some() {
             existing_config.last_dismissed_version = config.last_dismissed_version;
         }
+        if config.notified_plugin_versions.is_some() {
+            existing_config.notified_plugin_versions = config.notified_plugin_versions;
+        }
         if config.er_diagram_default_layout.is_some() {
             existing_config.er_diagram_default_layout = config.er_diagram_default_layout;
         }
@@ -516,6 +527,9 @@ pub fn save_config(app: AppHandle, config: AppConfig) -> Result<(), String> {
         }
         if config.ai_session_gap_minutes.is_some() {
             existing_config.ai_session_gap_minutes = config.ai_session_gap_minutes;
+        }
+        if config.mcp_output_format.is_some() {
+            existing_config.mcp_output_format = config.mcp_output_format;
         }
         if config.mcp_readonly_default.is_some() {
             existing_config.mcp_readonly_default = config.mcp_readonly_default;
@@ -996,6 +1010,10 @@ pub fn save_config_json(app: AppHandle, json: String) -> Result<(), String> {
 }
 
 #[cfg(test)]
+#[path = "config/plugin_notification_tests.rs"]
+mod plugin_notification_tests;
+
+#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -1171,6 +1189,7 @@ mod tests {
         assert!(config.ai_audit_enabled.is_none());
         assert!(config.ai_audit_max_entries.is_none());
         assert!(config.ai_session_gap_minutes.is_none());
+        assert!(config.mcp_output_format.is_none());
         assert!(config.mcp_readonly_default.is_none());
         assert!(config.mcp_readonly_connections.is_none());
         assert!(config.mcp_approval_mode.is_none());
@@ -1186,6 +1205,7 @@ mod tests {
         config.ai_audit_enabled = Some(true);
         config.ai_audit_max_entries = Some(1000);
         config.ai_session_gap_minutes = Some(5);
+        config.mcp_output_format = Some("toon".into());
         config.mcp_readonly_default = Some(true);
         config.mcp_readonly_connections = Some(vec!["c1".into()]);
         config.mcp_approval_mode = Some("all".into());
@@ -1198,6 +1218,7 @@ mod tests {
         assert!(json.contains("aiAuditEnabled"));
         assert!(json.contains("aiAuditMaxEntries"));
         assert!(json.contains("aiSessionGapMinutes"));
+        assert!(json.contains("mcpOutputFormat"));
         assert!(json.contains("mcpReadonlyDefault"));
         assert!(json.contains("mcpReadonlyConnections"));
         assert!(json.contains("mcpApprovalMode"));
@@ -1213,6 +1234,7 @@ mod tests {
             "aiAuditEnabled": false,
             "aiAuditMaxEntries": 2000,
             "aiSessionGapMinutes": 30,
+            "mcpOutputFormat": "toon",
             "mcpReadonlyDefault": true,
             "mcpReadonlyConnections": ["a", "b"],
             "mcpApprovalMode": "writes_only",
@@ -1225,6 +1247,7 @@ mod tests {
         assert_eq!(config.ai_audit_enabled, Some(false));
         assert_eq!(config.ai_audit_max_entries, Some(2000));
         assert_eq!(config.ai_session_gap_minutes, Some(30));
+        assert_eq!(config.mcp_output_format.as_deref(), Some("toon"));
         assert_eq!(config.mcp_readonly_default, Some(true));
         assert_eq!(
             config.mcp_readonly_connections.as_deref(),

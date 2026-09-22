@@ -94,7 +94,7 @@ export function InstallGate({ driver, status, error, onInstall, onBack }: Instal
             type="button"
             onClick={() => onInstall(driver.slug, driver.latestVersion)}
             disabled={installing}
-            className="mt-1 flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+            className="mt-1 flex items-center gap-2 rounded-md bg-accent-primary px-4 py-2 text-sm font-medium text-inverse transition-colors hover:bg-accent-primary/90 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
           >
             {installing && <Loader2 size={14} className="animate-spin" />}
             {installing

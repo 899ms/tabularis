@@ -178,7 +178,7 @@ export function ShortcutsEditModal({
             className={clsx(
               "flex items-center justify-center h-24 w-full rounded-xl border-2 text-sm font-mono cursor-default select-none transition-colors",
               recording
-                ? "border-blue-500 bg-blue-500/10 text-blue-300"
+                ? "border-accent-primary bg-accent-primary/10 text-accent-primary"
                 : "border-dashed border-default text-muted",
             )}
             autoFocus
@@ -214,7 +214,7 @@ export function ShortcutsEditModal({
             type="button"
             onClick={handleSave}
             disabled={!recording || saving}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+            className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-40 disabled:cursor-not-allowed text-inverse rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
           >
             {saving ? <Loader2 size={14} className="animate-spin" /> : null}
             {t("common.save")}

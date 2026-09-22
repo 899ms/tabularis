@@ -4,9 +4,10 @@ import { useTranslation } from "react-i18next";
 import { X, Check, Copy, Cpu, Terminal } from "lucide-react";
 import { useAlert } from "../../hooks/useAlert";
 import { useCopyFeedback } from "../../hooks/useCopyFeedback";
-import Editor from "@monaco-editor/react";
+import { MonacoEditor as Editor } from "../ui/LazyMonaco";
 import { useEditorTheme } from "../../hooks/useEditorTheme";
 import { loadMonacoTheme } from "../../themes/themeUtils";
+import { getMonacoThemeId } from "../../themes/themeRuntime";
 import { Modal } from "../ui/Modal";
 import {
   AnthropicIcon,
@@ -201,7 +202,7 @@ export const McpModal = ({ isOpen, onClose }: McpModalProps) => {
                             e.stopPropagation();
                             handleInstall(client.client_id);
                           }}
-                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-medium transition-colors shadow-lg shadow-blue-900/20 shrink-0"
+                          className="px-3 py-1.5 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-lg text-xs font-medium transition-colors shadow-lg shadow-accent-primary/20 shrink-0"
                         >
                           {t("mcp.install")}
                         </button>
@@ -244,7 +245,7 @@ export const McpModal = ({ isOpen, onClose }: McpModalProps) => {
                         <Editor
                           height="160px"
                           defaultLanguage="json"
-                          theme={editorTheme.id}
+                          theme={getMonacoThemeId(editorTheme.id)}
                           value={jsonValue}
                           beforeMount={(monaco) => loadMonacoTheme(editorTheme, monaco)}
                           options={{

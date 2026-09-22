@@ -264,6 +264,11 @@
       "activity": "Actividad",
       "safety": "Seguridad"
     },
+    "output": {
+      "title": "Salida de herramientas",
+      "formatLabel": "Formato de salida predeterminado",
+      "formatDescription": "Se usa cuando una llamada a una herramienta MCP no especifica output_format. JSON mantiene la compatibilidad; TOON puede reducir el uso de tokens."
+    },
     "safety": {
       "readOnlyTitle": "Modo solo lectura",
       "readOnlyDefault": "Hacer todas las consultas MCP de solo lectura",
@@ -734,6 +739,7 @@
       "loadingRegistry": "Cargando registro de plugins...",
       "registryError": "Error al cargar el registro",
       "installed": "Instalado",
+      "latest": "Más reciente",
       "by": "por",
       "platformNotSupported": "No disponible para tu plataforma",
       "update": "Actualizar",
@@ -750,6 +756,13 @@
       "filterAll": "Todos",
       "filterInstalled": "Instalados",
       "filterUpdates": "Actualizaciones",
+      "kindFilter": "Filtrar por tipo",
+      "kindAll": "Todos los tipos",
+      "kindDrivers": "Controladores",
+      "kindThemes": "Temas",
+      "kindTheme": "Tema",
+      "kindDriver": "Controlador",
+      "manageThemes": "Administrar en Apariencia",
       "searchNoResults": "Ningún plugin coincide con la búsqueda.",
       "version": "Versión",
       "requiresVersion": "Requiere Tabularis ≥ {{version}}",
@@ -947,6 +960,25 @@
     }
   },
   "update": {
+    "badges": {
+      "morePlugins": "{{count}} más — abre Plugins para ver todas las actualizaciones",
+      "driverUpdate": "Actualización del driver disponible",
+      "themeUpdate": "Actualización de tema disponible",
+      "tag": "Actualización",
+      "driverTooltip": "{{name}} {{version}} está disponible. Este plugin es compartido por tus conexiones. Abre Plugins → Actualizaciones para gestionarlo.",
+      "core_one": "{{count}} actualización del núcleo disponible",
+      "core_other": "{{count}} actualizaciones del núcleo disponibles",
+      "plugins_one": "{{count}} actualización de plugin disponible",
+      "plugins_other": "{{count}} actualizaciones de plugins disponibles",
+      "coreDetails": "Tabularis {{version}} está disponible. Abre Información para consultar la actualización del núcleo.",
+      "pluginDetails_one": "Actualización disponible para: {{plugins}}",
+      "pluginDetails_other": "Actualizaciones disponibles para: {{plugins}}",
+      "toastTitle": "Actualizaciones de plugins disponibles",
+      "openPlugins": "Abrir Plugins",
+      "core_many": "{{count}} actualizaciones del núcleo disponibles",
+      "plugins_many": "{{count}} actualizaciones de plugins disponibles",
+      "pluginDetails_many": "Actualizaciones disponibles para: {{plugins}}"
+    },
     "newVersionAvailable": "Nueva Versión Disponible",
     "version": "Versión",
     "releaseNotes": "Notas de la Versión",
@@ -984,6 +1016,17 @@
     "configError": "Configura el proveedor de IA en Configuración e ingresa un prompt."
   },
   "newConnection": {
+    "ssmForwardHint": "Se resuelve a {{document}}: reenvía a {{host}}:{{port}} a través del nodo administrado. Cambia la dirección de destino en la pestaña General; un host de bucle invertido significa el propio nodo.",
+    "ssmIamHint": "Requiere ssm:StartSession sobre el destino y sobre el documento resuelto.",
+    "ssmNotAvailable": "AWS SSM no está disponible para este controlador.",
+    "ssmPortRequired": "Primero establece un puerto válido en la pestaña General.",
+    "ssmProfile": "Perfil de AWS",
+    "ssmRegion": "Región de AWS",
+    "ssmTarget": "Nodo administrado",
+    "ssmTargetRequired": "Indica el nodo administrado a través del cual conectar.",
+    "testSsm": "Probar SSM",
+    "testSsmHint": "Abre una sesión real de reenvío de puertos y la cierra de nuevo, sin conectarse a la base de datos.",
+    "useSsm": "Usar reenvío de puertos de AWS SSM",
     "titleNew": "Nueva Conexión",
     "titleEdit": "Editar Conexión",
     "subtitle": "Configurar los ajustes de conexión a la base de datos",
@@ -1559,6 +1602,7 @@
     "colType": "Tipo",
     "colNullable": "Nullable",
     "colKey": "Clave",
+    "colDescription": "Descripción",
     "yes": "SÍ",
     "no": "NO"
   },
@@ -1672,6 +1716,22 @@
     "refreshError": "Error al actualizar la vista materializada: ",
     "failGetDefinition": "Error al obtener la definición: ",
     "confirmAlter": "¿Estás seguro de que deseas modificar la vista \"{{view}}\"?"
+  },
+  "whatsNew": {
+    "title": "Novedades",
+    "subtitle": "Versión {{version}}",
+    "features": "Nuevas funciones",
+    "bugFixes": "Correcciones de errores",
+    "breakingChanges": "Cambios incompatibles",
+    "readMore": "Leer más",
+    "dismiss": "Entendido",
+    "supportTitle": "Hola, soy Andrea, el creador de Tabularis",
+    "supportStarAction": "Dar una estrella en GitHub",
+    "supportDescription": "He creado Tabularis con un objetivo: mantenerlo como proyecto de código abierto para siempre. Si te resulta útil, incluso una pequeña donación en GitHub Sponsors me ayuda a dedicar tiempo a nuevas funciones y a mejorarlo para todos.",
+    "supportThanks": "¡Gracias por formar parte de este proyecto!",
+    "supportNeverShow": "No volver a mostrar",
+    "supportHideError": "No se pudo guardar tu preferencia. Inténtalo de nuevo.",
+    "supportAction": "Apoyar en GitHub Sponsors"
   },
   "dump": {
     "title": "Exportar Base de Datos",
@@ -2233,6 +2293,10 @@
       "summary": "Fallo del túnel SSH",
       "recovery": "Comprueba la configuración en la pestaña SSH."
     },
+    "ssm": {
+      "summary": "Error en la sesión de AWS SSM",
+      "recovery": "Abra los detalles para ver el error exacto de AWS. Compruebe que la CLI de AWS y el complemento Session Manager estén instalados, que sus credenciales estén vigentes y que el nodo administrado esté en línea."
+    },
     "db-auth": {
       "summary": "Error de autenticación en la base de datos",
       "recovery": "Comprueba el nombre de usuario y la contraseña de la base de datos."
@@ -2270,6 +2334,11 @@
         "ok": "Port-forward listo",
         "error": "Fallo del port-forward de Kubernetes"
       },
+      "ssmForward": {
+        "start": "Iniciando el reenvío de puertos de AWS SSM",
+        "ok": "Reenvío de puertos listo",
+        "error": "Error en el reenvío de puertos de AWS SSM"
+      },
       "dbConnect": {
         "start": "Conectando a la base de datos",
         "ok": "Conexión a la base de datos establecida",
@@ -2278,5 +2347,13 @@
     },
     "title": "Registro de la prueba de conexión",
     "showLog": "Mostrar registro"
+  },
+  "themePackages": {
+    "import": "Importar tema",
+    "registryMismatch": "Este paquete pertenece a otro registro. Cambia explícitamente el registro configurado antes de actualizarlo.",
+    "importedTheme": "Tema importado", "manage": "Administrar temas", "importJSON": "Importar JSON de Tabularis", "importVSCode": "Importar desde VS Code", "edit": "Editar tema personal", "localPackage": "Paquete local", "installTitle": "Instalar paquete de tema", "installSubtitle": "Tema declarativo del registro configurado. No se ejecuta ningún código.", "discover": "Explorar temas en Plugins", "refresh": "Actualizar lista", "preview": "Vista previa", "apply": "Aplicar", "confirm": "Confirmar", "duplicate": "Duplicar como personal", "exportJSON": "Exportar JSON independiente", "exportPackage": "Exportar paquete de autor", "remove": "Eliminar", "update": "Actualizar paquete", "disable": "Desactivar paquete", "enable": "Activar paquete", "removePackage": "Desinstalar paquete", "disabled": "Desactivado", "file": "Archivo del tema", "name": "Nombre del tema", "mode": "Modo / base", "detectMode": "Detectar (elegir si es ambiguo)", "source": "JSON del tema", "search": "Buscar temas", "loading": "Cargando…", "noThemes": "No hay temas disponibles en este registro.", "details": "Detalles / instalación", "readme": "README / capturas", "version": "Versión del paquete", "latest": "Última versión", "install": "Instalar / sustituir paquete", "chooseArchive": "Elegir archivo ZIP", "screenshots": "Capturas (abrir externamente)", "externalMedia": "Las imágenes y otros medios remotos no se cargan automáticamente. Los enlaces se abren en el navegador.", "snapshotEditor": "JSON exacto del editor", "snapshotEditorHelp": "Esta copia independiente controla los colores SQL en lugar del alias antiguo. Los cambios se previsualizan y se guardan comprobando la revisión original.", "recover": "Recuperar instalaciones interrumpidas", "recoveryExplanation": "Comprobar y recuperar explícitamente las operaciones de temas incompletas. Puede restaurar instalaciones interrumpidas, sin seleccionar un tema ni cambiar las preferencias guardadas.", "recoveryDone": "Comprobaciones de recuperación completadas. Revisa los problemas pendientes a continuación.", "catalogIssues": "Diagnóstico del catálogo", "fileTooLarge": "El archivo supera el límite de importación.", "previewHint": "La vista previa es temporal. Cancelar restaura el tema guardado; Aplicar guarda la elección.", "previewReady": "Vista previa activa. Revise la aplicación y el editor antes de confirmar.", "licenseNotice": "Importar o exportar no concede derechos de redistribución. Conserve la atribución y compruebe la licencia antes de publicar.", "acknowledge": "Comprendo y acepto las limitaciones de conversión indicadas.", "applyAfterSave": "Aplicar después de guardar", "savedNotApplied": "Tema guardado, pero falló la selección. No lo importe de nuevo; seleccione el tema guardado.", "installHint": "La instalación sustituye todo el paquete sin seleccionar una variante. La vista previa, la importación local y la selección no cuentan como descargas.", "installedHint": "Paquete instalado. Cierre y elija una variante en Apariencia.", "committedRefreshFailed": "Operación completada, pero falló la actualización del catálogo. Actualice la lista antes de reintentar.", "missing": "Selección guardada no disponible: {{id}}. Se usa un tema sin conexión sin cambiar la preferencia.", "downloads": "Descargas: {{count}}", "downloadsUnavailable": "Recuento de descargas no disponible", "installedVersion": "Instalada: {{version}}", "minimumVersion": "Requiere Tabularis {{version}} o posterior", "incompatible": "Versión incompatible o sin un único archivo universal.", "packageWarning": "Afecta a todas las variantes. Las selecciones guardadas se conservan y restauran cuando vuelven a estar disponibles.", "deleteWarning": "¿Eliminar este tema personal? Sus selecciones guardadas usarán los temas predeterminados.", "duplicateHint": "Crear una copia personal independiente y editable sin activarla.", "exportError": "Falló la exportación del paquete; sigue disponible el JSON independiente.", "runtimeWarning": "Indique la primera versión realmente compatible. Un número de desarrollo no demuestra compatibilidad con clientes antiguos.", "packageName": "Identificador del paquete (minúsculas)", "minimumRuntime": "Versión mínima de Tabularis", "license": "Texto de licencia y atribución", "rightsAcknowledged": "He verificado los derechos de redistribución y la atribución.",
+    "groups": { "builtin": "Integrados · sin conexión", "installed": "Paquetes instalados", "personal": "Temas personales" }, "modes": { "light": "Claro", "dark": "Oscuro", "high-contrast": "Alto contraste" },
+    "importErrors": { "unrecognized": "Tema de VS Code no reconocido.", "modeRequired": "Elija un modo y repita la vista previa.", "includeOnly": "No se pueden importar temas con solo referencias include. Proporcione los colores reales.", "noSupportedData": "No se encontraron colores o reglas SQL compatibles.", "invalidColor": "Un color compatible tiene un valor no válido.", "invalidRules": "Reglas de tokens no válidas o excesivas." },
+    "diagnostics": { "unsupportedKey": "Campo no compatible", "unsupportedColor": "Color no compatible", "unsupportedScope": "Ámbito no compatible", "scopeApproximation": "Asignación SQL aproximada", "unsupportedStyle": "Estilo no compatible", "ignoredInclude": "Include no cargado", "ignoredSemanticTokens": "Tokens semánticos ignorados", "unsupportedReference": "Referencia externa no cargada", "unsupportedSetting": "Ajuste no compatible", "tokenAlphaFlattened": "Opacidad de tokens calculada sobre el fondo base", "modeApproximation": "Modo sustituido o aproximado", "diagnosticsTruncated": "Se omitieron diagnósticos adicionales" }
   }
 }

@@ -111,7 +111,7 @@ export const TextExpansionEditor = ({
               type="button"
               onClick={handleSave}
               disabled={!isDirty}
-              className="px-3 py-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded font-medium transition-colors"
+              className="px-3 py-1 bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-40 disabled:cursor-not-allowed text-inverse rounded font-medium transition-colors"
             >
               {t("textViewer.save", { defaultValue: "Save" })}
             </button>

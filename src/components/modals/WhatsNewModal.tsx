@@ -1,3 +1,4 @@
+import { useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import {
@@ -8,11 +9,19 @@ import {
   Rocket,
   ExternalLink,
   Loader2,
+  Heart,
+  Star,
 } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { SocialLinks } from "../SocialLinks";
+import { GITHUB_URL } from "../../config/links";
 import Markdown from "react-markdown";
 import { type ChangelogEntry } from "../../utils/changelog";
+import {
+  dismissSupportPrompt,
+  isSupportPromptDismissed,
+  subscribeToSupportPrompt,
+} from "../../utils/supportPrompt";
 
 interface WhatsNewModalProps {
   isOpen: boolean;
@@ -30,12 +39,19 @@ export const WhatsNewModal = ({
   isLoading,
 }: WhatsNewModalProps) => {
   const { t } = useTranslation();
+  const supportDismissed = useSyncExternalStore(
+    subscribeToSupportPrompt,
+    isSupportPromptDismissed,
+  );
+  const [supportHideError, setSupportHideError] = useState(false);
+
+  if (!isOpen) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="bg-elevated border border-strong rounded-xl shadow-2xl w-[600px] max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-elevated border border-strong rounded-xl shadow-2xl w-[640px] max-w-[calc(100vw-2rem)] max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-default bg-base">
+        <div className="flex shrink-0 items-center justify-between p-4 border-b border-default bg-base">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-purple-900/30 rounded-lg">
               <Sparkles size={20} className="text-purple-400" />
@@ -53,6 +69,7 @@ export const WhatsNewModal = ({
           </div>
           <button
             onClick={onClose}
+            aria-label={t("common.close")}
             className="text-secondary hover:text-primary transition-colors"
           >
             <X size={20} />
@@ -60,7 +77,84 @@ export const WhatsNewModal = ({
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6 overflow-y-auto">
+        <div className="p-6 space-y-6 overflow-y-auto min-h-0">
+          {!supportDismissed && (
+            <section
+              aria-labelledby="whats-new-support-title"
+              className="rounded-xl border border-pink-500/20 bg-linear-to-br from-pink-500/10 via-purple-500/5 to-transparent p-4"
+            >
+              <div className="flex items-start gap-3">
+                <img
+                  src="/debba-avatar.jpg"
+                  alt="Andrea Debernardi (debba)"
+                  width={56}
+                  height={56}
+                  className="h-14 w-14 shrink-0 rounded-lg border border-strong bg-base p-0.5 shadow-sm"
+                />
+                <div className="min-w-0 space-y-1.5">
+                  <h3 id="whats-new-support-title" className="text-sm font-semibold text-primary">
+                    {t("whatsNew.supportTitle")}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-secondary">
+                    {t("whatsNew.supportDescription")}
+                  </p>
+                  <p className="text-xs text-secondary">
+                    {t("whatsNew.supportThanks")}{" "}
+                    <span className="inline-block font-medium italic text-primary">— Andrea · debba</span>
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+                <a
+                  href="https://github.com/sponsors/debba"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    void openUrl("https://github.com/sponsors/debba");
+                  }}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-pink-700 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-pink-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-500"
+                >
+                  <Heart size={14} className="shrink-0" aria-hidden="true" />
+                  {t("whatsNew.supportAction")}
+                  <ExternalLink size={14} className="shrink-0" aria-hidden="true" />
+                </a>
+                <a
+                  href={GITHUB_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    void openUrl(GITHUB_URL);
+                  }}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-strong bg-base/50 px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-surface-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-500"
+                >
+                  <Star size={14} className="shrink-0 text-yellow-500" aria-hidden="true" />
+                  {t("whatsNew.supportStarAction")}
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    try {
+                      dismissSupportPrompt();
+                    } catch (error) {
+                      console.error("Failed to save sponsorship prompt preference:", error);
+                      setSupportHideError(true);
+                    }
+                  }}
+                  className="rounded text-xs text-secondary underline underline-offset-4 transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-500"
+                >
+                  {t("whatsNew.supportNeverShow")}
+                </button>
+              </div>
+              {supportHideError && (
+                <p role="alert" className="mt-3 text-sm text-red-400">
+                  {t("whatsNew.supportHideError")}
+                </p>
+              )}
+            </section>
+          )}
+
           {isLoading && (
             <div className="text-center py-8 text-muted">
               <Loader2 size={24} className="animate-spin mx-auto mb-2" />
@@ -130,11 +224,11 @@ export const WhatsNewModal = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-default bg-base/50 flex items-center justify-between">
+        <div className="p-4 border-t border-default bg-base/50 flex shrink-0 flex-wrap items-center justify-between gap-3">
           <SocialLinks iconSize={18} />
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+            className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-lg text-sm font-medium transition-colors"
           >
             {t("whatsNew.dismiss")}
           </button>
