@@ -123,7 +123,7 @@ const QuerySelectionContent = ({ queries, onSelect, onRunAll, onRunSelected, onC
                 onClick={(e) => toggleSelection(i, e)}
                 className={`w-[22px] h-[22px] mt-0.5 shrink-0 rounded-md border-2 flex items-center justify-center transition-all ${
                   isSelected
-                    ? 'bg-blue-500 border-blue-500 text-white scale-100'
+                    ? 'bg-accent-primary border-accent-primary text-inverse scale-100'
                     : 'border-strong/60 text-transparent hover:border-blue-400 group-hover:border-blue-400/60'
                 }`}
               >
@@ -172,7 +172,7 @@ const QuerySelectionContent = ({ queries, onSelect, onRunAll, onRunSelected, onC
           <button
             onClick={handleRunSelected}
             disabled={!hasSelection}
-            className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse text-xs font-semibold rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <ListChecks size={13} />
             {t('editor.querySelection.runSelected', { count: selectedIndices.size })}

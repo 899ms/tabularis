@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useTranslation } from "react-i18next";
 import clsx from "clsx";
-import Editor from "@monaco-editor/react";
+import { MonacoEditor as Editor } from "../components/ui/LazyMonaco";
 import {
   Activity,
   Check,
@@ -24,6 +24,7 @@ import { useAlert } from "../hooks/useAlert";
 import { useCopyFeedback } from "../hooks/useCopyFeedback";
 import { useEditorTheme } from "../hooks/useEditorTheme";
 import { loadMonacoTheme } from "../themes/themeUtils";
+import { getMonacoThemeId } from "../themes/themeRuntime";
 
 interface McpClientStatus {
   client_id: string;
@@ -256,7 +257,7 @@ function McpSetupPanel() {
                     e.stopPropagation();
                     handleInstall(client.client_id);
                   }}
-                  className="ml-3 shrink-0 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white shadow-lg shadow-blue-900/20 transition-colors hover:bg-blue-500"
+                  className="ml-3 shrink-0 rounded-lg bg-accent-primary px-3 py-1.5 text-xs font-medium text-inverse shadow-lg shadow-accent-primary/20 transition-colors hover:bg-accent-primary/90"
                 >
                   {t("mcp.install")}
                 </button>
@@ -295,7 +296,7 @@ function McpSetupPanel() {
                 <Editor
                   height="220px"
                   defaultLanguage="json"
-                  theme={editorTheme.id}
+                  theme={getMonacoThemeId(editorTheme.id)}
                   value={jsonValue}
                   beforeMount={(monaco) => loadMonacoTheme(editorTheme, monaco)}
                   options={{

@@ -23,8 +23,12 @@ strip = true
 tauri-build = { version = "2.5.3", features = [] }
 
 [dependencies]
-serde_json = "1.0"
+serde_json = { version = "1.0", features = ["raw_value"] }
+tempfile = "3.24.0"
+jsonschema = { version = "0.18", default-features = false }
+fs2 = "0.4"
 serde = { version = "1.0", features = ["derive"] }
+toon-format = { version = "0.5.0", default-features = false }
 log = "0.4"
 tauri = { version = "2.10.2", features = ["protocol-asset", "devtools"] }
 tauri-plugin-log = "2"
@@ -100,6 +104,10 @@ aes-gcm = "0.10"
 plist = "1.7"
 roxmltree = "0.20"
 
+# Signalling the `aws ssm start-session` process group (see ssm_tunnel.rs).
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
 # GTK dependencies for Wayland window title workaround (Linux only)
 [target.'cfg(target_os = "linux")'.dependencies]
 gtk = "0.18"
@@ -109,5 +117,4 @@ zbus = { version = "5.14", default-features = false, features = ["tokio"] }
 tauri-plugin-updater = "2"
 
 [dev-dependencies]
-tempfile = "3.24.0"
 filetime = "0.2"

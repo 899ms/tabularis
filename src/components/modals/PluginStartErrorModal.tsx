@@ -103,7 +103,7 @@ export const PluginStartErrorModal = ({
           {onConfigureInterpreter && (
             <button
               onClick={handleConfigure}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-lg text-sm font-medium transition-colors"
             >
               <Settings size={14} />
               {t("settings.plugins.startError.configure")}

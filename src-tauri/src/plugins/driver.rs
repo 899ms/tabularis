@@ -8,7 +8,7 @@ use async_trait::async_trait;
 use serde_json::{json, Value};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::process::Command;
-use tokio::sync::{mpsc, oneshot};
+use tokio::sync::{mpsc, oneshot, OnceCell};
 
 use crate::drivers::driver_trait::{BatchProgressFn, DatabaseDriver, PluginManifest};
 use crate::models::{
@@ -28,8 +28,7 @@ use std::os::windows::process::CommandExt;
 /// plugin cannot block the (single-threaded) MCP request loop forever.
 const PLUGIN_CALL_TIMEOUT: Duration = Duration::from_secs(120);
 
-/// Shorter ceiling for the startup `initialize` handshake so one unresponsive
-/// plugin cannot stall MCP server startup indefinitely.
+/// The first operation waits for initialization of its own plugin only.
 const PLUGIN_INIT_TIMEOUT: Duration = Duration::from_secs(15);
 
 /// Flag to create the process without a console window on Windows.
@@ -61,6 +60,8 @@ pub struct PluginProcess {
     next_id: AtomicU64,
     shutdown_tx: tokio::sync::Mutex<Option<oneshot::Sender<()>>>,
     pub pid: Option<u32>,
+    initialization_settings: Option<HashMap<String, Value>>,
+    initialized: OnceCell<()>,
 }
 
 impl PluginProcess {
@@ -192,6 +193,8 @@ impl PluginProcess {
             next_id: AtomicU64::new(1),
             shutdown_tx: tokio::sync::Mutex::new(Some(shutdown_tx)),
             pid,
+            initialization_settings: None,
+            initialized: OnceCell::new(),
         })
     }
 
@@ -223,6 +226,33 @@ impl PluginProcess {
     }
 
     async fn call_detailed(
+        &self,
+        method: &str,
+        params: Value,
+        timeout: Duration,
+    ) -> Result<Value, PluginCallError> {
+        if let Some(settings) = &self.initialization_settings {
+            self.initialized
+                .get_or_init(|| async {
+                    // Older plugins may not implement initialize. Preserve that
+                    // compatibility, but serialize concurrent first calls behind it.
+                    if let Err(error) = self
+                        .send_request(
+                            "initialize",
+                            json!({ "settings": settings }),
+                            PLUGIN_INIT_TIMEOUT,
+                        )
+                        .await
+                    {
+                        log::warn!("Plugin initialization failed (pid {:?}): {}", self.pid, error);
+                    }
+                })
+                .await;
+        }
+        self.send_request(method, params, timeout).await
+    }
+
+    async fn send_request(
         &self,
         method: &str,
         params: Value,
@@ -277,18 +307,11 @@ impl RpcDriver {
         data_types: Vec<DataTypeInfo>,
         settings: HashMap<String, serde_json::Value>,
     ) -> Result<Self, String> {
-        let process = Arc::new(PluginProcess::new(executable_path, interpreter).await?);
-        // Send initialize RPC with settings; silently ignore any error or
-        // non-response. The short timeout keeps one unresponsive plugin from
-        // stalling startup (notably the standalone `--mcp` subprocess, which
-        // registers every plugin before serving any request).
-        let _ = process
-            .call_with_timeout(
-                "initialize",
-                json!({ "settings": settings }),
-                PLUGIN_INIT_TIMEOUT,
-            )
-            .await;
+        let mut process = PluginProcess::new(executable_path, interpreter).await?;
+        // Register manifests immediately. Initialize only when this plugin is
+        // actually used, so idle plugins cannot delay the GUI or MCP startup.
+        process.initialization_settings = Some(settings);
+        let process = Arc::new(process);
         Ok(Self {
             manifest,
             process,
@@ -1408,36 +1431,100 @@ impl DatabaseDriver for RpcDriver {
     }
 }
 
+/// Builds a fake, in-memory `RpcDriver` backed by `handle_request` instead of
+/// a real subprocess. `pub(crate)` (rather than private to this module's own
+/// `tests`) so other modules' tests — e.g. `mcp::tests` — can register a
+/// driver whose behavior they control without spawning a real plugin
+/// process.
+#[cfg(test)]
+pub(crate) fn test_manifest() -> PluginManifest {
+    PluginManifest {
+        id: "test-plugin".to_string(),
+        name: "Test Plugin".to_string(),
+        version: "1.0.0".to_string(),
+        description: "Test plugin".to_string(),
+        default_port: None,
+        capabilities: crate::drivers::driver_trait::DriverCapabilities {
+            triggers: true,
+            ..Default::default()
+        },
+        is_builtin: false,
+        engine: None,
+        paradigms: Vec::new(),
+        default_username: String::new(),
+        color: String::new(),
+        icon: String::new(),
+        settings: Vec::new(),
+        ui_extensions: None,
+        explain_parsers: None,
+        type_mappings: HashMap::new(),
+        deprecated: None,
+    }
+}
+
+/// Builds a fake, in-memory `RpcDriver` backed by `handle_request` instead of
+/// a real subprocess, with `connection_metadata` disabled. `pub(crate)` so
+/// other modules' tests (e.g. `mcp::tests`) can build one too; enable
+/// connection metadata with `.with_connection_metadata(true)`.
+#[cfg(test)]
+pub(crate) fn test_driver<F>(mut handle_request: F) -> RpcDriver
+where
+    F: FnMut(JsonRpcRequest) -> Value + Send + 'static,
+{
+    test_driver_result(move |request| Ok(handle_request(request)))
+}
+
+#[cfg(test)]
+pub(crate) fn test_driver_result<F>(mut handle_request: F) -> RpcDriver
+where
+    F: FnMut(JsonRpcRequest) -> Result<Value, String> + Send + 'static,
+{
+    let (tx, mut rx) = mpsc::channel::<PluginCommand>(8);
+    tokio::spawn(async move {
+        while let Some(command) = rx.recv().await {
+            if let PluginCommand::Call(request, response_tx) = command {
+                let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    handle_request(request)
+                }))
+                .map_err(|_| "request assertion failed".to_string())
+                .and_then(|outcome| outcome);
+                let _ = response_tx.send(result.map_err(PluginCallError::Transport));
+            }
+        }
+    });
+
+    let (shutdown_tx, _shutdown_rx) = oneshot::channel();
+    RpcDriver {
+        manifest: test_manifest(),
+        process: Arc::new(PluginProcess {
+            sender: tx,
+            next_id: AtomicU64::new(1),
+            shutdown_tx: tokio::sync::Mutex::new(Some(shutdown_tx)),
+            pid: None,
+            initialization_settings: None,
+            initialized: OnceCell::new(),
+        }),
+        data_types: Vec::new(),
+        connection_metadata: false,
+        metadata_cache: Arc::new(ConnectionMetadataCache::default()),
+        connection_params: None,
+    }
+}
+
+/// Overrides the manifest id of a driver built by [`test_driver`] /
+/// [`test_driver_result`] (both default to `"test-plugin"`), so a test that
+/// registers into the shared, process-global [`crate::drivers::registry`]
+/// can use an id no other test claims.
+#[cfg(test)]
+pub(crate) fn with_test_driver_id(mut driver: RpcDriver, id: &str) -> RpcDriver {
+    driver.manifest.id = id.to_string();
+    driver
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::drivers::driver_trait::DriverCapabilities;
     use crate::models::DatabaseSelection;
-
-    fn test_manifest() -> PluginManifest {
-        PluginManifest {
-            id: "test-plugin".to_string(),
-            name: "Test Plugin".to_string(),
-            version: "1.0.0".to_string(),
-            description: "Test plugin".to_string(),
-            default_port: None,
-            capabilities: DriverCapabilities {
-                triggers: true,
-                ..Default::default()
-            },
-            is_builtin: false,
-            engine: None,
-            paradigms: Vec::new(),
-            default_username: String::new(),
-            color: String::new(),
-            icon: String::new(),
-            settings: Vec::new(),
-            ui_extensions: None,
-            explain_parsers: None,
-            type_mappings: HashMap::new(),
-            deprecated: None,
-        }
-    }
 
     fn test_connection_params() -> ConnectionParams {
         ConnectionParams {
@@ -1474,52 +1561,15 @@ mod tests {
             k8s_port: None,
             k8s_kubectl_path: None,
             k8s_kubeconfig_path: None,
+            ssm_enabled: None,
+            ssm_target: None,
+            ssm_profile: None,
+            ssm_region: None,
             startup_script: None,
             use_iam_auth: None,
             extra: HashMap::new(),
             connection_id: Some("conn-1".to_string()),
             proxy: None,
-        }
-    }
-
-    fn test_driver<F>(mut handle_request: F) -> RpcDriver
-    where
-        F: FnMut(JsonRpcRequest) -> Value + Send + 'static,
-    {
-        test_driver_result(move |request| Ok(handle_request(request)))
-    }
-
-    fn test_driver_result<F>(mut handle_request: F) -> RpcDriver
-    where
-        F: FnMut(JsonRpcRequest) -> Result<Value, String> + Send + 'static,
-    {
-        let (tx, mut rx) = mpsc::channel::<PluginCommand>(8);
-        tokio::spawn(async move {
-            while let Some(command) = rx.recv().await {
-                if let PluginCommand::Call(request, response_tx) = command {
-                    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                        handle_request(request)
-                    }))
-                    .map_err(|_| "request assertion failed".to_string())
-                    .and_then(|outcome| outcome);
-                    let _ = response_tx.send(result.map_err(PluginCallError::Transport));
-                }
-            }
-        });
-
-        let (shutdown_tx, _shutdown_rx) = oneshot::channel();
-        RpcDriver {
-            manifest: test_manifest(),
-            process: Arc::new(PluginProcess {
-                sender: tx,
-                next_id: AtomicU64::new(1),
-                shutdown_tx: tokio::sync::Mutex::new(Some(shutdown_tx)),
-                pid: None,
-            }),
-            data_types: Vec::new(),
-            connection_metadata: false,
-            metadata_cache: Arc::new(ConnectionMetadataCache::default()),
-            connection_params: None,
         }
     }
 
@@ -2285,6 +2335,8 @@ mod tests {
                 next_id: AtomicU64::new(1),
                 shutdown_tx: tokio::sync::Mutex::new(Some(shutdown_tx)),
                 pid: None,
+                initialization_settings: None,
+                initialized: OnceCell::new(),
             }),
             data_types: Vec::new(),
             connection_metadata: false,
@@ -2314,6 +2366,8 @@ mod tests {
                 next_id: AtomicU64::new(1),
                 shutdown_tx: tokio::sync::Mutex::new(Some(shutdown_tx)),
                 pid: None,
+                initialization_settings: None,
+                initialized: OnceCell::new(),
             }),
             data_types: Vec::new(),
             connection_metadata: false,
@@ -2325,3 +2379,7 @@ mod tests {
         assert_eq!(driver.map_inferred_type("JSON"), "JSON");
     }
 }
+
+#[cfg(test)]
+#[path = "startup_tests.rs"]
+mod startup_tests;

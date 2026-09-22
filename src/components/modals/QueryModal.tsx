@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { X, Save } from 'lucide-react';
-import MonacoEditor, { type BeforeMount } from '@monaco-editor/react';
+import type { BeforeMount } from "@monaco-editor/react";
+import { MonacoEditor } from "../ui/LazyMonaco";
 import { useTranslation } from 'react-i18next';
 import { useEditorTheme } from '../../hooks/useEditorTheme';
 import { loadMonacoTheme } from '../../themes/themeUtils';
+import { getMonacoThemeId } from '../../themes/themeRuntime';
 import { Modal } from '../ui/Modal';
 import { Select } from '../ui/Select';
 
@@ -104,7 +106,7 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
                 <MonacoEditor
                     height="100%"
                     defaultLanguage="sql"
-                    theme={editorTheme.id}
+                    theme={getMonacoThemeId(editorTheme.id)}
                     beforeMount={handleBeforeMount}
                     value={sql}
                     onChange={(val) => setSql(val || '')}
@@ -134,7 +136,7 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium disabled:opacity-50 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded font-medium disabled:opacity-50 transition-colors"
             >
               <Save size={16} />
               {isSaving ? 'Saving...' : 'Save'}

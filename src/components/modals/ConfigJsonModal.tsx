@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { FileJson, X, Loader2, RotateCcw } from "lucide-react";
-import MonacoEditor, { type OnMount } from "@monaco-editor/react";
+import type { OnMount } from "@monaco-editor/react";
+import { MonacoEditor } from "../ui/LazyMonaco";
 import { invoke } from "@tauri-apps/api/core";
 import { useEditorTheme } from "../../hooks/useEditorTheme";
 import { loadMonacoTheme } from "../../themes/themeUtils";
+import { getMonacoThemeId } from "../../themes/themeRuntime";
 import { Modal } from "../ui/Modal";
 import { ConfirmModal } from "./ConfirmModal";
 
@@ -99,7 +101,7 @@ export const ConfigJsonModal = ({ isOpen, onClose }: ConfigJsonModalProps) => {
                 <MonacoEditor
                   height="500px"
                   defaultLanguage="json"
-                  theme={editorTheme.id}
+                  theme={getMonacoThemeId(editorTheme.id)}
                   value={jsonValue}
                   onChange={(val) => {
                     setJsonValue(val ?? "");
@@ -143,7 +145,7 @@ export const ConfigJsonModal = ({ isOpen, onClose }: ConfigJsonModalProps) => {
               <button
                 onClick={handleSave}
                 disabled={isSaving || isLoading}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 text-inverse rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
               >
                 {isSaving && <Loader2 size={14} className="animate-spin" />}
                 {t("settings.configJsonModal.saveAndRestart")}
@@ -159,7 +161,7 @@ export const ConfigJsonModal = ({ isOpen, onClose }: ConfigJsonModalProps) => {
         title={t("settings.configJsonModal.restartRequired")}
         message={t("settings.configJsonModal.restartMessage")}
         confirmLabel={t("settings.configJsonModal.restartNow")}
-        confirmClassName="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+        confirmClassName="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-lg text-sm font-medium transition-colors"
         onConfirm={handleRestartNow}
       />
     </>

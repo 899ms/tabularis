@@ -264,7 +264,7 @@ export function AiTab() {
                   className={clsx(
                     "relative flex items-center gap-2.5 px-4 py-3 rounded-lg text-sm font-medium transition-all border",
                     isSelected
-                      ? "bg-blue-600/10 border-blue-500 text-blue-400 ring-1 ring-blue-500/30"
+                      ? "bg-accent-primary/10 border-accent-primary text-accent-primary ring-1 ring-accent-primary/30"
                       : "bg-base border-default text-secondary hover:border-strong hover:text-primary",
                   )}
                 >
@@ -275,7 +275,7 @@ export function AiTab() {
                       size={14}
                       className={clsx(
                         "shrink-0 ml-auto",
-                        isSelected ? "text-blue-400" : "text-green-400",
+                        isSelected ? "text-accent-primary" : "text-green-400",
                       )}
                     />
                   )}
@@ -395,7 +395,7 @@ export function AiTab() {
                           placeholder={t("settings.ai.enterKey", {
                             provider: getProviderLabel(settings.aiProvider),
                           })}
-                          className="w-full bg-base border border-strong rounded-lg pl-3 pr-10 py-2 text-primary text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                          className="w-full bg-base border border-strong rounded-lg pl-3 pr-10 py-2 text-primary text-sm focus:outline-none focus:border-accent-primary transition-colors"
                           onChange={(e) => setKeyInput(e.target.value)}
                           autoFocus={editingKey}
                         />
@@ -412,7 +412,7 @@ export function AiTab() {
                           handleSaveKey(settings.aiProvider!)
                         }
                         disabled={!keyInput.trim()}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-surface-secondary disabled:text-muted text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+                        className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 disabled:bg-surface-secondary disabled:text-muted text-inverse rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
                       >
                         {t("common.save")}
                       </button>
@@ -450,7 +450,7 @@ export function AiTab() {
                     updateSetting("aiCustomOpenaiUrl", e.target.value)
                   }
                   placeholder="https://api.example.com/v1"
-                  className="w-full bg-base border border-strong rounded-lg px-3 py-2 text-primary text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-base border border-strong rounded-lg px-3 py-2 text-primary text-sm focus:outline-none focus:border-accent-primary transition-colors"
                 />
                 <p className="text-xs text-muted">
                   {t("settings.ai.endpointUrlDesc")}
@@ -514,7 +514,7 @@ export function AiTab() {
                         parseInt(e.target.value) || 11434,
                       )
                     }
-                    className="w-24 bg-base border border-strong rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-24 bg-base border border-strong rounded-lg px-2 py-1.5 text-sm text-primary focus:outline-none focus:border-accent-primary transition-colors"
                   />
                   <p className="text-xs text-muted">(Default: 11434)</p>
                 </div>
@@ -684,7 +684,7 @@ export function AiTab() {
                     <textarea autoCorrect="off" autoCapitalize="off" autoComplete="off" spellCheck={false}
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
-                      className="w-full h-36 bg-base border border-strong rounded-lg p-3 text-primary text-sm font-mono focus:outline-none focus:border-blue-500 transition-colors resize-y"
+                      className="w-full h-36 bg-base border border-strong rounded-lg p-3 text-primary text-sm font-mono focus:outline-none focus:border-accent-primary transition-colors resize-y"
                       placeholder={t(
                         `settings.ai.enter${type === "system" ? "System" : type === "explain" ? "Explain" : type === "cellname" ? "Cellname" : "Tabrename"}Prompt`,
                       )}
@@ -698,7 +698,7 @@ export function AiTab() {
                       </button>
                       <button
                         onClick={() => handleSavePrompt(type)}
-                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+                        className="px-3 py-1.5 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded-lg text-sm font-medium transition-colors"
                       >
                         {t("settings.ai.savePrompt")}
                       </button>

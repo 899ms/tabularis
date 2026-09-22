@@ -209,7 +209,7 @@ export const CreateIndexModal = ({
            <button
              onClick={handleCreate}
              disabled={loading || selectedColumns.length === 0 || !indexName.trim()}
-             className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow-lg shadow-blue-900/20 transition-all"
+             className="bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-inverse px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow-lg shadow-accent-primary/20 transition-all"
            >
              {loading && <Loader2 size={16} className="animate-spin" />}
              <Save size={16} /> {t('createIndex.create')}

@@ -295,6 +295,7 @@ Tabularis is **hackable with an external plugin system**. Plugins are standalone
 - **Any Database:** Add support for DuckDB, MongoDB, or any other database by writing or installing a plugin.
 - **Plugin Registry:** Official plugins are listed in [`plugins/registry.json`](./plugins/registry.json).
 - **Developer Guide:** See [`plugins/PLUGIN_GUIDE.md`](./plugins/PLUGIN_GUIDE.md) to build your own driver in any language.
+- **Declarative themes (development):** **Settings → Appearance → Manage themes** supports local packages, previews and personal/VS Code imports without executable plugin activation. See the [theme author guide](./packages/create-plugin/THEMES.md) for the separate `tabularis-theme` CLI, packaging and release gates; public runtime/tooling rollout is not implied by this development feature.
 
 ### Logging
 
@@ -341,6 +342,8 @@ Once connected, your AI agent can:
 | `list_tables` | List tables in a connection (with optional schema filter) |
 | `describe_table` | Get full schema: columns, indexes, foreign keys |
 | `run_query` | Execute any SQL query and return results |
+
+Every tool accepts an optional `output_format` argument. JSON is the default, preserving the existing response format for all clients. You can choose JSON or [TOON](https://toonformat.dev/) as the default under **Settings → MCP Server Integration**; a tool call's `output_format` argument overrides that preference. TOON is especially compact for tabular query results passed to an LLM. MCP transport remains JSON-RPC in either mode; only the text inside the tool result changes.
 
 #### Example prompts
 

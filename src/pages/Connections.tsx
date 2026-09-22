@@ -1,15 +1,15 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { restoreSession } from "../utils/restoreSession";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { lazy, Suspense, useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { NewConnectionModal } from "../components/modals/NewConnectionModal";
+import { LoadingState } from "../components/ui/LoadingState";
 import { ConfirmModal } from "../components/modals/ConfirmModal";
 import {
   ExportConnectionsModal,
   type ExportMode,
 } from "../components/modals/ExportConnectionsModal";
-import { ImportFromAppModal } from "../components/modals/ImportFromAppModal";
-import { MigrationChecklistModal } from "../components/modals/MigrationChecklistModal";
 import { invoke } from "@tauri-apps/api/core";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeTextFile } from "@tauri-apps/plugin-fs";
@@ -61,11 +61,16 @@ import { buildPluginIssueUrl, resolvePluginRepoUrl } from "../utils/pluginIssueR
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { APP_VERSION } from "../version";
 
+const NewConnectionModal = lazy(() => import("../components/modals/NewConnectionModal").then((m) => ({ default: m.NewConnectionModal })));
+const ImportFromAppModal = lazy(() => import("../components/modals/ImportFromAppModal").then((m) => ({ default: m.ImportFromAppModal })));
+const MigrationChecklistModal = lazy(() => import("../components/modals/MigrationChecklistModal").then((m) => ({ default: m.MigrationChecklistModal })));
+
+const windowLabel = getCurrentWindow().label;
 let autoConnectAttempted = false;
 
 export const Connections = () => {
   const { t } = useTranslation();
-  const { settings } = useSettings();
+  const { settings, isLoading: isSettingsLoading } = useSettings();
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -91,7 +96,7 @@ export const Connections = () => {
   const { createSqliteDatabase, isCreating: isCreatingSqliteDatabase } =
     useCreateSqliteDatabase();
   const migration = useBuiltinPostgresMigration();
-  const { registry: catalogueRegistry } = useConnectionCatalogue();
+  const { registry: catalogueRegistry } = useConnectionCatalogue(false);
   const { showToast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportAppModalOpen, setIsImportAppModalOpen] = useState(false);
@@ -156,7 +161,7 @@ export const Connections = () => {
   const [bulkMoveMenu, setBulkMoveMenu] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
-    void loadConnections();
+    void loadConnections({ ifNeeded: true });
   }, [loadConnections]);
 
   // Surface the migration outcome as a toast per the design's post-migration
@@ -299,6 +304,9 @@ export const Connections = () => {
 
   useEffect(() => {
     if (autoConnectAttempted) return;
+    // Dedicated connection windows have their own URL-driven restore flow.
+    if (windowLabel && windowLabel !== "main") return;
+    if (isSettingsLoading) return;
     if (connections.length === 0) return;
     if (settings.autoConnectLastConnection === false) return;
     autoConnectAttempted = true;
@@ -312,23 +320,17 @@ export const Connections = () => {
           (id) => connections.some((c) => c.id === id) && !isConnectionOpen(id),
         );
         if (toRestore.length === 0) return;
-        const connected: string[] = [];
-        for (const id of toRestore) {
-          setConnectingId(id);
-          try {
-            await connect(id);
-            connected.push(id);
-          } catch (e) {
-            console.error(`Auto-connect to connection ${id} failed:`, e);
-          }
-        }
-        if (connected.length === 0) return;
-        const target =
-          activeId && connected.includes(activeId)
-            ? activeId
-            : connected[connected.length - 1];
-        switchConnection(target);
-        navigate("/editor");
+        await restoreSession({
+          connectionIds: toRestore,
+          activeId,
+          connect,
+          onForegroundStart: setConnectingId,
+          onForegroundReady: () => {
+            setConnectingId(null);
+            navigate("/editor");
+          },
+          onError: (id, error) => console.error(`Auto-connect to connection ${id} failed:`, error),
+        });
       } catch (e) {
         console.error("Auto-connect to last connections failed:", e);
       } finally {
@@ -338,9 +340,9 @@ export const Connections = () => {
   }, [
     connections,
     settings.autoConnectLastConnection,
+    isSettingsLoading,
     isConnectionOpen,
     connect,
-    switchConnection,
     navigate,
   ]);
 
@@ -1116,13 +1118,13 @@ export const Connections = () => {
           </div>
         </div>
 
-        <div className="relative flex items-stretch shadow-lg shadow-blue-500/20 rounded-xl">
+        <div className="relative flex items-stretch shadow-lg shadow-accent-primary/20 rounded-xl">
           <button
             onClick={() => {
               setEditingConnection(null);
               setIsModalOpen(true);
             }}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white pl-4 pr-3.5 py-2.5 rounded-l-xl font-semibold text-sm transition-colors duration-150"
+            className="flex items-center gap-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse pl-4 pr-3.5 py-2.5 rounded-l-xl font-semibold text-sm transition-colors duration-150"
           >
             <Plus size={15} />
             {t("connections.addConnection")}
@@ -1130,7 +1132,7 @@ export const Connections = () => {
           <button
             ref={importMenuBtnRef}
             onClick={toggleImportMenu}
-            className="flex items-center bg-blue-600 hover:bg-blue-500 text-white px-2 rounded-r-xl border-l border-blue-400/40 transition-colors duration-150"
+            className="flex items-center bg-accent-primary hover:bg-accent-primary/90 text-inverse px-2 rounded-r-xl border-l border-inverse/20 transition-colors duration-150"
             title={t("connections.addConnection")}
             aria-haspopup="menu"
             aria-expanded={isImportMenuOpen}
@@ -1272,7 +1274,7 @@ export const Connections = () => {
                   setEditingConnection(null);
                   setIsModalOpen(true);
                 }}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-500/20 hover:-translate-y-px"
+                className="flex items-center gap-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-accent-primary/20 hover:-translate-y-px"
               >
                 <Plus size={14} />
                 {t("connections.createFirst")}
@@ -1505,47 +1507,49 @@ export const Connections = () => {
         )}
       </div>
 
-      <NewConnectionModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingConnection(null);
-          // Tag renames/deletions apply immediately, even when the modal is
-          // cancelled, so re-fetch for the chips and the search filter.
-          void refreshTags();
-        }}
-        onSave={handleSave}
-        initialConnection={editingConnection}
-      />
-      <ExportConnectionsModal
-        isOpen={isExportModalOpen}
-        onClose={() => setIsExportModalOpen(false)}
-        onExport={handleExport}
-        selectedCount={exportSelectionOnly ? selectedIds.size : 0}
-      />
-      <ImportFromAppModal
-        isOpen={isImportAppModalOpen}
-        onClose={() => setIsImportAppModalOpen(false)}
-        onImported={() => void loadConnections()}
-      />
-      {isMigrationChecklistOpen && (
-        <MigrationChecklistModal
-          isOpen={isMigrationChecklistOpen}
-          onClose={() => setIsMigrationChecklistOpen(false)}
-          connections={migration.builtinConnections}
-          manifest={allDrivers.find((d) => d.id === migration.pluginId)}
-          repoUrl={resolvePluginRepoUrl(
-            migration.pluginId,
-            catalogueRegistry.find((p) => p.id === migration.pluginId)?.repo_url,
-          )}
-          pluginVersion={
-            installedPlugins.find((p) => p.id === migration.pluginId)?.version ??
-            catalogueRegistry.find((p) => p.id === migration.pluginId)?.installed_version ??
-            "unknown"
-          }
-          migrateConnection={migration.migrateConnection}
+      <Suspense fallback={<LoadingState />}>
+        {isModalOpen && <NewConnectionModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingConnection(null);
+            // Tag renames/deletions apply immediately, even when the modal is
+            // cancelled, so re-fetch for the chips and the search filter.
+            void refreshTags();
+          }}
+          onSave={handleSave}
+          initialConnection={editingConnection}
+        />}
+        <ExportConnectionsModal
+          isOpen={isExportModalOpen}
+          onClose={() => setIsExportModalOpen(false)}
+          onExport={handleExport}
+          selectedCount={exportSelectionOnly ? selectedIds.size : 0}
         />
-      )}
+        {isImportAppModalOpen && <ImportFromAppModal
+          isOpen={isImportAppModalOpen}
+          onClose={() => setIsImportAppModalOpen(false)}
+          onImported={() => void loadConnections()}
+        />}
+        {isMigrationChecklistOpen && (
+          <MigrationChecklistModal
+            isOpen={isMigrationChecklistOpen}
+            onClose={() => setIsMigrationChecklistOpen(false)}
+            connections={migration.builtinConnections}
+            manifest={allDrivers.find((d) => d.id === migration.pluginId)}
+            repoUrl={resolvePluginRepoUrl(
+              migration.pluginId,
+              catalogueRegistry.find((p) => p.id === migration.pluginId)?.repo_url,
+            )}
+            pluginVersion={
+              installedPlugins.find((p) => p.id === migration.pluginId)?.version ??
+              catalogueRegistry.find((p) => p.id === migration.pluginId)?.installed_version ??
+              "unknown"
+            }
+            migrateConnection={migration.migrateConnection}
+          />
+        )}
+      </Suspense>
       <ConfirmModal
         isOpen={confirmModal !== null}
         onClose={() => setConfirmModal(null)}

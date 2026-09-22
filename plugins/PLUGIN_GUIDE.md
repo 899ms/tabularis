@@ -41,21 +41,28 @@ A Tabularis plugin is distributed as a `.zip` file. When extracted into the plug
 
 ```text
 plugins/
-└── duckdb/
-    ├── .tabularium  (or legacy manifest.json)
-    └── duckdb-plugin  (or duckdb-plugin.exe on Windows)
+└── drivers/
+    └── duckdb/
+        ├── .tabularium  (or legacy manifest.json)
+        └── duckdb-plugin  (or duckdb-plugin.exe on Windows)
 ```
+
+Installations and updates always use `plugins/<kind-folder>/<name>/`, mapping `theme` to `themes`, `driver` to `drivers`, and otherwise keeping the kind unchanged. Legacy or manually copied `plugins/<name>/` bundles are a discovery fallback; the kind-scoped copy wins. An absent manifest `kind` means `driver`; declarative themes use `theme` and are never started as drivers.
 
 ### The `.tabularium` manifest
 
-One manifest tells Tabularis everything about your plugin — and, when you publish, tells the Tabularium registry how to list it. Its canonical name is **`.tabularium`**; the host still reads a legacy `manifest.json` as a fallback. In a `.tabularium`, `name` is the lowercase slug that identifies the plugin (legacy manifests may keep a separate `id` and a display `name`). When publishing, the registry resolves the manifest from your **release assets** — upload `.tabularium` as a standalone asset (GitHub silently renames the dotfile to `default.tabularium`; the registry accepts both names).
+One manifest tells Tabularis everything about your plugin — and, when you publish, tells the Tabularium registry how to list it. Its canonical name is **`.tabularium`**; the host still reads a legacy `manifest.json` as a fallback. With Tabularium 0.14.0+, use `id` as the stable lowercase identifier and `name` as the human-readable display name. Existing manifests without `id` remain supported: their `name` continues to supply the identifier. When publishing, the registry resolves the manifest from your **release assets** — upload `.tabularium` as a standalone asset (GitHub silently renames the dotfile to `default.tabularium`; the registry accepts both names).
 
 > **JSON Schema available:** point `$schema` at the registry's live merged schema (as below) for IDE autocompletion and validation, or at the local [`plugins/manifest.schema.json`](./manifest.schema.json) for legacy `manifest.json` files.
 
 ```json
 {
   "$schema": "https://registry.tabularis.dev/manifest.schema.json?kind=driver",
-  "name": "duckdb",
+  "id": "duckdb",
+  "name": "DuckDB",
+  "kind": "driver",
+  "engine": "duckdb",
+  "paradigms": ["sql"],
   "version": "1.0.0",
   "description": "DuckDB file-based analytical database",
   "default_port": null,
@@ -90,8 +97,9 @@ One manifest tells Tabularis everything about your plugin — and, when you publ
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `name` | string | Lowercase slug identifying the plugin (e.g., `"duckdb"`). Must match the folder name and the registry pattern `^[a-z][a-z0-9-]*$`; it becomes the registry slug and is pinned at first submit. |
-| `id` | string | Legacy identifier from `manifest.json`-era plugins. Optional — when absent, identity falls back to `name`. Omit in new `.tabularium` manifests; the registry ignores it. |
+| `name` | string | Human-readable display name (e.g., `"SQLite JDBC"`, 1–120 characters). Without `id`, this remains the legacy lowercase identifier (1–64 characters). |
+| `id` | string | Stable identifier used in saved connections, the plugin folder and registry URLs; 1–64 characters matching `^[a-z][a-z0-9-]*$`. Recommended for new manifests. Must equal the existing registry slug when migrating. |
+| `engine` | string | Shared database engine (e.g., `"sqlite"` for `"jdbc-sqlite"`). Groups alternative drivers under the same engine; omit only when the plugin should form its own group. |
 | `version` | string | Plugin version (semver, **no leading `v`**). Must equal the release tag with any `v` prefix stripped — the registry rejects tag/manifest mismatches. |
 | `description` | string | Short description shown in the plugins list. Optional for the registry; max **280 chars**. |
 | `default_port` | number \| null | Default TCP port. Use `null` for file-based databases. |
@@ -99,6 +107,10 @@ One manifest tells Tabularis everything about your plugin — and, when you publ
 | `capabilities` | object | Feature flags (see below). |
 | `data_types` | array | List of supported data types (see below). |
 | `type_mappings` | object \| null | Optional map of generic inferred type names to driver-specific types. Used during paste/import to map generic types (e.g. `DATETIME`) to driver-native equivalents (e.g. `TIMESTAMP`). See [Type Mappings](#type-mappings) below. |
+
+### Migrating display names
+
+Upgrade the registry before publishing the new format. Add `id` equal to the **existing registry slug**, then change `name` to the display name. Do not rename installed-plugin folders, saved driver IDs or registry entries, and do not rewrite historical release archives. For JDBC, use `id: "jdbc-sqlite"`, `name: "SQLite JDBC"`, `engine: "sqlite"` in both the source manifest and generator. Known/shared engine cards retain their engine title; standalone plugin cards use the display name.
 
 ### Capabilities
 
@@ -1481,9 +1493,9 @@ You should see a valid JSON-RPC response on stdout.
 ### Installing Locally
 
 1. Create the plugin directory in Tabularis's data folder:
-   - **Linux:** `~/.local/share/tabularis/plugins/myplugin/`
-   - **macOS:** `~/Library/Application Support/tabularis/plugins/myplugin/`
-   - **Windows:** `%APPDATA%\tabularis\plugins\myplugin\`
+   - **Linux:** `~/.local/share/tabularis/plugins/drivers/myplugin/`
+   - **macOS:** `~/Library/Application Support/tabularis/plugins/drivers/myplugin/`
+   - **Windows:** `%APPDATA%\tabularis\plugins\drivers\myplugin\`
 2. Place your `.tabularium` (or legacy `manifest.json`) and the compiled executable in that directory.
 3. On Linux/macOS, make the executable runnable: `chmod +x myplugin`
 4. Restart Tabularis (or install via Settings to hot-reload without restart).

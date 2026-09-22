@@ -197,7 +197,7 @@ export const AiQueryModal = ({
           <button
             onClick={handleGenerate}
             disabled={isLoading || !prompt.trim() || !settings.aiProvider}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-primary rounded-lg text-sm font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-inverse rounded-lg text-sm font-medium transition-colors"
           >
             {isLoading ? (
               <>

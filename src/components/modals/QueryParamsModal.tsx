@@ -100,7 +100,7 @@ const QueryParamsForm = ({ parameters, initialValues, onSubmit, onClose, mode }:
             <button
               type="submit"
               disabled={!isFormValid}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {mode === "run" || mode === "explain" ? (
                 <Play size={16} fill="currentColor" />

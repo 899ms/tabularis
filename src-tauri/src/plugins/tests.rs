@@ -4,7 +4,7 @@ use tempfile::tempdir;
 
 use super::install_cancellation::{begin, cancel, INSTALL_CANCELLED_ERROR};
 use super::installer::{has_manifest, migrate_plugins_between, read_plugin_info_from_dir};
-use super::manager::ConfigManifest;
+use super::manager::{should_skip_rescan, ConfigManifest};
 use super::runtime_version::{
     check_min_runtime_version, evaluate_min_runtime_version, push_runtime_warning,
     take_runtime_warnings, RuntimeVersionVerdict,
@@ -373,4 +373,58 @@ fn runtime_warnings_are_returned_exactly_once() {
 
     let again = take_runtime_warnings();
     assert!(again.iter().all(|w| w.plugin_id != "queue-test-plugin"));
+}
+
+/// A plugin already registered gets skipped by a rescan — this is what
+/// keeps `reload_plugins_from_disk_config` (issue #783) from spawning a
+/// duplicate driver process for a plugin it already loaded.
+#[test]
+fn should_skip_rescan_skips_an_already_registered_plugin() {
+    assert!(should_skip_rescan("postgresql", true));
+}
+
+#[test]
+fn should_skip_rescan_does_not_skip_a_plugin_not_yet_registered() {
+    assert!(!should_skip_rescan("postgresql", false));
+}
+
+/// Regression: built-in ids (mysql/postgres/sqlite) are registered before any
+/// plugin directory is ever scanned, so they always read as "already
+/// registered". Without this exclusion, a plugin manifest that claims one of
+/// those ids would be silently skipped here instead of reaching
+/// `load_plugin_from_dir`'s explicit collision refusal — turning a logged,
+/// actionable `PluginLoadError` into nothing happening at all.
+#[test]
+fn should_skip_rescan_never_skips_a_builtin_id_even_when_registered() {
+    assert!(!should_skip_rescan("mysql", true));
+    assert!(!should_skip_rescan("postgres", true));
+    assert!(!should_skip_rescan("sqlite", true));
+}
+
+/// The standalone MCP subprocess reruns plugin loading on every
+/// registry-miss rescan (issue #783) and never drains `STARTUP_ERRORS` — the
+/// GUI is the only consumer, via `get_plugin_startup_errors`. Without a cap,
+/// a plugin that can't load there would grow the vec once per miss for the
+/// life of the subprocess.
+#[test]
+fn push_startup_error_evicts_the_oldest_entry_once_at_capacity() {
+    use super::manager::{push_startup_error, PluginLoadError, MAX_STARTUP_ERRORS};
+
+    let mut errors = Vec::new();
+    for i in 0..MAX_STARTUP_ERRORS + 5 {
+        push_startup_error(
+            &mut errors,
+            PluginLoadError {
+                plugin_id: format!("plugin-{i}"),
+                error: "boom".to_string(),
+            },
+        );
+    }
+
+    assert_eq!(errors.len(), MAX_STARTUP_ERRORS);
+    assert_eq!(errors.first().unwrap().plugin_id, "plugin-5");
+    assert_eq!(
+        errors.last().unwrap().plugin_id,
+        format!("plugin-{}", MAX_STARTUP_ERRORS + 4)
+    );
 }

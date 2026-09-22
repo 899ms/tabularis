@@ -133,7 +133,7 @@ import { NotebookView } from "../components/notebook/NotebookView";
 import { UserManagementView } from "../components/users/UserManagementView";
 import { useSqlAutocompleteRegistration } from "../hooks/useSqlAutocompleteRegistration";
 import { createNotebook, renameNotebook } from "../utils/notebookStore";
-import { type OnMount, type Monaco } from "@monaco-editor/react";
+import type { OnMount, Monaco } from "@monaco-editor/react";
 import { useAlert } from "../hooks/useAlert";
 import { useToast } from "../hooks/useToast";
 import { useDatabase } from "../hooks/useDatabase";
@@ -3742,7 +3742,7 @@ export const Editor = ({ commandScopeId }: EditorProps) => {
             <p className="mb-4">{t("editor.noTabs")}</p>
             <button
               onClick={() => addTab({ type: "console" })}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded transition-colors"
+              className="px-4 py-2 bg-accent-primary hover:bg-accent-primary/90 text-inverse rounded transition-colors"
             >
               {t("editor.newConsole")}
             </button>

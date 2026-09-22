@@ -257,6 +257,11 @@
       "activity": "Activité",
       "safety": "Sécurité"
     },
+    "output": {
+      "title": "Sortie des outils",
+      "formatLabel": "Format de sortie par défaut",
+      "formatDescription": "Utilisé lorsqu'un appel d'outil MCP ne précise pas output_format. JSON préserve la compatibilité ; TOON peut réduire l'utilisation de jetons."
+    },
     "safety": {
       "readOnlyTitle": "Mode lecture seule",
       "readOnlyDefault": "Mettre toutes les requêtes MCP en lecture seule",
@@ -742,6 +747,7 @@
       "loadingRegistry": "Chargement du registre des plugins...",
       "registryError": "Échec de chargement du registre",
       "installed": "Installé",
+      "latest": "Dernière",
       "by": "par",
       "platformNotSupported": "Indisponible sur votre plateforme",
       "update": "Mettre à jour",
@@ -758,6 +764,13 @@
       "filterAll": "Tous",
       "filterInstalled": "Installés",
       "filterUpdates": "Mises à jour",
+      "kindFilter": "Filtrer par type",
+      "kindAll": "Tous les types",
+      "kindDrivers": "Pilotes",
+      "kindThemes": "Thèmes",
+      "kindTheme": "Thème",
+      "kindDriver": "Pilote",
+      "manageThemes": "Gérer dans Apparence",
       "searchNoResults": "Aucun plugin ne correspond à la recherche.",
       "version": "Version",
       "requiresVersion": "Nécessite Tabularis ≥ {{version}}",
@@ -952,6 +965,25 @@
     }
   },
   "update": {
+    "badges": {
+      "morePlugins": "{{count}} de plus — ouvrez Plugins pour voir toutes les mises à jour",
+      "driverUpdate": "Mise à jour du pilote disponible",
+      "themeUpdate": "Mise à jour du thème disponible",
+      "tag": "Mise à jour",
+      "driverTooltip": "{{name}} {{version}} est disponible. Ce plugin est partagé par vos connexions. Ouvrez Plugins → Mises à jour pour le gérer.",
+      "core_one": "{{count}} mise à jour du cœur disponible",
+      "core_other": "{{count}} mises à jour du cœur disponibles",
+      "plugins_one": "{{count}} mise à jour de plugin disponible",
+      "plugins_other": "{{count}} mises à jour de plugins disponibles",
+      "coreDetails": "Tabularis {{version}} est disponible. Ouvrez Informations pour consulter la mise à jour du cœur.",
+      "pluginDetails_one": "Mise à jour disponible pour : {{plugins}}",
+      "pluginDetails_other": "Mises à jour disponibles pour : {{plugins}}",
+      "toastTitle": "Mises à jour de plugins disponibles",
+      "openPlugins": "Ouvrir les plugins",
+      "core_many": "{{count}} mises à jour du cœur disponibles",
+      "plugins_many": "{{count}} mises à jour de plugins disponibles",
+      "pluginDetails_many": "Mises à jour disponibles pour : {{plugins}}"
+    },
     "newVersionAvailable": "Nouvelle version disponible",
     "version": "Version",
     "releaseNotes": "Notes de version",
@@ -989,6 +1021,17 @@
     "configError": "Veuillez configurer un fournisseur IA dans les paramètres et saisir un prompt."
   },
   "newConnection": {
+    "ssmForwardHint": "Se résout en {{document}} : transfère vers {{host}}:{{port}} via le nœud géré. Modifiez l'adresse cible dans l'onglet Général ; un hôte de bouclage désigne le nœud lui-même.",
+    "ssmIamHint": "Nécessite ssm:StartSession sur la cible et sur le document résolu.",
+    "ssmNotAvailable": "AWS SSM n'est pas disponible pour ce pilote.",
+    "ssmPortRequired": "Définissez d'abord un port valide dans l'onglet Général.",
+    "ssmProfile": "Profil AWS",
+    "ssmRegion": "Région AWS",
+    "ssmTarget": "Nœud géré",
+    "ssmTargetRequired": "Indiquez le nœud géré par lequel se connecter.",
+    "testSsm": "Tester SSM",
+    "testSsmHint": "Ouvre une véritable session de transfert de port puis la referme, sans se connecter à la base de données.",
+    "useSsm": "Utiliser le transfert de port AWS SSM",
     "titleNew": "Nouvelle connexion",
     "titleEdit": "Modifier la connexion",
     "subtitle": "Configurer les paramètres de connexion à la base de données",
@@ -2393,6 +2436,10 @@
       "summary": "Échec du tunnel SSH",
       "recovery": "Vérifiez les paramètres dans l’onglet SSH."
     },
+    "ssm": {
+      "summary": "Échec de la session AWS SSM",
+      "recovery": "Ouvrez les détails pour voir l'erreur AWS exacte. Vérifiez que l'AWS CLI et le plugin Session Manager sont installés, que vos identifiants sont à jour et que le nœud géré est en ligne."
+    },
     "db-auth": {
       "summary": "Échec de l’authentification à la base de données",
       "recovery": "Vérifiez le nom d’utilisateur et le mot de passe de la base de données."
@@ -2430,6 +2477,11 @@
         "ok": "Port-forward prêt",
         "error": "Échec du port-forward Kubernetes"
       },
+      "ssmForward": {
+        "start": "Démarrage du transfert de port AWS SSM",
+        "ok": "Transfert de port prêt",
+        "error": "Échec du transfert de port AWS SSM"
+      },
       "dbConnect": {
         "start": "Connexion à la base de données",
         "ok": "Connexion à la base de données établie",
@@ -2438,5 +2490,13 @@
     },
     "title": "Journal du test de connexion",
     "showLog": "Afficher le journal"
+  },
+  "themePackages": {
+    "import": "Importer un thème",
+    "registryMismatch": "Ce paquet provient d’un autre registre. Changez explicitement le registre configuré avant de le mettre à jour.",
+    "importedTheme": "Thème importé", "manage": "Gérer les thèmes", "importJSON": "Importer un JSON Tabularis", "importVSCode": "Importer depuis VS Code", "edit": "Modifier le thème personnel", "localPackage": "Paquet local", "installTitle": "Installer le paquet de thème", "installSubtitle": "Thème déclaratif issu du registre configuré. Aucun code n'est exécuté.", "discover": "Parcourir les thèmes dans Plugins", "refresh": "Actualiser", "preview": "Aperçu", "apply": "Appliquer", "confirm": "Confirmer", "duplicate": "Dupliquer en thème personnel", "exportJSON": "Exporter un JSON autonome", "exportPackage": "Exporter un paquet d’auteur", "remove": "Supprimer", "update": "Mettre à jour le paquet", "disable": "Désactiver le paquet", "enable": "Activer le paquet", "removePackage": "Désinstaller le paquet", "disabled": "Désactivé", "file": "Fichier du thème", "name": "Nom du thème", "mode": "Mode / base", "detectMode": "Détecter (choisir si ambigu)", "source": "JSON du thème", "search": "Rechercher des thèmes", "loading": "Chargement…", "noThemes": "Aucun thème disponible dans ce registre.", "details": "Détails / installation", "readme": "README / captures", "version": "Version du paquet", "latest": "Dernière version", "install": "Installer / remplacer le paquet", "chooseArchive": "Choisir une archive ZIP", "screenshots": "Captures d’écran (ouvrir à l’extérieur)", "externalMedia": "Les images et autres médias distants ne sont pas chargés automatiquement. Les liens s’ouvrent dans votre navigateur.", "snapshotEditor": "JSON exact de l’éditeur", "snapshotEditorHelp": "Cet instantané indépendant contrôle les couleurs SQL à la place de l’ancien alias. Les modifications sont prévisualisées puis enregistrées en vérifiant la révision d’origine.", "recover": "Récupérer les installations interrompues", "recoveryExplanation": "Vérifier et récupérer explicitement les opérations de thèmes inachevées. Cela peut restaurer des installations interrompues, sans sélectionner de thème ni modifier les préférences enregistrées.", "recoveryDone": "Vérifications de récupération terminées. Consultez les éventuels problèmes ci-dessous.", "catalogIssues": "Diagnostics du catalogue", "fileTooLarge": "Le fichier dépasse la limite d’importation.", "previewHint": "L’aperçu est temporaire. Annuler restaure le thème enregistré ; Appliquer enregistre le choix.", "previewReady": "Aperçu actif. Vérifiez l’application et l’éditeur avant de confirmer.", "licenseNotice": "Importer ou exporter n’accorde aucun droit de redistribution. Conservez l’attribution et vérifiez la licence avant publication.", "acknowledge": "Je comprends et accepte les limites de conversion indiquées.", "applyAfterSave": "Appliquer après l’enregistrement", "savedNotApplied": "Thème enregistré, mais sélection échouée. Ne le réimportez pas ; sélectionnez le thème enregistré.", "installHint": "L’installation remplace tout le paquet sans sélectionner de variante. Aperçu, import local et sélection ne comptent pas comme téléchargements.", "installedHint": "Paquet installé. Fermez et choisissez une variante dans Apparence.", "committedRefreshFailed": "Opération effectuée, mais actualisation du catalogue échouée. Actualisez avant de réessayer.", "missing": "Sélection enregistrée indisponible : {{id}}. Thème hors ligne utilisé sans modifier la préférence.", "downloads": "Téléchargements : {{count}}", "downloadsUnavailable": "Nombre de téléchargements indisponible", "installedVersion": "Installée : {{version}}", "minimumVersion": "Nécessite Tabularis {{version}} ou ultérieur", "incompatible": "Version incompatible ou ne contenant pas exactement une archive universelle.", "packageWarning": "Concerne toutes les variantes. Les sélections enregistrées sont conservées et restaurées dès leur disponibilité.", "deleteWarning": "Supprimer ce thème personnel ? Ses sélections enregistrées utiliseront les thèmes par défaut.", "duplicateHint": "Créer une copie personnelle indépendante et modifiable, sans l’activer.", "exportError": "Échec de l’export du paquet ; l’export JSON autonome reste disponible.", "runtimeWarning": "Indiquez la première version réellement compatible. Un numéro de développement ne prouve pas la compatibilité des anciens clients.", "packageName": "Identifiant du paquet (minuscules)", "minimumRuntime": "Version minimale de Tabularis", "license": "Texte de licence et attribution", "rightsAcknowledged": "J’ai vérifié les droits de redistribution et l’attribution.",
+    "groups": { "builtin": "Intégrés · hors ligne", "installed": "Paquets installés", "personal": "Thèmes personnels" }, "modes": { "light": "Clair", "dark": "Sombre", "high-contrast": "Contraste élevé" },
+    "importErrors": { "unrecognized": "Thème VS Code non reconnu.", "modeRequired": "Choisissez un mode puis relancez l’aperçu.", "includeOnly": "Les thèmes composés uniquement d’includes ne sont pas importables. Fournissez les couleurs réelles.", "noSupportedData": "Aucune couleur ou règle SQL prise en charge.", "invalidColor": "Valeur incorrecte pour une couleur prise en charge.", "invalidRules": "Règles de jetons incorrectes ou trop nombreuses." },
+    "diagnostics": { "unsupportedKey": "Champ non pris en charge", "unsupportedColor": "Couleur non prise en charge", "unsupportedScope": "Portée non prise en charge", "scopeApproximation": "Correspondance SQL approximative", "unsupportedStyle": "Style non pris en charge", "ignoredInclude": "Include non chargé", "ignoredSemanticTokens": "Jetons sémantiques ignorés", "unsupportedReference": "Référence externe non chargée", "unsupportedSetting": "Réglage non pris en charge", "tokenAlphaFlattened": "Opacité des jetons calculée sur le fond de base", "modeApproximation": "Mode remplacé ou approximatif", "diagnosticsTruncated": "Diagnostics supplémentaires omis" }
   }
 }

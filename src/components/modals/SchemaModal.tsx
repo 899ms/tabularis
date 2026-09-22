@@ -65,7 +65,7 @@ export const SchemaModal = ({ isOpen, onClose, target }: SchemaModalProps) => {
             <div className="bg-blue-900/30 p-2 rounded-lg">
               <Table2 size={20} className="text-blue-400" />
             </div>
-            <div>
+            <div className="select-text selection:bg-accent-primary! selection:text-inverse!">
               <h2 className="text-lg font-semibold text-primary">{t('schema.title', { table: tableName })}</h2>
               {schema && <p className="text-xs text-secondary font-mono">{schema}</p>}
               {tableComment && (
@@ -90,7 +90,7 @@ export const SchemaModal = ({ isOpen, onClose, target }: SchemaModalProps) => {
           ) : error ? (
             <div className="p-6 text-error-text text-sm text-center">{error}</div>
           ) : (
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse select-text selection:bg-accent-primary! selection:text-inverse!">
               <thead className="bg-base sticky top-0">
                 <tr>
                   <th className="px-4 py-2.5 text-[10px] uppercase font-bold text-muted border-b border-strong">{t('schema.colName')}</th>
