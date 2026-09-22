@@ -23,7 +23,7 @@ describe("LogsTab theme controls", () => {
     render(<LogsTab />);
     await waitFor(() => expect(screen.getByRole("button", { name: "settings.refreshLogs" })).toBeEnabled());
     expect(screen.getByRole("button", { name: "settings.refreshLogs" })).toHaveClass("bg-accent-primary", "hover:bg-accent-primary/90", "text-inverse");
-    expect(screen.getByRole("combobox")).toHaveClass("focus:border-accent-primary");
+    expect(screen.getByRole("combobox")).toHaveClass("focus:border-focus");
     expect(screen.getByRole("checkbox").nextElementSibling).toHaveClass("peer-checked:bg-accent-primary");
     for (const [level, tone] of Object.entries({ INFO: "info", ERROR: "error", WARN: "warning", DEBUG: "success" })) {
       expect(await screen.findByText(level, { selector: "span" })).toHaveClass(`text-accent-${tone}`);

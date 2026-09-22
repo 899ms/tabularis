@@ -1312,10 +1312,10 @@ export const DataGrid = React.memo(
                       }}
                     >
                       {displaySortState === "asc" && (
-                        <ArrowUp size={14} className="text-blue-400" />
+                        <ArrowUp size={14} className="text-accent" />
                       )}
                       {displaySortState === "desc" && (
-                        <ArrowDown size={14} className="text-blue-400" />
+                        <ArrowDown size={14} className="text-accent" />
                       )}
                       {displaySortState === "none" && (
                         <ArrowUpDown
@@ -2486,7 +2486,7 @@ export const DataGrid = React.memo(
                       key={header.id}
                       className={`px-4 py-2 text-xs font-semibold tracking-wider border-b border-r border-default last:border-r-0 whitespace-nowrap ${
                         selectedColIndices.has(headerColIndex)
-                          ? "text-primary bg-blue-500/20"
+                          ? "text-primary bg-accent-primary/20"
                           : "text-secondary"
                       }`}
                       onContextMenu={(e) => {

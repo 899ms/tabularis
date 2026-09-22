@@ -63,7 +63,7 @@ export const JsonViewerPage = () => {
     <div className="w-screen h-screen flex flex-col bg-base text-primary">
       <div className="flex-1 min-h-0 p-4">
         {displayError ? (
-          <p className="text-red-400 text-sm">{displayError}</p>
+          <p className="text-accent-error text-sm">{displayError}</p>
         ) : session ? (
           <JsonInput
             value={currentValue}

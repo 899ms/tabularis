@@ -54,8 +54,8 @@ export function ThemeDialog({ isOpen, onClose, title, subtitle, icon, children, 
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          {busy && <Loader2 size={16} className="animate-spin text-accent-primary" role="status" aria-label={t("themePackages.loading")} />}
-          <button type="button" disabled={busy} onClick={onClose} aria-label={t("common.close")} className="p-2 -mr-1 rounded-lg text-secondary hover:text-primary hover:bg-surface-secondary transition-colors focus-visible:outline focus-visible:outline-accent-primary disabled:opacity-50 disabled:cursor-not-allowed"><X size={20} /></button>
+          {busy && <Loader2 size={16} className="animate-spin text-accent" role="status" aria-label={t("themePackages.loading")} />}
+          <button type="button" disabled={busy} onClick={onClose} aria-label={t("common.close")} className="p-2 -mr-1 rounded-lg text-secondary hover:text-primary hover:bg-surface-secondary transition-colors focus-visible:outline focus-visible:outline-focus disabled:opacity-50 disabled:cursor-not-allowed"><X size={20} /></button>
         </div>
       </div>
       <div className="min-h-0 p-6 space-y-5 overflow-y-auto overscroll-contain">{children}</div>

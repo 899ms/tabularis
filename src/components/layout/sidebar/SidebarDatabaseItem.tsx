@@ -172,8 +172,8 @@ export const SidebarDatabaseItem = ({
             size={14}
             className={
               activeSchema === databaseName
-                ? "text-blue-400 shrink-0"
-                : "text-muted group-hover/db:text-blue-400 shrink-0"
+                ? "text-accent shrink-0"
+                : "text-muted group-hover/db:text-accent shrink-0"
             }
           />
           <span className="text-sm font-medium text-secondary truncate">
@@ -189,7 +189,7 @@ export const SidebarDatabaseItem = ({
           {onImport && (
             <button
               onClick={(e) => { e.stopPropagation(); onImport(databaseName); }}
-              className="p-1 rounded hover:bg-surface-secondary text-muted hover:text-green-400 transition-colors"
+              className="p-1 rounded hover:bg-surface-secondary text-muted hover:text-accent-success transition-colors"
               title={t("dump.importDatabase")}
             >
               <Upload size={13} />
@@ -198,7 +198,7 @@ export const SidebarDatabaseItem = ({
           {onDump && (
             <button
               onClick={(e) => { e.stopPropagation(); onDump(databaseName); }}
-              className="p-1 rounded hover:bg-surface-secondary text-muted hover:text-blue-400 transition-colors"
+              className="p-1 rounded hover:bg-surface-secondary text-muted hover:text-accent transition-colors"
               title={t("dump.dumpDatabase")}
             >
               <Download size={13} />
@@ -207,7 +207,7 @@ export const SidebarDatabaseItem = ({
           {onViewDiagram && (
             <button
               onClick={(e) => { e.stopPropagation(); onViewDiagram(databaseName); }}
-              className="p-1 rounded hover:bg-surface-secondary text-muted hover:text-orange-400 transition-colors"
+              className="p-1 rounded hover:bg-surface-secondary text-muted hover:text-accent-warning transition-colors"
               title={t("sidebar.viewERDiagram")}
             >
               <Network size={13} className="rotate-90" />
@@ -265,7 +265,7 @@ export const SidebarDatabaseItem = ({
                         value={tableFilter}
                         onChange={(e) => setTableFilter(e.target.value)}
                         placeholder={t("sidebar.filterTables")}
-                        className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-10 py-1 border border-default focus:outline-none focus:border-blue-500/50"
+                        className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-10 py-1 border border-default focus:outline-none focus:border-focus/50"
                         onClick={(e) => e.stopPropagation()}
                       />
                       {tableFilter && (
@@ -385,7 +385,7 @@ export const SidebarDatabaseItem = ({
                           value={triggerFilter}
                           onChange={(e) => setTriggerFilter(e.target.value)}
                           placeholder={t("sidebar.filterTriggers")}
-                          className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-6 py-1 border border-default focus:outline-none focus:border-blue-500/50"
+                          className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-6 py-1 border border-default focus:outline-none focus:border-focus/50"
                           onClick={(e) => e.stopPropagation()}
                         />
                         {triggerFilter && (

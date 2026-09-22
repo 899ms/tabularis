@@ -53,7 +53,7 @@ export function DataPreview({ headers, rows, rowCount, isMaximized, onToggleMaxi
                   {h}
                   <div
                     onMouseDown={(e) => startResize(i, e)}
-                    className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-blue-500/60 active:bg-blue-500 select-none"
+                    className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-accent-primary/60 active:bg-accent-primary select-none"
                   />
                 </th>
               ))}

@@ -61,8 +61,8 @@ class EditorErrorBoundaryInner extends Component<InnerProps, InnerState> {
       >
         <div className="w-full max-w-xl bg-elevated border border-strong rounded-xl shadow-lg p-6">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-red-900/30 rounded-lg shrink-0">
-              <AlertTriangle size={24} className="text-red-400" />
+            <div className="p-2 bg-accent-error/15 rounded-lg shrink-0">
+              <AlertTriangle size={24} className="text-accent-error" />
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-semibold text-primary">
@@ -72,8 +72,8 @@ class EditorErrorBoundaryInner extends Component<InnerProps, InnerState> {
                 {t("editor.errorBoundary.description")}
               </p>
 
-              <div className="mt-3 rounded-md border border-red-900/40 bg-red-900/10 px-3 py-2">
-                <p className="text-sm font-mono text-red-400 break-words whitespace-pre-wrap">
+              <div className="mt-3 rounded-md border border-accent-error/20 bg-accent-error/5 px-3 py-2">
+                <p className="text-sm font-mono text-accent-error break-words whitespace-pre-wrap">
                   {error.message || error.name}
                 </p>
               </div>

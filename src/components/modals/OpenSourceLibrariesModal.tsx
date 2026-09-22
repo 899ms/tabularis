@@ -25,8 +25,8 @@ export function OpenSourceLibrariesModal({
       <div className="bg-elevated border border-strong rounded-xl shadow-2xl w-[760px] max-w-[calc(100vw-2rem)] max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-default bg-base">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-900/30 rounded-lg">
-              <Library size={20} className="text-blue-400" />
+            <div className="p-2 bg-accent-primary/15 rounded-lg">
+              <Library size={20} className="text-accent" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-primary">
@@ -103,7 +103,7 @@ export function OpenSourceLibrariesModal({
                               ),
                             )
                           }
-                          className="p-2 text-secondary hover:text-blue-400 hover:bg-surface-secondary rounded-lg transition-colors"
+                          className="p-2 text-secondary hover:text-accent hover:bg-surface-secondary rounded-lg transition-colors"
                           title={t("settings.openSourceLibrariesOpenProject")}
                           aria-label={t(
                             "settings.openSourceLibrariesOpenProject",
