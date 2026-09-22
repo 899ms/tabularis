@@ -5,6 +5,11 @@
 //! Set TABULARIS_TEST_MYSQL=1 and TABULARIS_TEST_MYSQL_HOST, _PORT, _USER,
 //! and _PASSWORD explicitly. The account must be able to create databases.
 //! Each run creates UUID-named databases and drops only databases it created.
+//!
+//! The official `mysql` images enable TLS with auto-generated certificates.
+//! Stock `mariadb` images do not: mount a CA, certificate and key and start the
+//! server with `--ssl-ca`, `--ssl-cert` and `--ssl-key` before running this.
+//! CI runs it against MySQL 8.4 and 5.7 in `.github/workflows/mysql-integration.yml`.
 
 use futures::FutureExt;
 use sqlx::mysql::{MySqlConnectOptions, MySqlSslMode};
