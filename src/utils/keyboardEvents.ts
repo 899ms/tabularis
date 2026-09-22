@@ -4,6 +4,7 @@ export function isTextCompositionKeyEvent(event: KeyboardEvent): boolean {
     event.key === "Dead" ||
     event.key === "Process" ||
     event.key === "Unidentified" ||
+    event.key === "Compose" ||
     event.keyCode === 229
   );
 }
