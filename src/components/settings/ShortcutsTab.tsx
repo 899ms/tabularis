@@ -63,14 +63,23 @@ export function ShortcutsTab() {
         ? editedShortcut.macMatch
         : editedShortcut.winMatch;
       const usesOwnDefault = keyMatchesOverlap(match, defaultMatch, isMac);
-      const conflict = usesOwnDefault
-        ? undefined
-        : shortcuts.find(
-            (shortcut) =>
-              shortcut.id !== editingShortcut.id &&
-              (keyMatchesOverlap(match, shortcut.match, isMac) ||
-                matchesReservedShortcut(shortcut.id, match, isMac)),
-          );
+      const conflict = shortcuts.find((shortcut) => {
+        if (shortcut.id === editingShortcut.id) return false;
+        const conflictsWithCurrent =
+          keyMatchesOverlap(match, shortcut.match, isMac) ||
+          matchesReservedShortcut(shortcut.id, match, isMac);
+        if (!conflictsWithCurrent || !usesOwnDefault) {
+          return conflictsWithCurrent;
+        }
+
+        const shortcutDefault = isMac
+          ? shortcut.macMatch
+          : shortcut.winMatch;
+        const existsInDefaultLayout =
+          keyMatchesOverlap(defaultMatch, shortcutDefault, isMac) ||
+          matchesReservedShortcut(shortcut.id, defaultMatch, isMac);
+        return !existsInDefaultLayout;
+      });
       if (conflict) {
         showAlert(
           t("settings.shortcuts.conflict", {

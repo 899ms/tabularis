@@ -337,7 +337,8 @@ export function formatMatch(match: KeyMatch, isMac: boolean): string {
   return parts.join("+");
 }
 
-function formatKey(key: string, isMac: boolean): string {
+function formatKey(key: string | undefined, isMac: boolean): string {
+  if (typeof key !== 'string') return '';
   if (isMac && MAC_SYMBOL_MAP[key]) return MAC_SYMBOL_MAP[key];
   // Common display names for all platforms
   const COMMON_DISPLAY: Record<string, string> = {

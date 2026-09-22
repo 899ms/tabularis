@@ -56,9 +56,38 @@ vi.mock("../../../src/hooks/useKeybindings", () => ({
         macMatch: { metaKey: true, key: "p", code: "KeyP" },
         winMatch: { ctrlKey: true, key: "p", code: "KeyP" },
         match: isMacMock
-          ? { metaKey: true, key: "p", code: "KeyP" }
-          : { ctrlKey: true, key: "p", code: "KeyP" },
+          ? (overridesMock.quick_navigator?.mac ?? {
+              metaKey: true,
+              key: "p",
+              code: "KeyP",
+            })
+          : (overridesMock.quick_navigator?.win ?? {
+              ctrlKey: true,
+              key: "p",
+              code: "KeyP",
+            }),
         i18nKey: "settings.shortcuts.quickNavigator",
+        overridable: true,
+      },
+      {
+        id: "toggle_sidebar",
+        category: "navigation",
+        defaultMac: "⌘+B",
+        defaultWin: "Ctrl+B",
+        macMatch: { metaKey: true, key: "b", code: "KeyB" },
+        winMatch: { ctrlKey: true, key: "b", code: "KeyB" },
+        match: isMacMock
+          ? (overridesMock.toggle_sidebar?.mac ?? {
+              metaKey: true,
+              key: "b",
+              code: "KeyB",
+            })
+          : (overridesMock.toggle_sidebar?.win ?? {
+              ctrlKey: true,
+              key: "b",
+              code: "KeyB",
+            }),
+        i18nKey: "settings.shortcuts.toggleSidebar",
         overridable: true,
       },
       {
@@ -314,6 +343,28 @@ describe("ShortcutsTab", () => {
       ),
     );
     expect(showAlertMock).not.toHaveBeenCalled();
+  });
+
+  it("should reject an own default claimed by another override", async () => {
+    overridesMock = {
+      quick_navigator: {
+        mac: { metaKey: true, key: "b", code: "KeyB" },
+        win: { ctrlKey: true, key: "b", code: "KeyB" },
+      },
+    };
+    recordShortcut(
+      { key: "b", code: "KeyB", metaKey: true },
+      "settings.shortcuts.toggleSidebar",
+    );
+    saveRecordedShortcut();
+
+    await waitFor(() =>
+      expect(showAlertMock).toHaveBeenCalledWith(
+        "settings.shortcuts.conflict: settings.shortcuts.quickNavigator",
+        { title: "common.error", kind: "error" },
+      ),
+    );
+    expect(saveOverrideMock).not.toHaveBeenCalled();
   });
 
   it("should reject a non-default notebook shortcut that conflicts with the data grid", async () => {

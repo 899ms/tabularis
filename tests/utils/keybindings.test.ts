@@ -479,6 +479,10 @@ describe('formatEvent', () => {
 // ─── formatMatch ──────────────────────────────────────────────────────────────
 
 describe('formatMatch', () => {
+  it('returns an empty label for a malformed match', () => {
+    expect(formatMatch({} as KeyMatch, true)).toBe('');
+  });
+
   it('formats metaKey match on Mac', () => {
     const match: KeyMatch = { metaKey: true, key: 'b' };
     expect(formatMatch(match, true)).toBe('⌘+B');
