@@ -1,5 +1,53 @@
 [
   {
+    "name": "definition-schema-hint",
+    "kind": "definition",
+    "valid": true,
+    "source": "{\"$schema\":\"https://raw.githubusercontent.com/TabularisDB/tabularis/main/src/schemas/theme-definition-v1.json\",\"schemaVersion\":1,\"mode\":\"dark\"}"
+  },
+  {
+    "name": "schema-hint-never-fetched",
+    "kind": "definition",
+    "valid": true,
+    "source": "{\"$schema\":\"https://unreachable.invalid/schema.json\",\"schemaVersion\":1,\"mode\":\"dark\"}"
+  },
+  {
+    "name": "schema-hint-cannot-bypass-validation",
+    "kind": "definition",
+    "valid": false,
+    "source": "{\"$schema\":\"https://unreachable.invalid/allow-all.json\",\"schemaVersion\":1,\"mode\":\"dark\",\"colors\":{\"accent\":{\"primary\":\"not-a-color\"}}}"
+  },
+  {
+    "name": "schema-hint-must-be-string",
+    "kind": "definition",
+    "valid": false,
+    "source": "{\"$schema\":{},\"schemaVersion\":1,\"mode\":\"dark\"}"
+  },
+  {
+    "name": "schema-hint-must-not-be-empty",
+    "kind": "definition",
+    "valid": false,
+    "source": "{\"$schema\":\"\",\"schemaVersion\":1,\"mode\":\"dark\"}"
+  },
+  {
+    "name": "manifest-schema-hint",
+    "kind": "manifest",
+    "valid": true,
+    "source": "{\"$schema\":\"https://registry.tabularis.dev/manifest.schema.json?kind=theme\",\"name\":\"fixture-theme\",\"version\":\"1.0.0\",\"kind\":\"theme\",\"min_runtime_version\":\"0.99.0\",\"theme_schema_version\":1,\"theme_variants\":[{\"id\":\"dark\",\"name\":\"Dark\",\"file\":\"themes/dark.json\"}]}"
+  },
+  {
+    "name": "manifest-schema-hint-cannot-bypass-validation",
+    "kind": "manifest",
+    "valid": false,
+    "source": "{\"$schema\":\"https://unreachable.invalid/allow-all.json\",\"name\":\"fixture-theme\",\"version\":\"1.0.0\",\"kind\":\"theme\",\"min_runtime_version\":\"0.99.0\",\"theme_schema_version\":1,\"theme_variants\":[]}"
+  },
+  {
+    "name": "manifest-schema-hint-must-be-string",
+    "kind": "manifest",
+    "valid": false,
+    "source": "{\"$schema\":42,\"name\":\"fixture-theme\",\"version\":\"1.0.0\",\"kind\":\"theme\",\"min_runtime_version\":\"0.99.0\",\"theme_schema_version\":1,\"theme_variants\":[{\"id\":\"dark\",\"name\":\"Dark\",\"file\":\"themes/dark.json\"}]}"
+  },
+  {
     "name": "light",
     "kind": "definition",
     "valid": true,

@@ -10,6 +10,8 @@ on:
     paths:
       - 'src/**'
       - 'src-tauri/**'
+      - 'tests/**'
+      - 'packages/create-plugin/**'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'tsconfig.json'
@@ -19,6 +21,8 @@ on:
     paths:
       - 'src/**'
       - 'src-tauri/**'
+      - 'tests/**'
+      - 'packages/create-plugin/**'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'tsconfig.json'
@@ -56,6 +60,12 @@ jobs:
 
       - name: Build
         run: pnpm run build
+
+      - name: Test theme authoring tools
+        run: |
+          pnpm --filter @tabularis/create-plugin test
+          pnpm --filter @tabularis/create-plugin build
+          pnpm --filter @tabularis/create-plugin smoke:theme
 
       - name: Test
         run: pnpm run test:all

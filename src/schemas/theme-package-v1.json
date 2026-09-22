@@ -2,6 +2,12 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "$schema": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048,
+      "description": "Editor schema hint only. Tabularis validates against its bundled schema and never fetches this URL."
+    },
     "name": {
       "type": "string",
       "maxLength": 64,
@@ -160,6 +166,5 @@
     "theme_variants"
   ],
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://tabularis.dev/schemas/theme-package-v1.json",
   "title": "Tabularis theme package manifest v1"
 }

@@ -3,6 +3,8 @@ import { mkdtempSync, writeFileSync, readFileSync, rmSync, symlinkSync, existsSy
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runThemeAuthor, scaffoldTheme, themeReleaseWorkflow, validateThemeDirectory } from "../src/themeAuthor";
+import { themeValidationWorkflow } from "../src/themeCi";
+import definitionSchema from "../../../src/schemas/theme-definition-v1.json";
 
 const roots: string[] = [];
 function fixture() {
@@ -14,6 +16,28 @@ function fixture() {
 afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });
 
 describe("theme author tooling", () => {
+  it("uses public registry schema hints without fetching or packaging schemas", () => {
+    const { target } = fixture();
+    const { manifest, files } = validateThemeDirectory(target);
+    expect(manifest.$schema).toBe("https://registry.tabularis.dev/manifest.schema.json?kind=theme");
+    for (const variant of manifest.theme_variants) {
+      expect(JSON.parse(files.get(variant.file)!).$schema).toBe(definitionSchema.$id);
+    }
+    expect([...files.keys()].some((file) => file.startsWith("schemas/"))).toBe(false);
+    expect(JSON.parse(readFileSync(join(target, ".vscode/settings.json"), "utf8"))["files.associations"]).toEqual({ ".tabularium": "json" });
+    expect(readFileSync(join(target, ".github/workflows/validate.yml"), "utf8")).toBe(themeValidationWorkflow());
+  });
+  it("keeps branch and PR validation read-only and separate from releases", () => {
+    const workflow = themeValidationWorkflow();
+    expect(workflow).toContain("pull_request:");
+    expect(workflow).not.toContain("pull_request_target");
+    expect(workflow).toContain("contents: read");
+    expect(workflow).not.toContain("contents: write");
+    expect(workflow).not.toContain("gh release");
+    expect(workflow).toContain("node tools/theme.mjs validate .");
+    expect(workflow).toContain("node tools/theme.mjs package .");
+    expect(workflow).toContain("persist-credentials: false");
+  });
   it("scaffolds a self-contained two-variant repository without changing driver defaults", () => {
     const { target } = fixture(); const result = validateThemeDirectory(target, "v1.0.0");
     expect(result.manifest.kind).toBe("theme"); expect(result.manifest.theme_variants).toHaveLength(2);
