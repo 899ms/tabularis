@@ -70,7 +70,7 @@ export function ThemeActionsMenu({ label, items, children, disabled = false }: {
       aria-haspopup="menu" aria-expanded={!!position} aria-controls={position ? id : undefined}
       onClick={() => position ? close() : open()}
       onKeyDown={(event) => { if (event.key === "ArrowDown") { event.preventDefault(); open(); } }}
-      className={clsx("inline-flex items-center justify-center gap-1.5 rounded-lg text-muted transition-colors hover:bg-surface-secondary hover:text-primary focus-visible:outline focus-visible:outline-accent-primary disabled:opacity-40 disabled:cursor-not-allowed", children ? "border border-default px-3 py-2 text-xs" : "p-1.5")}
+      className={clsx("inline-flex items-center justify-center gap-1.5 rounded-lg text-muted transition-colors hover:bg-surface-secondary hover:text-primary focus-visible:outline focus-visible:outline-focus disabled:opacity-40 disabled:cursor-not-allowed", children ? "border border-default px-3 py-2 text-xs" : "p-1.5")}
     >{children ?? <MoreHorizontal size={16} />}</button>
     {position && createPortal(<div
       ref={menu} id={id} role="menu" aria-label={label} style={position}

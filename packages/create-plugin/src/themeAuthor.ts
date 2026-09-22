@@ -2,7 +2,7 @@ import { closeSync, constants, chmodSync, existsSync, fstatSync, lstatSync, mkdi
 import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { parseThemeDefinition, parseThemePackageManifest, THEME_INPUT_LIMITS } from "../../../src/utils/themePackageValidation";
-import { isThemePackagePath } from "../../../src/utils/themePackageIdentity";
+import { isThemePackagePath, themePackageId } from "../../../src/utils/themePackageIdentity";
 import { createThemeArchive } from "../../../src/utils/themeArchive";
 import type { ThemePackageManifestV1 } from "../../../src/types/themePackage";
 import licenses from "./theme-licenses.json";
@@ -113,7 +113,7 @@ export function runThemeAuthor(argv: string[], bundle: string): string {
   }
   if (command !== "validate" && command !== "package") throw new Error("Unknown theme command");
   const root = resolve(argument ?? "."); const { manifest, files } = validateThemeDirectory(root, values.tag);
-  if (command === "validate") return `Valid ${manifest.name}@${manifest.version} (${manifest.theme_variants.length} variants)`;
+  if (command === "validate") return `Valid ${themePackageId(manifest)}@${manifest.version} (${manifest.theme_variants.length} variants)`;
   if (!values.output) throw new Error("Package requires --output (an existing file will not be overwritten)");
   const output = resolve(values.output); writeFileSync(output, createThemeArchive(files), { flag: "wx", mode: 0o644 }); return `Packaged ${output}`;
 }

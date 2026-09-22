@@ -227,7 +227,7 @@ export const SidebarSchemaItem = ({
                         value={tableFilter}
                         onChange={(e) => setTableFilter(e.target.value)}
                         placeholder={t("sidebar.filterTables")}
-                        className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-10 py-1 border border-default focus:outline-none focus:border-blue-500/50"
+                        className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-10 py-1 border border-default focus:outline-none focus:border-focus/50"
                         onClick={(e) => e.stopPropagation()}
                       />
                       {tableFilter && (
@@ -372,7 +372,7 @@ export const SidebarSchemaItem = ({
                           value={triggerFilter}
                           onChange={(e) => setTriggerFilter(e.target.value)}
                           placeholder={t("sidebar.filterTriggers")}
-                          className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-6 py-1 border border-default focus:outline-none focus:border-blue-500/50"
+                          className="w-full bg-surface-secondary text-xs text-secondary placeholder:text-muted rounded pl-6 pr-6 py-1 border border-default focus:outline-none focus:border-focus/50"
                           onClick={(e) => e.stopPropagation()}
                         />
                         {triggerFilter && (

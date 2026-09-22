@@ -30,7 +30,7 @@ pub(super) fn is_theme_package(folder: &Path) -> Result<bool, String> {
     let source = files::read_file(&folder.join(".tabularium"), 64 * 1024)?;
     let value = super::json::parse_bounded_json(source.as_bytes(), 64 * 1024, 128, 262_144)?;
     Ok(value["kind"] == "theme"
-        && value["name"].as_str() == folder.file_name().and_then(|name| name.to_str()))
+        && validation::package_id(&value).ok() == folder.file_name().and_then(|name| name.to_str()))
 }
 
 pub(super) fn resolve_package(root: &Path, package: &str) -> Result<PathBuf, String> {

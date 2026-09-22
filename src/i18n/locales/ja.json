@@ -510,7 +510,7 @@
     "darkTheme": "ダークテーマ",
     "fontFamily": "フォントファミリー",
     "fonts": {
-      "system": "システム既定",
+      "system": "テーマの既定",
       "systemDesc": "OS の既定フォントを使用します",
       "custom": "カスタムフォント",
       "customPlaceholder": "例: Comic Sans MS",

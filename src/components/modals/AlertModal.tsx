@@ -13,9 +13,9 @@ interface AlertModalProps {
 }
 
 const iconConfig: Record<AlertKind, { Icon: typeof Info; bgClass: string; textClass: string }> = {
-  error: { Icon: AlertCircle, bgClass: "bg-red-900/30", textClass: "text-red-400" },
-  warning: { Icon: AlertTriangle, bgClass: "bg-yellow-900/30", textClass: "text-yellow-400" },
-  info: { Icon: Info, bgClass: "bg-blue-900/30", textClass: "text-blue-400" },
+  error: { Icon: AlertCircle, bgClass: "bg-accent-error/15", textClass: "text-accent-error" },
+  warning: { Icon: AlertTriangle, bgClass: "bg-accent-warning/15", textClass: "text-accent-warning" },
+  info: { Icon: Info, bgClass: "bg-accent-primary/15", textClass: "text-accent" },
 };
 
 export const AlertModal = ({ isOpen, onClose, title, message, kind }: AlertModalProps) => {
@@ -57,7 +57,7 @@ export const AlertModal = ({ isOpen, onClose, title, message, kind }: AlertModal
             onClick={handleCopy}
             className="flex items-center gap-2 px-4 py-2 text-secondary hover:text-primary transition-colors text-sm"
           >
-            {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+            {copied ? <Check size={14} className="text-accent-success" /> : <Copy size={14} />}
             {copied ? t("common.copied") : t("common.copy")}
           </button>
           <button

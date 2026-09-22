@@ -38,7 +38,7 @@ export function ThemePicker({
             <Monitor size={16} className="text-muted" />
             <span className="text-sm font-medium text-primary">{t("settings.appearance_sameAsApp")}</span>
           </div>
-          {!value && <CheckCircle2 size={14} className="text-accent-primary" />}
+          {!value && <CheckCircle2 size={14} className="text-accent" />}
         </button>
       )}
 
@@ -56,7 +56,7 @@ export function ThemePicker({
             <button
               type="button" disabled={disabled || unavailable} aria-label={theme.name} aria-pressed={selected}
               onClick={() => onChange(theme.id)}
-              className={clsx("flex-1 rounded-xl p-3 text-left focus-visible:outline focus-visible:outline-accent-primary disabled:cursor-not-allowed", unavailable && "opacity-45", disabled && "opacity-50")}
+              className={clsx("flex-1 rounded-xl p-3 text-left focus-visible:outline focus-visible:outline-focus disabled:cursor-not-allowed", unavailable && "opacity-45", disabled && "opacity-50")}
             >
               <div className={clsx("flex items-center gap-2 mb-3", actions && "pr-6")}>
                 <div aria-hidden="true" className="w-5 h-5 shrink-0 rounded-full border border-strong"
@@ -68,7 +68,7 @@ export function ThemePicker({
                 <span aria-hidden="true" className="w-3.5 h-3.5 rounded" style={{ backgroundColor: theme.colors.surface.primary }} />
                 <span aria-hidden="true" className="w-3.5 h-3.5 rounded" style={{ backgroundColor: theme.colors.accent.primary }} />
                 {unavailable && <span className="ml-1 text-[10px] text-muted">{t("themePackages.disabled")}</span>}
-                {selected && <CheckCircle2 size={13} className="ml-auto text-accent-primary" />}
+                {selected && <CheckCircle2 size={13} className="ml-auto text-accent" />}
               </div>
             </button>
             {actions && <div className="absolute right-1.5 top-1.5">{actions}</div>}

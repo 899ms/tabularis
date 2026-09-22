@@ -1,6 +1,6 @@
 use super::zip_layout::preflight_zip;
 use super::{
-    is_safe_relative_path, validate_definition_json, validate_manifest_json,
+    is_safe_relative_path, package_id, validate_definition_json, validate_manifest_json,
     validate_runtime_version,
 };
 use serde::Deserialize;
@@ -196,7 +196,7 @@ pub fn validate_theme_archive(
             .get(".tabularium")
             .ok_or("Missing root .tabularium manifest")?,
     )?;
-    if manifest.get("name").and_then(Value::as_str) != Some(expected_name)
+    if package_id(&manifest)? != expected_name
         || manifest.get("version").and_then(Value::as_str) != Some(expected_version)
     {
         return Err("Theme archive identity/version does not match the requested release".into());

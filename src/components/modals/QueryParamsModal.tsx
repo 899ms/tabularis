@@ -82,7 +82,7 @@ const QueryParamsForm = ({ parameters, initialValues, onSubmit, onClose, mode }:
                   value={values[param] || ""}
                   onChange={(e) => handleChange(param, e.target.value)}
                   placeholder={t("editor.paramValuePlaceholder")}
-                  className="bg-base border border-strong rounded px-3 py-2 text-sm text-primary focus:outline-none focus:border-blue-500 font-mono"
+                  className="bg-base border border-strong rounded px-3 py-2 text-sm text-primary focus:outline-none focus:border-focus font-mono"
                   autoFocus={parameters[0] === param}
                 />
               </div>

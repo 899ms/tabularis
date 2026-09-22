@@ -6,15 +6,15 @@ import { Check, ChevronDown } from "lucide-react";
 const ENVIRONMENTS = ["", "development", "staging", "production"] as const;
 
 const ENV_TRIGGER_CLASS: Record<string, string> = {
-  production: "text-red-400 border-red-400/40",
-  staging: "text-amber-400 border-amber-400/40",
-  development: "text-emerald-400 border-emerald-400/40",
+  production: "text-accent-error border-accent-error/40",
+  staging: "text-accent-warning border-accent-warning/40",
+  development: "text-accent-success border-accent-success/40",
 };
 
 const ENV_DOT_CLASS: Record<string, string> = {
-  production: "bg-red-400",
-  staging: "bg-amber-400",
-  development: "bg-emerald-400",
+  production: "bg-accent-error",
+  staging: "bg-accent-warning",
+  development: "bg-accent-success",
 };
 
 interface EnvironmentSelectProps {

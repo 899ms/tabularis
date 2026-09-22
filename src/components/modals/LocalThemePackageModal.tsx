@@ -5,6 +5,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { useTheme } from "../../hooks/useTheme";
 import type { NativeThemeContribution } from "../../types/themeCatalog";
 import type { ThemePackageManifestV1 } from "../../types/themePackage";
+import { themePackageId } from "../../utils/themePackageIdentity";
 import { AlertTriangle, Archive, CheckCircle2, Download, Eye, FolderOpen } from "lucide-react";
 import clsx from "clsx";
 import { ThemeDialog } from "../ui/ThemeDialog";
@@ -41,7 +42,7 @@ export function LocalThemePackageModal({ isOpen, onClose }: LocalThemePackageMod
     if (!preview) return;
     setBusy(true); setInstalling(true); setError("");
     try {
-      const result = await invoke<{ warnings: string[] }>("install_local_theme_package", { path, packageName: preview.manifest.name, expectedDigest: preview.digest });
+      const result = await invoke<{ warnings: string[] }>("install_local_theme_package", { path, packageName: themePackageId(preview.manifest), expectedDigest: preview.digest });
       setCommitted(true); cancelPreview(); setError(result.warnings.join("\n"));
       try { await refreshCatalog(); }
       catch (failure) { setError(`${t("themePackages.committedRefreshFailed")} ${String(failure)}`); }
@@ -66,10 +67,10 @@ export function LocalThemePackageModal({ isOpen, onClose }: LocalThemePackageMod
     </div>
     {preview && <ul className="space-y-2">{preview.variants.map((variant) => <li key={variant.id}>
       <button type="button" disabled={busy || committed} aria-pressed={selected?.id === variant.id} onClick={() => { previewTheme(variant); setSelected(variant); }}
-        className={clsx("flex w-full items-center gap-3 px-3 py-3 border rounded-lg text-left transition-colors focus-visible:outline focus-visible:outline-accent-primary disabled:opacity-50 disabled:cursor-not-allowed", selected?.id === variant.id ? "border-accent-primary bg-accent-primary/10" : "border-default bg-base hover:bg-surface-secondary")}>
+        className={clsx("flex w-full items-center gap-3 px-3 py-3 border rounded-lg text-left transition-colors focus-visible:outline focus-visible:outline-focus disabled:opacity-50 disabled:cursor-not-allowed", selected?.id === variant.id ? "border-accent-primary bg-accent-primary/10" : "border-default bg-base hover:bg-surface-secondary")}>
         <Eye size={16} className="shrink-0 text-muted" />
         <span className="min-w-0 flex-1"><span className="block text-sm font-medium break-words">{variant.name}</span><span className="block text-xs text-muted">{t(`themePackages.modes.${variant.mode}`)}</span></span>
-        <span className="shrink-0 text-xs text-accent-primary">{t("themePackages.preview")}</span>
+        <span className="shrink-0 text-xs text-accent">{t("themePackages.preview")}</span>
       </button>
     </li>)}</ul>}
     {selected && !committed && <ThemeSqlSample contribution={selected} />}

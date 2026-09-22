@@ -494,7 +494,7 @@
     "darkTheme": "Тёмная тема",
     "fontFamily": "Шрифт",
     "fonts": {
-      "system": "Системный по умолчанию",
+      "system": "По умолчанию темы",
       "systemDesc": "Использует системный шрифт ОС",
       "custom": "Пользовательский шрифт",
       "customPlaceholder": "например, Comic Sans MS",

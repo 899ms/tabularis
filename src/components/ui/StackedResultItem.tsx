@@ -124,11 +124,11 @@ export function StackedResultItem({
 
         {/* Status icon */}
         {entry.isLoading ? (
-          <Loader2 size={12} className="animate-spin text-blue-400 shrink-0" />
+          <Loader2 size={12} className="animate-spin text-accent shrink-0" />
         ) : entry.error ? (
-          <XCircle size={12} className="text-red-400 shrink-0" />
+          <XCircle size={12} className="text-accent-error shrink-0" />
         ) : (
-          <Database size={12} className="text-green-400 shrink-0" />
+          <Database size={12} className="text-accent-success shrink-0" />
         )}
 
         {/* Editable label */}
@@ -144,7 +144,7 @@ export function StackedResultItem({
               e.stopPropagation();
             }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-transparent border-b border-blue-500 text-white text-xs font-medium outline-none px-0 min-w-[80px]"
+            className="bg-transparent border-b border-accent-primary text-primary text-xs font-medium outline-none px-0 min-w-[80px]"
           />
         ) : (
           <span
@@ -165,7 +165,7 @@ export function StackedResultItem({
               e.stopPropagation();
               startEditing();
             }}
-            className="p-0.5 rounded-sm hover:bg-surface-secondary text-muted hover:text-white shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="p-0.5 rounded-sm hover:bg-surface-secondary text-muted hover:text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
             title={t("editor.multiResult.rename")}
           >
             <Pencil size={10} />
@@ -186,7 +186,7 @@ export function StackedResultItem({
             {aiRenaming ? (
               <Loader2 size={10} className="animate-spin text-muted" />
             ) : (
-              <Sparkles size={10} className="text-purple-300" />
+              <Sparkles size={10} className="text-accent-secondary" />
             )}
           </button>
         )}
@@ -198,7 +198,7 @@ export function StackedResultItem({
               e.stopPropagation();
               onRerun();
             }}
-            className="p-0.5 rounded-sm hover:bg-surface-secondary text-muted hover:text-white shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="p-0.5 rounded-sm hover:bg-surface-secondary text-muted hover:text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
             title={t("editor.multiResult.rerun")}
           >
             <Play size={10} fill="currentColor" />
@@ -211,7 +211,7 @@ export function StackedResultItem({
             e.stopPropagation();
             onClose();
           }}
-          className="p-0.5 rounded-sm hover:bg-surface-secondary text-muted hover:text-white shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="p-0.5 rounded-sm hover:bg-surface-secondary text-muted hover:text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
           title={t("editor.multiResult.close")}
         >
           <X size={12} />
@@ -248,7 +248,7 @@ export function StackedResultItem({
 
         {/* Error indicator in header when collapsed */}
         {collapsed && entry.error && (
-          <span className="text-red-400 text-[11px] truncate max-w-[300px]">
+          <span className="text-accent-error text-[11px] truncate max-w-[300px]">
             {entry.error.split("\n")[0]}
           </span>
         )}
@@ -272,7 +272,7 @@ export function StackedResultItem({
               >
                 {entry.query.trim()}
               </pre>
-              <button className="text-muted hover:text-white shrink-0 mt-0.5">
+              <button className="text-muted hover:text-primary shrink-0 mt-0.5">
                 {queryExpanded ? (
                   <ChevronDown size={12} className="rotate-180" />
                 ) : (
@@ -285,7 +285,7 @@ export function StackedResultItem({
           {/* Result content */}
           {entry.isLoading ? (
             <div className="flex items-center gap-2 px-3 py-4 text-muted text-xs">
-              <div className="w-3 h-3 border-2 border-surface-secondary border-t-blue-500 rounded-full animate-spin" />
+              <div className="w-3 h-3 border-2 border-surface-secondary border-t-accent-primary rounded-full animate-spin" />
               <span>{t("editor.executingQuery")}</span>
             </div>
           ) : entry.error ? (

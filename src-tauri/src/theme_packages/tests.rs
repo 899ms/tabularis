@@ -4,6 +4,7 @@ mod catalog;
 mod catalog_safety;
 mod contract_edges;
 mod http_fixture;
+mod identity;
 mod lifecycle;
 mod kind_layout;
 mod manual_fixture;

@@ -132,21 +132,21 @@ function ResultTab({
     >
       {/* Active indicator — top bar */}
       {isActive && (
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-blue-500" />
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-accent-primary" />
       )}
 
       {/* Loading indicator — bottom bar */}
       {entry.isLoading && (
-        <div className="absolute bottom-0 left-0 h-0.5 bg-blue-500 animate-pulse w-full" />
+        <div className="absolute bottom-0 left-0 h-0.5 bg-accent-primary animate-pulse w-full" />
       )}
 
       {/* Status icon */}
       {entry.isLoading ? (
-        <Loader2 size={12} className="animate-spin text-blue-400 shrink-0" />
+        <Loader2 size={12} className="animate-spin text-accent shrink-0" />
       ) : entry.error ? (
-        <XCircle size={12} className="text-red-400 shrink-0" />
+        <XCircle size={12} className="text-accent-error shrink-0" />
       ) : (
-        <Database size={12} className="text-green-400 shrink-0" />
+        <Database size={12} className="text-accent-success shrink-0" />
       )}
 
       {/* Label */}
@@ -163,7 +163,7 @@ function ResultTab({
               e.stopPropagation();
             }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-transparent border-b border-blue-500 text-white text-xs font-medium outline-none w-full px-0"
+            className="bg-transparent border-b border-accent-primary text-primary text-xs font-medium outline-none w-full px-0"
           />
         ) : (
           <span
@@ -193,7 +193,7 @@ function ResultTab({
           {aiRenaming ? (
             <Loader2 size={10} className="animate-spin" />
           ) : (
-            <Sparkles size={10} className="text-purple-300" />
+            <Sparkles size={10} className="text-accent-secondary" />
           )}
         </button>
       )}
@@ -346,7 +346,7 @@ export function MultiResultPanel({
   const viewToggle = results.length > 1 && (
     <button
       onClick={() => setViewMode((v) => (v === "tabs" ? "stacked" : "tabs"))}
-      className="flex items-center justify-center w-8 h-full text-muted border-l border-default shrink-0 transition-colors hover:text-white hover:bg-surface-secondary"
+      className="flex items-center justify-center w-8 h-full text-muted border-l border-default shrink-0 transition-colors hover:text-primary hover:bg-surface-secondary"
       title={viewMode === "tabs" ? t("editor.multiResult.viewStacked") : t("editor.multiResult.viewTabs")}
     >
       {viewMode === "tabs" ? <Rows3 size={14} /> : <PanelTop size={14} />}
@@ -361,17 +361,17 @@ export function MultiResultPanel({
     <div className="flex items-center gap-2 px-3 h-full text-[10px] text-muted border-l border-default shrink-0">
       <span>
         {succeeded > 0 && (
-          <span className="text-green-400">{succeeded}<Check size={9} className="inline ml-0.5" /></span>
+          <span className="text-accent-success">{succeeded}<Check size={9} className="inline ml-0.5" /></span>
         )}
         {failed > 0 && (
-          <span className="text-red-400 ml-1.5">{failed}<XCircle size={9} className="inline ml-0.5" /></span>
+          <span className="text-accent-error ml-1.5">{failed}<XCircle size={9} className="inline ml-0.5" /></span>
         )}
         {pending > 0 && (
-          <span className="text-blue-400 ml-1.5">{pending}<Loader2 size={9} className="inline ml-0.5 animate-spin" /></span>
+          <span className="text-accent ml-1.5">{pending}<Loader2 size={9} className="inline ml-0.5 animate-spin" /></span>
         )}
       </span>
       {isRunning ? (
-        <span className="font-mono text-blue-400">{formatDuration(elapsed)}</span>
+        <span className="font-mono text-accent">{formatDuration(elapsed)}</span>
       ) : (
         totalTime > 0 && (
           <span className="font-mono text-muted">{formatDuration(totalTime)}</span>
@@ -389,14 +389,14 @@ export function MultiResultPanel({
             <button
               onClick={() => scrollTabs("left")}
               disabled={!canScrollLeft}
-              className="flex items-center justify-center w-7 h-full text-muted border-r border-default shrink-0 transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:enabled:text-white hover:enabled:bg-surface-secondary"
+              className="flex items-center justify-center w-7 h-full text-muted border-r border-default shrink-0 transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:enabled:text-primary hover:enabled:bg-surface-secondary"
             >
               <ChevronLeft size={14} />
             </button>
             <button
               onClick={() => scrollTabs("right")}
               disabled={!canScrollRight}
-              className="flex items-center justify-center w-7 h-full text-muted border-r border-default shrink-0 transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:enabled:text-white hover:enabled:bg-surface-secondary"
+              className="flex items-center justify-center w-7 h-full text-muted border-r border-default shrink-0 transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:enabled:text-primary hover:enabled:bg-surface-secondary"
             >
               <ChevronRight size={14} />
             </button>
@@ -445,7 +445,7 @@ export function MultiResultPanel({
               >
                 {activeEntry.query.trim()}
               </pre>
-              <button className="text-muted hover:text-white shrink-0 mt-0.5">
+              <button className="text-muted hover:text-primary shrink-0 mt-0.5">
                 {queryExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
               </button>
             </div>
@@ -485,7 +485,7 @@ export function MultiResultPanel({
                   allCollapsed ? new Set() : new Set(results.map((r) => r.id)),
                 );
               }}
-              className="flex items-center justify-center w-8 h-full text-muted border-l border-default shrink-0 transition-colors hover:text-white hover:bg-surface-secondary"
+              className="flex items-center justify-center w-8 h-full text-muted border-l border-default shrink-0 transition-colors hover:text-primary hover:bg-surface-secondary"
               title={
                 collapsedIds.size === results.length
                   ? t("editor.multiResult.expandAll")

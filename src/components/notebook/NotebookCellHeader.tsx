@@ -56,14 +56,14 @@ function CellTypeBadge({ cellType }: { cellType: NotebookCellType }) {
 
   if (cellType === "sql") {
     return (
-      <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-green-500/15 text-green-400">
+      <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-accent-success/15 text-accent-success">
         {t("editor.notebook.sqlCell")}
       </span>
     );
   }
 
   return (
-    <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400">
+    <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-accent-primary/15 text-accent">
       {t("editor.notebook.markdownCell")}
     </span>
   );
@@ -195,7 +195,7 @@ export function NotebookCellHeader({
                 setIsEditingName(false);
               }
             }}
-            className="text-[10px] text-secondary bg-base border border-strong rounded px-1 py-0.5 outline-none focus:border-blue-500 w-32"
+            className="text-[10px] text-secondary bg-base border border-strong rounded px-1 py-0.5 outline-none focus:border-focus w-32"
             placeholder={t("editor.notebook.cellNamePlaceholder")}
             autoFocus
           />
@@ -252,7 +252,7 @@ export function NotebookCellHeader({
                         }}
                         className={`text-left px-2.5 py-1 text-[11px] hover:bg-surface transition-colors flex items-center gap-1.5 ${
                           activeSchema === db
-                            ? "text-white font-medium"
+                            ? "text-primary font-medium"
                             : "text-secondary"
                         }`}
                       >
@@ -286,7 +286,7 @@ export function NotebookCellHeader({
             title={t("editor.notebook.parallelExecution")}
             className={`p-1 rounded transition-colors ${
               isParallel
-                ? "text-yellow-400 bg-yellow-500/15"
+                ? "text-accent-warning bg-accent-warning/15"
                 : "text-muted hover:text-primary hover:bg-surface-secondary"
             }`}
           >
@@ -303,7 +303,7 @@ export function NotebookCellHeader({
             aria-pressed={!!isQueryPlanVisible}
             className={`p-1 rounded transition-colors ${
               isQueryPlanVisible
-                ? "text-blue-400 bg-blue-500/15"
+                ? "text-accent bg-accent-primary/15"
                 : "text-muted hover:text-primary hover:bg-surface-secondary"
             }`}
           >

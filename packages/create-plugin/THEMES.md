@@ -95,7 +95,8 @@ The root manifest names every variant and its relative JSON path:
 ```json
 {
   "$schema": "https://registry.tabularis.dev/manifest.schema.json?kind=theme",
-  "name": "my-theme",
+  "id": "my-theme",
+  "name": "My Theme",
   "version": "1.0.0",
   "kind": "theme",
   "min_runtime_version": "<first-supporting-version>",
@@ -108,9 +109,18 @@ The root manifest names every variant and its relative JSON path:
 ```
 
 Replace the placeholder runtime version with a canonical exact SemVer before
-validation. Variant IDs stay stable across releases. Never reuse a package/variant
-ID for a different theme. Registry identity is part of the host-issued selection
-ID, so the same package name on two registries is not the same installed theme.
+validation. `id` is the stable package identifier (a lowercase slug) used for the
+installation folder and selection IDs; `name` is the display name. Legacy manifests
+without `id` must keep `name` a slug, because it then serves as the identifier.
+Variant IDs stay stable across releases. Never reuse a package/variant ID for a
+different theme. Registry identity is part of the host-issued selection ID, so the
+same package ID on two registries is not the same installed theme.
+
+The host validates only the runtime contract: identity, versions, `kind`,
+`theme_schema_version` and `theme_variants`. Catalog metadata such as `description`,
+`tags`, `license`, `screenshots` and links is owned and validated by the Tabularium
+registry (`tabularium validate .tabularium --kind theme`), so new registry fields
+never break installation.
 
 A small definition is enough; missing values use permanent host-owned bases:
 
