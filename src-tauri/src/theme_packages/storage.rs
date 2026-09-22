@@ -1,5 +1,4 @@
 use super::archive::ValidatedThemePackage;
-use super::is_safe_relative_path;
 use super::json::parse_bounded_json;
 use fs2::FileExt;
 use serde::{Deserialize, Serialize};
@@ -54,15 +53,6 @@ fn create_directory(path: &Path) -> Result<(), String> {
         builder.mode(0o700);
     }
     builder.create(path).map_err(|error| error.to_string())
-}
-
-fn safe_package_name(name: &str) -> bool {
-    name.len() <= 64
-        && name.as_bytes().first().is_some_and(u8::is_ascii_lowercase)
-        && name
-            .bytes()
-            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
-        && is_safe_relative_path(name)
 }
 
 fn namespace(root: &Path, registry_key: &str) -> Result<PathBuf, String> {
@@ -176,7 +166,7 @@ fn recover_locked(folder: &Path) -> Result<(), String> {
             .map_err(|error| error.to_string())?;
         let journal: Journal = serde_json::from_value(parse_bounded_json(&bytes, 1024, 4, 16)?)
             .map_err(|error| error.to_string())?;
-        if journal.version != 1 || !safe_package_name(&journal.package) {
+        if journal.version != 1 || !super::is_package_slug(&journal.package) {
             return Err("Invalid theme transaction ownership".into());
         }
         let destination = folder.join(&journal.package);
@@ -239,14 +229,8 @@ pub(super) fn install_with_rename(
 ) -> Result<ThemeCommit, String> {
     check_cancelled()?;
     let folder = namespace(root, registry_key)?;
-    let name = package
-        .manifest
-        .get("name")
-        .and_then(serde_json::Value::as_str)
-        .ok_or("Missing validated package name")?;
-    if !safe_package_name(name) {
-        return Err("Invalid theme package identity".into());
-    }
+    let name = super::package_id(&package.manifest)
+        .map_err(|_| "Invalid theme package identity".to_string())?;
     create_directory(root)?;
     create_directory(&folder)?;
     let _lock = storage_lock(&folder, check_cancelled)?;

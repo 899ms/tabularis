@@ -198,10 +198,11 @@
     "source": "{\"name\": \"fixture-theme\", \"version\": \"1.0.0\", \"kind\": \"driver\", \"min_runtime_version\": \"0.99.0\", \"theme_schema_version\": 1, \"theme_variants\": [{\"id\": \"dark\", \"name\": \"Dark\", \"file\": \"themes/dark.json\"}]}"
   },
   {
-    "name": "executable",
+    "name": "unknown-metadata-tolerated",
     "kind": "manifest",
-    "valid": false,
-    "source": "{\"name\": \"fixture-theme\", \"version\": \"1.0.0\", \"kind\": \"theme\", \"min_runtime_version\": \"0.99.0\", \"theme_schema_version\": 1, \"theme_variants\": [{\"id\": \"dark\", \"name\": \"Dark\", \"file\": \"themes/dark.json\"}], \"executable\": \"theme.sh\"}"
+    "valid": true,
+    "source": "{\"name\": \"fixture-theme\", \"version\": \"1.0.0\", \"kind\": \"theme\", \"min_runtime_version\": \"0.99.0\", \"theme_schema_version\": 1, \"theme_variants\": [{\"id\": \"dark\", \"name\": \"Dark\", \"file\": \"themes/dark.json\"}], \"executable\": \"theme.sh\"}",
+    "note": "Catalog metadata is owned by the registry; unknown manifest keys never grant files or execution."
   },
   {
     "name": "range-floor",
@@ -220,6 +221,42 @@
     "kind": "manifest",
     "valid": false,
     "source": "{\"name\": \"con\", \"version\": \"1.0.0\", \"kind\": \"theme\", \"min_runtime_version\": \"0.99.0\", \"theme_schema_version\": 1, \"theme_variants\": [{\"id\": \"dark\", \"name\": \"Dark\", \"file\": \"themes/dark.json\"}]}"
+  },
+  {
+    "name": "id-with-display-name",
+    "kind": "manifest",
+    "valid": true,
+    "source": "{\"name\": \"Ember Theme for Tabularis\", \"version\": \"1.0.0\", \"kind\": \"theme\", \"min_runtime_version\": \"0.99.0\", \"theme_schema_version\": 1, \"theme_variants\": [{\"id\": \"dark\", \"name\": \"Dark\", \"file\": \"themes/dark.json\"}], \"id\": \"ember-theme\"}"
+  },
+  {
+    "name": "display-name-without-id",
+    "kind": "manifest",
+    "valid": false,
+    "source": "{\"name\": \"Ember Theme for Tabularis\", \"version\": \"1.0.0\", \"kind\": \"theme\", \"min_runtime_version\": \"0.99.0\", \"theme_schema_version\": 1, \"theme_variants\": [{\"id\": \"dark\", \"name\": \"Dark\", \"file\": \"themes/dark.json\"}]}"
+  },
+  {
+    "name": "id-reserved",
+    "kind": "manifest",
+    "valid": false,
+    "source": "{\"name\": \"Console\", \"version\": \"1.0.0\", \"kind\": \"theme\", \"min_runtime_version\": \"0.99.0\", \"theme_schema_version\": 1, \"theme_variants\": [{\"id\": \"dark\", \"name\": \"Dark\", \"file\": \"themes/dark.json\"}], \"id\": \"con\"}"
+  },
+  {
+    "name": "id-uppercase",
+    "kind": "manifest",
+    "valid": false,
+    "source": "{\"name\": \"Ember\", \"version\": \"1.0.0\", \"kind\": \"theme\", \"min_runtime_version\": \"0.99.0\", \"theme_schema_version\": 1, \"theme_variants\": [{\"id\": \"dark\", \"name\": \"Dark\", \"file\": \"themes/dark.json\"}], \"id\": \"Ember\"}"
+  },
+  {
+    "name": "id-not-string",
+    "kind": "manifest",
+    "valid": false,
+    "source": "{\"name\": \"Ember\", \"version\": \"1.0.0\", \"kind\": \"theme\", \"min_runtime_version\": \"0.99.0\", \"theme_schema_version\": 1, \"theme_variants\": [{\"id\": \"dark\", \"name\": \"Dark\", \"file\": \"themes/dark.json\"}], \"id\": 7}"
+  },
+  {
+    "name": "id-empty",
+    "kind": "manifest",
+    "valid": false,
+    "source": "{\"name\": \"Ember\", \"version\": \"1.0.0\", \"kind\": \"theme\", \"min_runtime_version\": \"0.99.0\", \"theme_schema_version\": 1, \"theme_variants\": [{\"id\": \"dark\", \"name\": \"Dark\", \"file\": \"themes/dark.json\"}], \"id\": \"\"}"
   },
   {
     "name": "duplicate-variant",

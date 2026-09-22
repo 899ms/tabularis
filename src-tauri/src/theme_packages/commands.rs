@@ -90,7 +90,7 @@ pub async fn install_local_theme_package(
             lifecycle::validate_local_archive(&bytes, env!("CARGO_PKG_VERSION"), &|| {
                 cancellation.check()
             })?;
-        if catalog::label(package.manifest(), "name")? != package_name {
+        if super::package_id(package.manifest())? != package_name {
             return Err("Local package identity changed after preview".into());
         }
         install_validated_theme(

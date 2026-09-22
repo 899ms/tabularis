@@ -1,6 +1,7 @@
 {
   "type": "object",
-  "additionalProperties": false,
+  "additionalProperties": true,
+  "description": "Runtime contract only. Catalog metadata (description, tags, license, screenshots, links, ...) is owned and validated by the Tabularium registry and tolerated here.",
   "properties": {
     "$schema": {
       "type": "string",
@@ -8,10 +9,18 @@
       "maxLength": 2048,
       "description": "Editor schema hint only. Tabularis validates against its bundled schema and never fetches this URL."
     },
-    "name": {
+    "id": {
       "type": "string",
       "maxLength": 64,
-      "pattern": "^(?!(?:con|prn|aux|nul|com[1-9]|lpt[1-9])$)[a-z][a-z0-9-]{0,63}$"
+      "pattern": "^(?!(?:con|prn|aux|nul|com[1-9]|lpt[1-9])$)[a-z][a-z0-9-]{0,63}$",
+      "description": "Stable package identifier used for installation and selection IDs. Without id, name must be this slug."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[^\\u0000-\\u001f\\u007f]+$",
+      "description": "Display name. Legacy manifests without id must keep this a lowercase slug; the host enforces that in code."
     },
     "version": {
       "type": "string",
@@ -63,97 +72,6 @@
           "name",
           "file"
         ]
-      }
-    },
-    "description": {
-      "type": "string",
-      "maxLength": 280
-    },
-    "category": {
-      "type": "string",
-      "maxLength": 40
-    },
-    "tags": {
-      "type": "array",
-      "maxItems": 16,
-      "items": {
-        "type": "string",
-        "maxLength": 30
-      }
-    },
-    "license": {
-      "type": "string",
-      "maxLength": 40
-    },
-    "icon": {
-      "type": "string",
-      "maxLength": 500
-    },
-    "screenshots": {
-      "type": "array",
-      "maxItems": 12,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "url": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 500
-          },
-          "caption": {
-            "type": "string",
-            "maxLength": 200
-          },
-          "alt": {
-            "type": "string",
-            "maxLength": 200
-          }
-        },
-        "required": [
-          "url"
-        ]
-      }
-    },
-    "readme": {
-      "type": "string",
-      "maxLength": 500
-    },
-    "readmes": {
-      "type": "object",
-      "maxProperties": 32,
-      "propertyNames": {
-        "pattern": "^[a-z]{2}(-[A-Z]{2})?$",
-        "maxLength": 10
-      },
-      "additionalProperties": {
-        "type": "string",
-        "maxLength": 500
-      }
-    },
-    "documentation_url": {
-      "type": "string",
-      "maxLength": 500,
-      "pattern": "^https?://.+"
-    },
-    "homepage": {
-      "type": "string",
-      "maxLength": 500,
-      "pattern": "^https?://.+"
-    },
-    "support": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "email": {
-          "type": "string",
-          "maxLength": 254
-        },
-        "issues_url": {
-          "type": "string",
-          "maxLength": 500,
-          "pattern": "^https?://.+"
-        }
       }
     }
   },

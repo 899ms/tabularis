@@ -5,7 +5,7 @@ import definitionSchema from "../schemas/theme-definition-v1.json";
 import manifestSchema from "../schemas/theme-package-v1.json";
 import limits from "../schemas/theme-limits-v1.json";
 import type { ThemeDefinitionV1, ThemePackageManifestV1 } from "../types/themePackage";
-import { isThemePackagePath, isThemePackageSlug } from "./themePackageIdentity";
+import { isThemePackagePath, isThemePackageSlug, themePackageId } from "./themePackageIdentity";
 
 export const THEME_INPUT_LIMITS = Object.freeze(limits);
 
@@ -90,7 +90,7 @@ export function parseThemePackageManifest(source: string): ThemePackageManifestV
   if (!valid(value.version) || !valid(value.min_runtime_version)) {
     throw new Error("Theme package versions must be canonical exact SemVer");
   }
-  if (!isThemePackageSlug(value.name)) throw new Error("Invalid theme package name");
+  themePackageId(value);
   const ids = new Set<string>();
   const paths = new Set<string>();
   for (const variant of value.theme_variants) {

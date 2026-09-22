@@ -58,7 +58,7 @@ pub fn validate_local_archive(
     let value = validate_manifest_json(&source)?;
     validate_theme_archive(
         bytes,
-        catalog::label(&value, "name")?,
+        super::package_id(&value)?,
         catalog::label(&value, "version")?,
         host,
         cancelled,
@@ -75,7 +75,7 @@ pub struct LocalThemePreview {
 pub fn local_preview(bytes: &[u8], host: &str) -> Result<LocalThemePreview, String> {
     let package = validate_local_archive(bytes, host, &|| Ok(()))?;
     let key = local_registry_key();
-    let name = catalog::label(&package.manifest, "name")?;
+    let name = super::package_id(&package.manifest)?;
     let version = catalog::label(&package.manifest, "version")?;
     let mut variants = Vec::new();
     for variant in package.manifest["theme_variants"]
@@ -100,16 +100,7 @@ pub fn local_preview(bytes: &[u8], host: &str) -> Result<LocalThemePreview, Stri
 }
 
 pub(super) fn validate_package_name(package: &str) -> Result<(), String> {
-    if package.len() > 64
-        || !package
-            .as_bytes()
-            .first()
-            .is_some_and(u8::is_ascii_lowercase)
-        || !package
-            .bytes()
-            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == b'-')
-        || !super::is_safe_relative_path(package)
-    {
+    if !super::is_package_slug(package) {
         return Err("Invalid theme package name".into());
     }
     Ok(())

@@ -5,6 +5,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { useTheme } from "../../hooks/useTheme";
 import type { NativeThemeContribution } from "../../types/themeCatalog";
 import type { ThemePackageManifestV1 } from "../../types/themePackage";
+import { themePackageId } from "../../utils/themePackageIdentity";
 import { AlertTriangle, Archive, CheckCircle2, Download, Eye, FolderOpen } from "lucide-react";
 import clsx from "clsx";
 import { ThemeDialog } from "../ui/ThemeDialog";
@@ -41,7 +42,7 @@ export function LocalThemePackageModal({ isOpen, onClose }: LocalThemePackageMod
     if (!preview) return;
     setBusy(true); setInstalling(true); setError("");
     try {
-      const result = await invoke<{ warnings: string[] }>("install_local_theme_package", { path, packageName: preview.manifest.name, expectedDigest: preview.digest });
+      const result = await invoke<{ warnings: string[] }>("install_local_theme_package", { path, packageName: themePackageId(preview.manifest), expectedDigest: preview.digest });
       setCommitted(true); cancelPreview(); setError(result.warnings.join("\n"));
       try { await refreshCatalog(); }
       catch (failure) { setError(`${t("themePackages.committedRefreshFailed")} ${String(failure)}`); }

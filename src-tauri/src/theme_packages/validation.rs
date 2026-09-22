@@ -68,11 +68,44 @@ fn string_field<'a>(value: &'a Value, field: &str) -> Result<&'a str, String> {
         .ok_or_else(|| format!("Missing theme package field: {}", field))
 }
 
+/// Portable package/variant identifier: lowercase slug, at most 64 bytes, and a
+/// safe single path component (no Windows device names).
+pub fn is_package_slug(value: &str) -> bool {
+    value.len() <= 64
+        && value.as_bytes().first().is_some_and(u8::is_ascii_lowercase)
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
+        && is_safe_relative_path(value)
+}
+
+/// Stable package identity: `id` when declared, otherwise the legacy slug `name`.
+/// Only a manifest that declares `id` may use a free-form display `name`.
+pub fn package_id(manifest: &Value) -> Result<&str, String> {
+    match manifest.get("id") {
+        Some(id) => {
+            let id = id.as_str().ok_or("Theme package id must be a string")?;
+            if !is_package_slug(id) {
+                return Err("Invalid theme package id".into());
+            }
+            Ok(id)
+        }
+        None => {
+            let name = string_field(manifest, "name")?;
+            if !is_package_slug(name) {
+                return Err("Invalid theme package name".into());
+            }
+            Ok(name)
+        }
+    }
+}
+
 pub fn validate_manifest_json(input: &[u8]) -> Result<Value, String> {
     let value = validate_json(input, LIMITS.manifest_bytes, &MANIFEST)?;
     for field in ["version", "min_runtime_version"] {
         semver::Version::parse(string_field(&value, field)?).map_err(|error| error.to_string())?;
     }
+    package_id(&value)?;
     let variants = value
         .get("theme_variants")
         .and_then(Value::as_array)
