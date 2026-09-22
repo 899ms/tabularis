@@ -70,7 +70,7 @@ export function AppearanceTab() {
                 onChange={(f) => updateSetting("fontFamily", f)}
                 getPreviewCSS={(name) =>
                   name === "System"
-                    ? "system-ui, -apple-system, sans-serif"
+                    ? "var(--font-base)"
                     : `"${name}", ${name}`
                 }
                 inputId="custom-font-input"

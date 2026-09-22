@@ -16,8 +16,8 @@ export const ErrorModal = ({ isOpen, onClose, message }: ErrorModalProps) => {
       <div className="bg-elevated border border-strong rounded-xl shadow-2xl w-[520px] max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-default bg-base">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-900/30 rounded-lg">
-              <AlertTriangle size={20} className="text-red-400" />
+            <div className="p-2 bg-accent-error/15 rounded-lg">
+              <AlertTriangle size={20} className="text-accent-error" />
             </div>
             <h2 className="text-lg font-semibold text-primary">
               {t("common.error")}

@@ -91,7 +91,7 @@ export function ResultColorsSection() {
                     className="flex items-center gap-2.5 min-w-0"
                   >
                     <span
-                      className="w-5 h-5 rounded-md ring-1 ring-white/10 shrink-0"
+                      className="w-5 h-5 rounded-md ring-1 ring-primary/10 shrink-0"
                       style={{ background: color }}
                     />
                     <span className="text-sm text-primary">
@@ -128,7 +128,7 @@ export function ResultColorsSection() {
                         onChange={(c) => setColor(key, c || undefined)}
                         prefixed={false}
                         aria-label={`${key} hex input`}
-                        className="px-3 py-1.5 bg-elevated border border-strong rounded-md text-sm text-primary focus:border-accent-primary focus:outline-none font-mono w-28 uppercase"
+                        className="px-3 py-1.5 bg-elevated border border-strong rounded-md text-sm text-primary focus:border-focus focus:outline-none font-mono w-28 uppercase"
                       />
                     </div>
                     <div className="flex items-center justify-end gap-2 pt-1">

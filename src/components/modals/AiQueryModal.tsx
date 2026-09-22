@@ -137,7 +137,7 @@ export const AiQueryModal = ({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-default">
           <div className="flex items-center gap-2 text-primary font-medium">
-            <Sparkles size={18} className="text-yellow-400" />
+            <Sparkles size={18} className="text-accent-warning" />
             <span>AI Query Assist</span>
           </div>
           <button onClick={onClose} className="text-secondary hover:text-primary transition-colors">

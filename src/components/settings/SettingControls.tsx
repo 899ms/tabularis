@@ -99,7 +99,7 @@ export function SettingToggle({
       />
       <span
         aria-hidden="true"
-        className="absolute inset-0 rounded-full bg-base border border-strong transition-colors peer-checked:bg-accent-primary peer-checked:border-accent-primary peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent-primary"
+        className="absolute inset-0 rounded-full bg-base border border-strong transition-colors peer-checked:bg-accent-primary peer-checked:border-accent-primary peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus"
       />
       <span
         aria-hidden="true"
@@ -138,7 +138,7 @@ export function SettingButtonGroup<T extends string | number>({
           aria-pressed={value === opt.value}
           onClick={() => onChange(opt.value)}
           className={clsx(
-            "px-4 py-2 rounded-lg text-sm font-medium transition-all border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary",
+            "px-4 py-2 rounded-lg text-sm font-medium transition-all border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus",
             mono && "font-mono",
             value === opt.value
               ? "bg-accent-primary border-accent-primary text-inverse shadow-lg shadow-accent-primary/20"
@@ -226,7 +226,7 @@ export function SettingNumberInput({
         step={step}
         value={value}
         onChange={(e) => onChange(parseInt(e.target.value) || fallback)}
-        className="bg-base border border-strong rounded px-3 py-2 text-primary w-24 focus:outline-none focus:border-accent-primary transition-colors"
+        className="bg-base border border-strong rounded px-3 py-2 text-primary w-24 focus:outline-none focus:border-focus transition-colors"
       />
       {suffix && <span className="text-sm text-muted">{suffix}</span>}
     </div>

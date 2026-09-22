@@ -55,9 +55,9 @@ export const TONE_SOFT_BG_CLASS: Record<Tone, string> = {
 /** Tailwind utility for text-only usages of a tone (icons, inline labels). */
 export const TONE_TEXT_CLASS: Record<Tone, string> = {
   neutral: "text-secondary",
-  primary: "text-accent-primary",
+  primary: "text-accent",
   success: "text-accent-success",
-  update: "text-accent-primary",
+  update: "text-accent",
   warning: "text-accent-warning",
   danger: "text-accent-error",
   theme: "text-accent-secondary",
@@ -90,6 +90,14 @@ export function toneStyle(tone: Tone, options: TintOptions = {}): CSSProperties 
     borderColor: `color-mix(in srgb, ${accent} ${tint.border}%, var(--bg-elevated))`,
     color: `color-mix(in srgb, ${accent} ${tint.text}%, CanvasText)`,
   };
+}
+
+/**
+ * `color` at `percent` opacity over transparent. Built with `color-mix` so the
+ * input may be a theme variable (`var(--accent-primary)`) as well as a hex.
+ */
+export function tint(color: string, percent: number): string {
+  return `color-mix(in srgb, ${color} ${percent}%, transparent)`;
 }
 
 /** Classes for neutral chips, the only tone that does not need inline colours. */

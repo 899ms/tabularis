@@ -29,7 +29,7 @@ import { Select } from "../ui/Select";
 import clsx from "clsx";
 
 const InputClass =
-  "w-full px-3 pt-2 pb-1 bg-base border border-strong rounded-lg text-primary focus:border-accent-primary focus:outline-none leading-tight";
+  "w-full px-3 pt-2 pb-1 bg-base border border-strong rounded-lg text-primary focus:border-focus focus:outline-none leading-tight";
 const LabelClass = "block text-xs uppercase font-bold text-muted";
 
 interface SshInputProps {
@@ -387,10 +387,10 @@ export function SshConnectionsManager({
                       disabled={testingConnectionId === conn.id}
                       className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${
                         testResults[conn.id] === "success"
-                          ? "text-green-500 bg-green-500/20"
+                          ? "text-accent-success bg-accent-success/20"
                           : testResults[conn.id] === "error"
-                            ? "text-red-500 bg-red-500/20"
-                            : "text-green-500 hover:bg-green-500/10"
+                            ? "text-accent-error bg-accent-error/20"
+                            : "text-accent-success hover:bg-accent-success/10"
                       }`}
                       title={t("sshConnections.quickTest")}
                     >
@@ -406,14 +406,14 @@ export function SshConnectionsManager({
                     </button>
                     <button
                       onClick={() => handleEdit(conn)}
-                      className="p-2 text-accent-primary hover:bg-accent-primary/10 rounded-lg transition-colors"
+                      className="p-2 text-accent hover:bg-accent-primary/10 rounded-lg transition-colors"
                       title={t("sshConnections.edit")}
                     >
                       <Edit2 size={16} />
                     </button>
                     <button
                       onClick={() => requestDelete(conn.id)}
-                      className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                      className="p-2 text-accent-error hover:bg-accent-error/10 rounded-lg transition-colors"
                       title={t("sshConnections.delete")}
                     >
                       <Trash2 size={16} />
@@ -598,8 +598,8 @@ export function SshConnectionsManager({
               <div
                 className={`mt-3 p-3 rounded-lg flex items-start gap-2 text-sm border ${
                   testStatus === "success"
-                    ? "bg-green-900/20 text-green-400 border-green-900/50"
-                    : "bg-red-900/20 text-red-400 border-red-900/50"
+                    ? "bg-accent-success/10 text-accent-success border-accent-success/25"
+                    : "bg-accent-error/10 text-accent-error border-accent-error/25"
                 }`}
               >
                 {testStatus === "success" ? (

@@ -48,7 +48,7 @@ export function FontPicker({
               {inheritOption.label}
             </span>
             {value === inheritOption.value && (
-              <CheckCircle2 size={16} className="text-accent-primary" />
+              <CheckCircle2 size={16} className="text-accent" />
             )}
           </div>
           <p
@@ -75,7 +75,7 @@ export function FontPicker({
               {font.label}
             </span>
             {value === font.name && (
-              <CheckCircle2 size={16} className="text-accent-primary" />
+              <CheckCircle2 size={16} className="text-accent" />
             )}
           </div>
           <p
@@ -104,7 +104,7 @@ export function FontPicker({
             {t("settings.fonts.custom")}
           </span>
           {!isPreset && (
-            <CheckCircle2 size={16} className="text-accent-primary" />
+            <CheckCircle2 size={16} className="text-accent" />
           )}
         </div>
         <div className="space-y-2">
@@ -124,7 +124,7 @@ export function FontPicker({
               }
             }}
             className={clsx(
-              "w-full bg-base border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-accent-primary transition-colors",
+              "w-full bg-base border rounded-lg px-3 py-2 text-sm text-primary focus:outline-none focus:border-focus transition-colors",
               !isPreset && customFont === value
                 ? "border-accent-primary"
                 : "border-strong",

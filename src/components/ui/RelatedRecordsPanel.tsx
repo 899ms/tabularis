@@ -99,7 +99,7 @@ export function RelatedRecordsPanel({
       >
         <GripHorizontal
           size={14}
-          className="opacity-0 group-hover:opacity-100 group-active:opacity-100 text-accent-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-150"
+          className="opacity-0 group-hover:opacity-100 group-active:opacity-100 text-accent absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-150"
         />
       </div>
 
@@ -132,7 +132,7 @@ export function RelatedRecordsPanel({
           >
             <RefreshCw
               size={14}
-              className={isLoading ? 'animate-spin text-accent-primary' : ''}
+              className={isLoading ? 'animate-spin text-accent' : ''}
             />
           </button>
 
@@ -164,7 +164,7 @@ export function RelatedRecordsPanel({
       <div className="flex-1 min-h-0 overflow-hidden relative bg-base/30">
         {isLoading ? (
           <div className="absolute inset-0 flex items-center justify-center text-muted gap-2.5">
-            <RefreshCw size={18} className="animate-spin text-accent-primary" />
+            <RefreshCw size={18} className="animate-spin text-accent" />
             <span className="text-sm font-medium animate-pulse">
               Fetching related records...
             </span>

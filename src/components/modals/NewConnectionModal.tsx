@@ -238,7 +238,7 @@ const FieldInput = ({
           autoComplete="off"
           spellCheck={false}
           className={clsx(
-            "w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-blue-500 focus:outline-none transition-colors",
+            "w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors",
             isPassword && "pr-10"
           )}
         />
@@ -2613,7 +2613,7 @@ export const NewConnectionModal = ({
               autoCapitalize="off"
               autoComplete="off"
               spellCheck={false}
-              className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-blue-500 focus:outline-none transition-colors"
+              className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors"
               placeholder={
                 activeDriver.capabilities.folder_based
                   ? t("newConnection.folderPathPlaceholder")
@@ -2687,19 +2687,19 @@ export const NewConnectionModal = ({
                   autoComplete="off"
                   spellCheck={false}
                   className={clsx(
-                    "flex-1 px-3 py-2 bg-base border rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-blue-500 focus:outline-none transition-colors",
-                    connectionStringError ? "border-red-500" : "border-strong",
+                    "flex-1 px-3 py-2 bg-base border rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors",
+                    connectionStringError ? "border-accent-error" : "border-strong",
                   )}
                   placeholder={connectionStringPlaceholder}
                 />
                 {connectionString && !connectionStringError && (
-                  <div className="px-3 py-2 bg-green-900/20 border border-green-500/30 rounded-md text-green-400 flex items-center">
+                  <div className="px-3 py-2 bg-accent-success/10 border border-accent-success/30 rounded-md text-accent-success flex items-center">
                     <Check size={15} />
                   </div>
                 )}
               </div>
               {connectionStringError && (
-                <div className="flex items-center gap-1 text-xs text-red-400 mt-0.5">
+                <div className="flex items-center gap-1 text-xs text-accent-error mt-0.5">
                   <AlertCircle size={11} /> {connectionStringError}
                 </div>
               )}
@@ -2785,7 +2785,7 @@ export const NewConnectionModal = ({
                     void loadDatabases();
                   }}
                   disabled={loadingDatabases || !formData.host}
-                  className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 disabled:text-muted disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center gap-1 text-xs text-accent disabled:text-muted disabled:cursor-not-allowed transition-colors"
                 >
                   {loadingDatabases ? (
                     <Loader2 size={11} className="animate-spin" />
@@ -2823,12 +2823,12 @@ export const NewConnectionModal = ({
                   autoCapitalize="off"
                   autoComplete="off"
                   spellCheck={false}
-                  className="w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-blue-500 focus:outline-none transition-colors"
+                  className="w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors"
                   placeholder={t("newConnection.dbNamePlaceholder")}
                 />
               )}
               {databaseLoadError && (
-                <div className="flex items-center gap-1 text-xs text-red-400 mt-0.5">
+                <div className="flex items-center gap-1 text-xs text-accent-error mt-0.5">
                   <AlertCircle size={11} /> {databaseLoadError}
                 </div>
               )}
@@ -2843,7 +2843,7 @@ export const NewConnectionModal = ({
               onChange={(e) => {
                 updateField("save_in_keychain", e.target.checked);
               }}
-              className="accent-blue-500 w-3.5 h-3.5 rounded"
+              className="accent-accent-primary w-3.5 h-3.5 rounded"
             />
             <span className="text-xs text-secondary">
               {t("newConnection.saveKeychain")}
@@ -2858,7 +2858,7 @@ export const NewConnectionModal = ({
           type="checkbox"
           checked={detectJsonInTextColumns}
           onChange={(e) => setDetectJsonInTextColumns(e.target.checked)}
-          className="accent-blue-500 w-3.5 h-3.5 rounded mt-0.5"
+          className="accent-accent-primary w-3.5 h-3.5 rounded mt-0.5"
         />
         <span className="text-xs text-secondary leading-snug">
           <span className="block">{t("settings.detectJsonInTextColumns")}</span>
@@ -2918,7 +2918,7 @@ export const NewConnectionModal = ({
                   e.target.checked ? undefined : false,
                 )
               }
-              className="accent-blue-500 w-3.5 h-3.5 rounded"
+              className="accent-accent-primary w-3.5 h-3.5 rounded"
             />
             <span className="text-sm font-medium text-secondary">
               {t("newConnection.pipesAsConcat", {
@@ -3029,7 +3029,7 @@ export const NewConnectionModal = ({
 
       {loadAllDatabases ? (
         <div className="flex items-start gap-2.5 p-3 border border-strong rounded-md bg-base">
-          <Database size={14} className="text-blue-400 shrink-0 mt-0.5" />
+          <Database size={14} className="text-accent shrink-0 mt-0.5" />
           <p className="text-xs text-secondary leading-relaxed">
             {t("newConnection.allDatabasesHint", {
               defaultValue:
@@ -3051,7 +3051,7 @@ export const NewConnectionModal = ({
             void loadDatabases();
           }}
           disabled={loadingDatabases || !formData.host}
-          className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 disabled:text-muted disabled:cursor-not-allowed transition-colors shrink-0"
+          className="flex items-center gap-1 text-xs text-accent disabled:text-muted disabled:cursor-not-allowed transition-colors shrink-0"
         >
           {loadingDatabases ? (
             <Loader2 size={11} className="animate-spin" />
@@ -3064,7 +3064,7 @@ export const NewConnectionModal = ({
         </button>
       </div>
       {databaseLoadError && (
-        <div className="flex items-center gap-1 text-xs text-red-400">
+        <div className="flex items-center gap-1 text-xs text-accent-error">
           <AlertCircle size={11} /> {databaseLoadError}
         </div>
       )}
@@ -3102,7 +3102,7 @@ export const NewConnectionModal = ({
                   if (databasesTabError) setDatabasesTabError(false);
                 }
               }}
-              className="text-xs text-blue-400 hover:text-blue-300 whitespace-nowrap shrink-0"
+              className="text-xs text-accent whitespace-nowrap shrink-0"
             >
               {availableDatabases
                 .filter((db) =>
@@ -3138,7 +3138,7 @@ export const NewConnectionModal = ({
                     <span
                       className={clsx(
                         "shrink-0",
-                        sel ? "text-blue-500" : "text-muted",
+                        sel ? "text-accent" : "text-muted",
                       )}
                     >
                       {sel ? <CheckSquare size={13} /> : <Square size={13} />}
@@ -3271,7 +3271,7 @@ export const NewConnectionModal = ({
                 autoCapitalize="off"
                 autoComplete="off"
                 spellCheck={false}
-                className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-blue-500 focus:outline-none transition-colors"
+                className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors"
               />
               <button
                 type="button"
@@ -3309,7 +3309,7 @@ export const NewConnectionModal = ({
                 autoCapitalize="off"
                 autoComplete="off"
                 spellCheck={false}
-                className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-blue-500 focus:outline-none transition-colors"
+                className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors"
               />
               <button
                 type="button"
@@ -3347,7 +3347,7 @@ export const NewConnectionModal = ({
                 autoCapitalize="off"
                 autoComplete="off"
                 spellCheck={false}
-                className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-blue-500 focus:outline-none transition-colors"
+                className="flex-1 px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors"
               />
               <button
                 type="button"
@@ -3406,7 +3406,7 @@ export const NewConnectionModal = ({
                   onChange={(e) =>
                     updateField("use_iam_auth", e.target.checked)
                   }
-                  className="accent-blue-500 w-3.5 h-3.5 rounded"
+                  className="accent-accent-primary w-3.5 h-3.5 rounded"
                 />
                 <span className="text-sm font-medium text-secondary">
                   {t("newConnection.useIamAuth", {
@@ -3421,7 +3421,7 @@ export const NewConnectionModal = ({
                 })}
               </p>
               {formData.use_iam_auth && tlsOff && (
-                <p className="text-xs text-amber-500">
+                <p className="text-xs text-accent-warning">
                   {t("newConnection.useIamAuthTlsRequired", {
                     defaultValue:
                       "Select an enforced TLS mode above (Required, Verify CA, or Verify Identity) to use AWS IAM authentication.",
@@ -3458,7 +3458,7 @@ export const NewConnectionModal = ({
                   onChange={(e) =>
                     updateField("enable_cleartext_plugin", e.target.checked)
                   }
-                  className="accent-blue-500 w-3.5 h-3.5 rounded"
+                  className="accent-accent-primary w-3.5 h-3.5 rounded"
                 />
                 <span className="text-sm font-medium text-secondary">
                   {t("newConnection.enableCleartextPlugin", {
@@ -3520,7 +3520,7 @@ export const NewConnectionModal = ({
               invalidateInlineK8sTest();
             }
           }}
-          className="accent-blue-500 w-3.5 h-3.5 rounded"
+          className="accent-accent-primary w-3.5 h-3.5 rounded"
         />
         <span className="text-sm font-medium text-secondary">
           {t("newConnection.useSsh")}
@@ -3591,7 +3591,7 @@ export const NewConnectionModal = ({
               <button
                 type="button"
                 onClick={() => setIsSshModalOpen(true)}
-                className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                className="flex items-center gap-1.5 text-xs text-accent font-medium transition-colors"
               >
                 <Settings size={12} />
                 {t("newConnection.manageSshConnections")}
@@ -3647,12 +3647,12 @@ export const NewConnectionModal = ({
                     autoCapitalize="off"
                     autoComplete="off"
                     spellCheck={false}
-                    className="w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-blue-500 focus:outline-none transition-colors"
+                    className="w-full px-3 py-2 bg-base border border-strong rounded-md text-sm text-primary placeholder:text-muted placeholder:italic focus:border-focus focus:outline-none transition-colors"
                   />
                   {formData.save_in_keychain &&
                     sshPasswordDirty &&
                     !formData.ssh_password && (
-                      <p className="text-[10px] text-amber-500 flex items-center gap-1 mt-0.5">
+                      <p className="text-[10px] text-accent-warning flex items-center gap-1 mt-0.5">
                         <AlertCircle size={10} />{" "}
                         {t("newConnection.sshPasswordMissing")}
                       </p>
@@ -3683,7 +3683,7 @@ export const NewConnectionModal = ({
                       e.target.checked,
                     )
                   }
-                  className="accent-blue-500 w-3.5 h-3.5 rounded cursor-pointer"
+                  className="accent-accent-primary w-3.5 h-3.5 rounded cursor-pointer"
                 />
                 <label
                   htmlFor="ssh-prompt-toggle"
@@ -3700,7 +3700,7 @@ export const NewConnectionModal = ({
             {sshSelectionError && (
               <p
                 role="alert"
-                className="text-xs text-red-400 flex items-center gap-1.5"
+                className="text-xs text-accent-error flex items-center gap-1.5"
               >
                 <AlertCircle size={12} /> {sshSelectionError}
               </p>
@@ -3713,9 +3713,9 @@ export const NewConnectionModal = ({
                 className={clsx(
                   "flex items-center gap-2 px-3 py-1.5 rounded-md border text-xs font-medium transition-colors disabled:opacity-50",
                   sshTestStatus === "success"
-                    ? "border-green-600/50 bg-green-900/20 text-green-400"
+                    ? "border-accent-success/50 bg-accent-success/10 text-accent-success"
                     : sshTestStatus === "error"
-                      ? "border-red-600/50 bg-red-900/20 text-red-400"
+                      ? "border-accent-error/50 bg-accent-error/10 text-accent-error"
                       : "border-strong bg-elevated text-secondary hover:text-primary hover:bg-surface-secondary",
                 )}
               >
@@ -3734,7 +3734,7 @@ export const NewConnectionModal = ({
                 <button
                   type="button"
                   onClick={cancelSshTest}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-strong bg-elevated text-xs font-medium text-secondary hover:text-red-400 hover:border-red-600/50 transition-colors"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-strong bg-elevated text-xs font-medium text-secondary hover:text-accent-error hover:border-accent-error/50 transition-colors"
                 >
                   <Square size={11} />
                   {t("newConnection.stopTest")}
@@ -3743,7 +3743,7 @@ export const NewConnectionModal = ({
               {sshTestStatus === "success" && sshTestMessage && (
                 <p
                   aria-live="polite"
-                  className="text-xs text-green-400 truncate"
+                  className="text-xs text-accent-success truncate"
                 >
                   {sshTestMessage}
                 </p>
@@ -3755,14 +3755,14 @@ export const NewConnectionModal = ({
             {sshTestStatus === "error" && sshTestError && (
               <div
                 role="alert"
-                className="flex items-center gap-2 text-xs text-red-400"
+                className="flex items-center gap-2 text-xs text-accent-error"
               >
                 <AlertCircle size={13} className="shrink-0" />
                 <span className="truncate">{t(sshTestError.summaryKey)}</span>
                 <button
                   type="button"
                   onClick={() => setIsSshDiagnosticsOpen(true)}
-                  className="shrink-0 underline underline-offset-2 hover:text-red-300 transition-colors"
+                  className="shrink-0 underline underline-offset-2 hover:text-accent-error transition-colors"
                 >
                   {t("common.showDetails")}
                 </button>
@@ -3787,7 +3787,7 @@ export const NewConnectionModal = ({
           id="ssm-toggle"
           checked={!!formData.ssm_enabled}
           onChange={(event) => handleSsmEnabledChange(event.target.checked)}
-          className="accent-blue-500 w-3.5 h-3.5 rounded"
+          className="accent-accent-primary w-3.5 h-3.5 rounded"
         />
         <span className="text-sm font-medium text-secondary">
           {t("newConnection.useSsm")}
@@ -3797,7 +3797,7 @@ export const NewConnectionModal = ({
       {formData.ssm_enabled && (
         <div className="space-y-4">
           {ssmSelectionError && (
-            <p role="alert" className="text-xs text-red-400">
+            <p role="alert" className="text-xs text-accent-error">
               {ssmSelectionError}
             </p>
           )}
@@ -3841,9 +3841,9 @@ export const NewConnectionModal = ({
                 className={clsx(
                   "flex items-center gap-2 px-3 py-1.5 rounded-md border text-xs font-medium transition-colors disabled:opacity-50",
                   ssmTestStatus === "success"
-                    ? "border-green-600/50 bg-green-900/20 text-green-400"
+                    ? "border-accent-success/50 bg-accent-success/10 text-accent-success"
                     : ssmTestStatus === "error"
-                      ? "border-red-600/50 bg-red-900/20 text-red-400"
+                      ? "border-accent-error/50 bg-accent-error/10 text-accent-error"
                       : "border-strong bg-elevated text-secondary hover:text-primary hover:bg-surface-secondary",
                 )}
               >
@@ -3861,7 +3861,7 @@ export const NewConnectionModal = ({
               {ssmTestStatus === "success" && ssmTestMessage && (
                 <p
                   aria-live="polite"
-                  className="text-xs text-green-400 truncate"
+                  className="text-xs text-accent-success truncate"
                 >
                   {ssmTestMessage}
                 </p>
@@ -3873,7 +3873,7 @@ export const NewConnectionModal = ({
             {ssmTestStatus === "error" && ssmTestMessage && (
               <p
                 role="alert"
-                className="text-xs text-red-400 flex items-start gap-1.5"
+                className="text-xs text-accent-error flex items-start gap-1.5"
               >
                 <AlertCircle size={13} className="shrink-0 mt-px" />
                 <span>{ssmTestMessage}</span>
@@ -3901,7 +3901,7 @@ export const NewConnectionModal = ({
           id="k8s-toggle"
           checked={!!formData.k8s_enabled}
           onChange={(event) => handleK8sEnabledChange(event.target.checked)}
-          className="accent-blue-500 w-3.5 h-3.5 rounded"
+          className="accent-accent-primary w-3.5 h-3.5 rounded"
         />
         <span className="text-sm font-medium text-secondary">
           {t("newConnection.useK8s", {
@@ -3989,12 +3989,12 @@ export const NewConnectionModal = ({
             <div className="space-y-3">
               <K8sAdvancedSettings pathOverrides={pathOverrides} />
               {k8sPathActionError && (
-                <p role="alert" className="text-xs text-red-400">
+                <p role="alert" className="text-xs text-accent-error">
                   {k8sPathActionError}
                 </p>
               )}
               {k8sSelectionError && (
-                <p role="alert" className="text-xs text-red-400">
+                <p role="alert" className="text-xs text-accent-error">
                   {k8sSelectionError}
                 </p>
               )}
@@ -4020,7 +4020,7 @@ export const NewConnectionModal = ({
                   }
                 />
                 {k8sDiscoveryErrors.contexts && (
-                  <p role="alert" className="text-xs text-red-400">
+                  <p role="alert" className="text-xs text-accent-error">
                     {k8sDiscoveryErrors.contexts}
                   </p>
                 )}
@@ -4047,7 +4047,7 @@ export const NewConnectionModal = ({
                   }
                 />
                 {k8sDiscoveryErrors.namespaces && (
-                  <p role="alert" className="text-xs text-red-400">
+                  <p role="alert" className="text-xs text-accent-error">
                     {k8sDiscoveryErrors.namespaces}
                   </p>
                 )}
@@ -4100,7 +4100,7 @@ export const NewConnectionModal = ({
                     }
                   />
                   {k8sDiscoveryErrors.resources && (
-                    <p role="alert" className="text-xs text-red-400">
+                    <p role="alert" className="text-xs text-accent-error">
                       {k8sDiscoveryErrors.resources}
                     </p>
                   )}
@@ -4172,7 +4172,7 @@ export const NewConnectionModal = ({
                 className={clsx(
                   "flex-1 bg-transparent text-base font-semibold outline-none",
                   nameError
-                    ? "text-red-400 placeholder:text-red-400/60"
+                    ? "text-accent-error placeholder:text-accent-error/60"
                     : "text-primary placeholder:text-muted/50",
                 )}
               />
@@ -4205,7 +4205,7 @@ export const NewConnectionModal = ({
                 className={clsx(
                   "flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors",
                   step === "catalogue"
-                    ? "bg-blue-500/15 text-blue-400"
+                    ? "bg-accent-primary/15 text-accent"
                     : "text-secondary",
                 )}
               >
@@ -4214,7 +4214,7 @@ export const NewConnectionModal = ({
                     "flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold",
                     step === "catalogue"
                       ? "bg-accent-primary text-inverse"
-                      : "bg-green-500/80 text-white",
+                      : "bg-accent-success/80 text-on-accent-success",
                   )}
                 >
                   {step === "catalogue" ? "1" : <Check size={10} />}
@@ -4226,7 +4226,7 @@ export const NewConnectionModal = ({
                 className={clsx(
                   "flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors",
                   step === "form"
-                    ? "bg-blue-500/15 text-blue-400"
+                    ? "bg-accent-primary/15 text-accent"
                     : "text-muted",
                 )}
               >
@@ -4295,7 +4295,7 @@ export const NewConnectionModal = ({
                     {activeDriver?.name ?? driver}
                   </h3>
                   {activeCatalogueDriver?.verified && (
-                    <span className="flex items-center text-blue-400" title="Verified">
+                    <span className="flex items-center text-accent" title="Verified">
                       <ShieldCheck size={14} />
                       <span className="sr-only">Verified</span>
                     </span>
@@ -4417,7 +4417,7 @@ export const NewConnectionModal = ({
                   className={clsx(
                     "cursor-pointer flex-shrink-0 whitespace-nowrap px-4 py-2.5 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 -mb-px",
                     activeTab === tab.id
-                      ? "border-blue-500 text-blue-400"
+                      ? "border-accent-primary text-accent"
                       : "border-transparent text-muted hover:text-secondary",
                   )}
                 >
@@ -4425,17 +4425,17 @@ export const NewConnectionModal = ({
                   {tab.id === "databases" &&
                     !loadAllDatabases &&
                     selectedDatabasesState.length > 0 && (
-                      <span className="ml-1.5 text-[9px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full">
+                      <span className="ml-1.5 text-[9px] bg-accent-primary/20 text-accent px-1.5 py-0.5 rounded-full">
                         {selectedDatabasesState.length}
                       </span>
                     )}
                   {tab.id === "databases" &&
                     databasesTabError &&
                     selectedDatabasesState.length === 0 && (
-                      <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-red-500" />
+                      <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-accent-error" />
                     )}
                   {tab.id === "ssh" && sshTabError && (
-                    <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-red-500" />
+                    <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-accent-error" />
                   )}
                 </button>
               ))}
@@ -4497,9 +4497,9 @@ export const NewConnectionModal = ({
             className={clsx(
               "flex items-center gap-2 px-3 py-1.5 rounded-md border text-sm font-medium transition-colors disabled:opacity-50",
               testResult === "success"
-                ? "border-green-600/50 bg-green-900/20 text-green-400"
+                ? "border-accent-success/50 bg-accent-success/10 text-accent-success"
                 : testResult === "error"
-                  ? "border-red-600/50 bg-red-900/20 text-red-400"
+                  ? "border-accent-error/50 bg-accent-error/10 text-accent-error"
                   : "border-strong bg-elevated text-secondary hover:text-primary hover:bg-surface-secondary",
             )}
           >
@@ -4520,7 +4520,7 @@ export const NewConnectionModal = ({
             <button
               type="button"
               onClick={cancelTest}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-strong bg-elevated text-sm font-medium text-secondary hover:text-red-400 hover:border-red-600/50 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-strong bg-elevated text-sm font-medium text-secondary hover:text-accent-error hover:border-accent-error/50 transition-colors"
             >
               <Square size={11} />
               {t("newConnection.stopTest")}
@@ -4531,14 +4531,14 @@ export const NewConnectionModal = ({
           {errorFeedback ? (
             <div
               role="alert"
-              className="flex-1 min-w-0 flex items-center gap-2 text-xs text-red-400"
+              className="flex-1 min-w-0 flex items-center gap-2 text-xs text-accent-error"
             >
               <AlertCircle size={13} className="shrink-0" />
               <span className="truncate">{t(errorFeedback.summaryKey)}</span>
               <button
                 type="button"
                 onClick={() => setIsDiagnosticsOpen(true)}
-                className="shrink-0 underline underline-offset-2 hover:text-red-300 transition-colors"
+                className="shrink-0 underline underline-offset-2 hover:text-accent-error transition-colors"
               >
                 {t("common.showDetails")}
               </button>
@@ -4551,10 +4551,10 @@ export const NewConnectionModal = ({
                 className={clsx(
                   "flex-1 min-w-0 text-xs truncate",
                   testResult === "success"
-                    ? "text-green-400"
+                    ? "text-accent-success"
                     : status === "testing"
                       ? "text-secondary"
-                      : "text-red-400",
+                      : "text-accent-error",
                 )}
               >
                 {status === "testing" && liveTestStep

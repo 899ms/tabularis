@@ -14,7 +14,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "eslint . && node scripts/check-theme-tokens.mjs",
+    "lint:theme": "node scripts/check-theme-tokens.mjs",
     "preview": "vite preview",
     "test": "vitest",
     "typecheck": "tsc --noEmit",

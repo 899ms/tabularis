@@ -524,7 +524,7 @@
     "darkTheme": "Tema oscuro",
     "fontFamily": "Familia de Fuente",
     "fonts": {
-      "system": "Sistema",
+      "system": "Predeterminado del tema",
       "systemDesc": "Usa la fuente predeterminada del sistema",
       "custom": "Fuente Personalizada",
       "customPlaceholder": "ej. Comic Sans MS",

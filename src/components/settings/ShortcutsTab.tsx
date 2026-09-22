@@ -191,7 +191,7 @@ export function ShortcutsTab() {
                     >
                       <div className="shrink-0">
                         {s.overridable ? (
-                          <Keyboard size={14} className="text-blue-400" />
+                          <Keyboard size={14} className="text-accent" />
                         ) : (
                           <span
                             title={t("settings.shortcuts.notOverridable")}
@@ -206,7 +206,7 @@ export function ShortcutsTab() {
                           {t(s.i18nKey as Parameters<typeof t>[0])}
                         </span>
                         {hasOverride && (
-                          <span className="ml-2 text-xs text-blue-400 font-medium">
+                          <span className="ml-2 text-xs text-accent font-medium">
                             customized
                           </span>
                         )}

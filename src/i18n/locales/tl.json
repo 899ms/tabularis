@@ -517,7 +517,7 @@
     "darkTheme": "Dark na Theme",
     "fontFamily": "Font Family",
     "fonts": {
-      "system": "System Default",
+      "system": "Default ng tema",
       "systemDesc": "Ginagamit ang default font ng iyong OS",
       "custom": "Custom Font",
       "customPlaceholder": "hal., Comic Sans MS",

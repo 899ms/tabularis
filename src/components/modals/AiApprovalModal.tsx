@@ -123,12 +123,12 @@ export function AiApprovalModal({
           <div className="flex items-center gap-3 min-w-0">
             <div
               className={`p-2 rounded-lg ${
-                destructive ? "bg-red-900/30" : "bg-purple-900/30"
+                destructive ? "bg-accent-error/15" : "bg-accent-secondary/15"
               }`}
             >
               <ShieldAlert
                 size={20}
-                className={destructive ? "text-red-400" : "text-purple-400"}
+                className={destructive ? "text-accent-error" : "text-accent-secondary"}
               />
             </div>
             <div className="min-w-0">
@@ -241,7 +241,7 @@ export function AiApprovalModal({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder={t("aiApproval.reasonPlaceholder")}
-              className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-sm text-primary focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-sm text-primary focus:outline-none focus:border-focus"
               autoFocus
             />
           </section>
@@ -252,7 +252,7 @@ export function AiApprovalModal({
           <button
             onClick={handleDeny}
             disabled={submitting}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-accent-error hover:bg-accent-error/90 disabled:opacity-50 text-on-accent-error rounded-lg text-sm font-medium transition-colors"
           >
             <X size={14} />
             {t("aiApproval.deny")}
@@ -268,7 +268,7 @@ export function AiApprovalModal({
             <button
               onClick={handleApprove}
               disabled={submitting}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-accent-success hover:bg-accent-success/90 disabled:opacity-50 text-on-accent-success rounded-lg text-sm font-medium transition-colors"
             >
               <Check size={14} />
               {t("aiApproval.approve")}
@@ -342,7 +342,7 @@ function PlanSummaryBox({ plan, summary }: PlanSummaryBoxProps) {
         summary.highestCostNode.relation,
       ),
       icon: Layers2,
-      iconClass: "text-blue-400",
+      iconClass: "text-accent",
     },
     summary.slowestNode && {
       key: "slowest-step",
@@ -353,7 +353,7 @@ function PlanSummaryBox({ plan, summary }: PlanSummaryBoxProps) {
         summary.slowestNode.relation,
       ),
       icon: Clock3,
-      iconClass: "text-amber-400",
+      iconClass: "text-accent-warning",
     },
     summary.largestRowMismatchNode?.ratio != null && {
       key: "estimate-gap",
@@ -365,7 +365,7 @@ function PlanSummaryBox({ plan, summary }: PlanSummaryBoxProps) {
           : "editor.visualExplain.underEstimate",
       ),
       icon: AlertTriangle,
-      iconClass: "text-red-400",
+      iconClass: "text-accent-error",
     },
     summary.sequentialScans > 0 && {
       key: "sequential-scans",
@@ -373,7 +373,7 @@ function PlanSummaryBox({ plan, summary }: PlanSummaryBoxProps) {
       value: String(summary.sequentialScans),
       description: t("editor.visualExplain.scanOperations"),
       icon: ScanSearch,
-      iconClass: "text-amber-400",
+      iconClass: "text-accent-warning",
     },
     summary.tempOperations > 0 && {
       key: "temp-operations",
@@ -381,7 +381,7 @@ function PlanSummaryBox({ plan, summary }: PlanSummaryBoxProps) {
       value: String(summary.tempOperations),
       description: t("editor.visualExplain.sortOrTempOperations"),
       icon: Database,
-      iconClass: "text-fuchsia-400",
+      iconClass: "text-accent-secondary",
     },
   ].filter(Boolean);
 

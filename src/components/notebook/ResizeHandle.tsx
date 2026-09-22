@@ -55,9 +55,9 @@ export function ResizeHandle({
     <div
       ref={containerRef}
       onMouseDown={handleMouseDown}
-      className="h-1.5 cursor-row-resize bg-transparent hover:bg-blue-500/20 transition-colors flex items-center justify-center group"
+      className="h-1.5 cursor-row-resize bg-transparent hover:bg-accent-primary/20 transition-colors flex items-center justify-center group"
     >
-      <div className="w-8 h-0.5 rounded-full bg-default group-hover:bg-blue-500/50 transition-colors" />
+      <div className="w-8 h-0.5 rounded-full bg-default group-hover:bg-accent-primary/50 transition-colors" />
     </div>
   );
 }

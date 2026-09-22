@@ -34,7 +34,7 @@ function Swatches({
           aria-label={`tag color ${c}`}
           className={clsx(
             "w-5 h-5 rounded-full flex items-center justify-center transition-transform hover:scale-110",
-            value === c && "ring-2 ring-offset-1 ring-offset-base ring-blue-500",
+            value === c && "ring-2 ring-offset-1 ring-offset-base ring-accent-primary",
           )}
           style={{ backgroundColor: c }}
         >
@@ -137,7 +137,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
               setEditingId(null);
               setError(null);
             }}
-            className="flex items-center gap-1 text-[11px] text-muted hover:text-blue-400 transition-colors"
+            className="flex items-center gap-1 text-[11px] text-muted hover:text-accent transition-colors"
           >
             <Settings2 size={11} />
             {managing ? t("tags.done") : t("tags.manage")}
@@ -178,7 +178,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
             <button
               type="button"
               onClick={() => setCreating(true)}
-              className="flex items-center gap-1 text-xs text-muted border border-dashed border-strong px-2 py-1 rounded-lg hover:text-blue-400 hover:border-blue-500/50 transition-colors"
+              className="flex items-center gap-1 text-xs text-muted border border-dashed border-strong px-2 py-1 rounded-lg hover:text-accent hover:border-accent-primary/50 transition-colors"
             >
               <Plus size={11} />
               {t("tags.new")}
@@ -201,7 +201,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
                 autoFocus
                 spellCheck={false}
                 aria-label={t("tags.namePlaceholder")}
-                className="w-36 px-2 py-1 bg-elevated border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-blue-500 focus:outline-none"
+                className="w-36 px-2 py-1 bg-elevated border border-strong rounded-md text-xs text-primary placeholder:text-muted focus:border-focus focus:outline-none"
               />
               <Swatches value={newColor} onPick={setNewColor} />
               <div className="flex items-center gap-1 ml-auto">
@@ -250,7 +250,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
                   autoFocus
                   spellCheck={false}
                   aria-label={t("tags.namePlaceholder")}
-                  className="w-36 px-2 py-1 bg-elevated border border-strong rounded-md text-xs text-primary focus:border-blue-500 focus:outline-none"
+                  className="w-36 px-2 py-1 bg-elevated border border-strong rounded-md text-xs text-primary focus:border-focus focus:outline-none"
                 />
                 <Swatches value={editColor} onPick={setEditColor} />
                 <div className="flex items-center gap-1 ml-auto">
@@ -288,7 +288,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
                   type="button"
                   onClick={() => startEdit(tag)}
                   aria-label={t("common.edit")}
-                  className="p-1 rounded-md text-muted hover:text-blue-400 transition-colors"
+                  className="p-1 rounded-md text-muted hover:text-accent transition-colors"
                 >
                   <Pencil size={12} />
                 </button>
@@ -296,7 +296,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
                   type="button"
                   onClick={() => setDeletingTag(tag)}
                   aria-label={t("common.delete")}
-                  className="p-1 rounded-md text-muted hover:text-red-400 transition-colors"
+                  className="p-1 rounded-md text-muted hover:text-accent-error transition-colors"
                 >
                   <Trash2 size={12} />
                 </button>
@@ -306,7 +306,7 @@ export function TagSelector({ selectedIds, onChange }: TagSelectorProps) {
         </div>
       )}
 
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-accent-error">{error}</p>}
 
       <ConfirmModal
         isOpen={deletingTag !== null}

@@ -110,7 +110,7 @@ export function ThemeRegistryInstall({ isOpen, onClose, snapshot, plugin, onComm
     </div>
     <div>
       <label htmlFor="theme-package-version" className="text-xs uppercase font-bold text-muted mb-1 block">{t("themePackages.version")}</label>
-      <select id="theme-package-version" value={version} disabled={busy || committed || !detail} onChange={(event) => setVersion(event.target.value)} className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-sm text-primary focus:border-accent-primary focus:outline-none disabled:opacity-60">
+      <select id="theme-package-version" value={version} disabled={busy || committed || !detail} onChange={(event) => setVersion(event.target.value)} className="w-full px-3 py-2 bg-base border border-strong rounded-lg text-sm text-primary focus:border-focus focus:outline-none disabled:opacity-60">
         <option value="">{t("themePackages.latest")}{detail ? ` (v${detail.latest_version})` : ""}</option>
         {detail?.releases.map((candidate) => <option key={candidate.version} value={candidate.version}>v{candidate.version}{candidate.version === installedVersion ? ` · ${t("settings.plugins.installed")}` : ""}</option>)}
       </select>

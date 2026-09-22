@@ -498,7 +498,7 @@
     "darkTheme": "深色主题",
     "fontFamily": "字体",
     "fonts": {
-      "system": "系统默认",
+      "system": "主题默认",
       "systemDesc": "使用您的操作系统默认字体",
       "custom": "自定义字体",
       "customPlaceholder": "例如：微软雅黑",

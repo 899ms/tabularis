@@ -148,8 +148,8 @@ export function ShortcutsEditModal({
       >
         <div className="flex items-center justify-between p-4 border-b border-default bg-base">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/15 rounded-lg">
-              <Keyboard size={18} className="text-blue-400" />
+            <div className="p-2 bg-accent-primary/15 rounded-lg">
+              <Keyboard size={18} className="text-accent" />
             </div>
             <div>
               <h2
@@ -178,7 +178,7 @@ export function ShortcutsEditModal({
             className={clsx(
               "flex items-center justify-center h-24 w-full rounded-xl border-2 text-sm font-mono cursor-default select-none transition-colors",
               recording
-                ? "border-accent-primary bg-accent-primary/10 text-accent-primary"
+                ? "border-accent-primary bg-accent-primary/10 text-accent"
                 : "border-dashed border-default text-muted",
             )}
             autoFocus
