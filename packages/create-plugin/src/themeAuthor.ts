@@ -6,6 +6,8 @@ import { isThemePackagePath } from "../../../src/utils/themePackageIdentity";
 import { createThemeArchive } from "../../../src/utils/themeArchive";
 import type { ThemePackageManifestV1 } from "../../../src/types/themePackage";
 import licenses from "./theme-licenses.json";
+import definitionSchema from "../../../src/schemas/theme-definition-v1.json";
+import { themeValidationWorkflow } from "./themeCi";
 
 function readBounded(root: string, relative: string, limit: number): string {
   if (!isThemePackagePath(relative)) throw new Error(`Invalid payload path: ${relative}`);
@@ -77,7 +79,7 @@ jobs:
 }
 
 export function scaffoldTheme(target: string, name: string, minimum: string, bundle: string): void {
-  const manifest: ThemePackageManifestV1 = { name, version: "1.0.0", kind: "theme", min_runtime_version: minimum, theme_schema_version: 1, theme_variants: [
+  const manifest: ThemePackageManifestV1 = { $schema: "https://registry.tabularis.dev/manifest.schema.json?kind=theme", name, version: "1.0.0", kind: "theme", min_runtime_version: minimum, theme_schema_version: 1, theme_variants: [
     { id: "light", name: "Light", file: "themes/light.json" }, { id: "dark", name: "Dark", file: "themes/dark.json" },
   ] };
   parseThemePackageManifest(JSON.stringify(manifest));
@@ -86,12 +88,14 @@ export function scaffoldTheme(target: string, name: string, minimum: string, bun
   mkdirSync(target);
   const put = (path: string, text: string, mode = 0o644) => { const destination = join(target, path); mkdirSync(dirname(destination), { recursive: true }); writeFileSync(destination, text, { flag: "wx", mode }); };
   put(".tabularium", JSON.stringify(manifest, null, 2) + "\n");
-  for (const mode of ["light", "dark"]) put(`themes/${mode}.json`, JSON.stringify({ schemaVersion: 1, mode, colors: { accent: { primary: mode === "light" ? "#315bce" : "#91b6ff" } } }, null, 2) + "\n");
-  put("README.md", `# ${name}\n\nTwo declarative Tabularis variants. Edit themes/*.json, then run:\n\n\`\`\`sh\nnode tools/theme.mjs validate .\nnode tools/theme.mjs package . --output theme-universal.zip\n\`\`\`\n\nUse Settings → Appearance → Local package to preview/install the ZIP. Installation does not select a variant. No account or network is needed.\n\n## Before publishing\n\nAssign an appropriate license and retain upstream attribution. Importing does not grant redistribution rights. Replace LICENSE.txt. Take screenshots of both variants; host them in your repository and add HTTPS screenshots metadata to .tabularium (not executable/archive payload).\n\nSchemas: https://github.com/TabularisDB/tabularis/tree/main/src/schemas (offline validation is bundled in tools/theme.mjs; no schema URL is fetched).\n\nSet min_runtime_version to the actual first supporting Tabularis release, not an older release with the same development version. No supporting release has been assigned by this scaffold. Match manifest version to the v-prefixed tag. Push a tag to create a draft GitHub release, review its universal ZIP, then publish the release and submit your repository through Tabularium. A GitHub release does not imply registry authorization, moderation approval, theme-kind enablement or successful ingestion.\n\nFull guide: https://github.com/TabularisDB/tabularis/blob/main/packages/create-plugin/THEMES.md\n`);
+  for (const mode of ["light", "dark"]) put(`themes/${mode}.json`, JSON.stringify({ $schema: definitionSchema.$id, schemaVersion: 1, mode, colors: { accent: { primary: mode === "light" ? "#315bce" : "#91b6ff" } } }, null, 2) + "\n");
+  put("README.md", `# ${name}\n\nTwo declarative Tabularis variants. Edit themes/*.json, then run:\n\n\`\`\`sh\nnode tools/theme.mjs validate .\nnode tools/theme.mjs package . --output theme-universal.zip\n\`\`\`\n\nUse Settings → Appearance → Local package to preview/install the ZIP. Installation does not select a variant. No account or network is needed.\n\n## Before publishing\n\nAssign an appropriate license and retain upstream attribution. Importing does not grant redistribution rights. Replace LICENSE.txt. Take screenshots of both variants; host them in your repository and add HTTPS screenshots metadata to .tabularium (not executable/archive payload).\n\nFor editor completion, the manifest references Tabularium's public kind-scoped schema and theme definitions reference the canonical JSON Schema hosted on GitHub. The offline validator uses its bundled host contract, never an author-supplied URL. Branch pushes and pull requests validate and package in CI; tags create draft releases. If targeting another registry, update the manifest schema hint accordingly.\n\nSet min_runtime_version to the actual first supporting Tabularis release, not an older release with the same development version. No supporting release has been assigned by this scaffold. Match manifest version to the v-prefixed tag. Push a tag to create a draft GitHub release, review its universal ZIP, then publish the release and submit your repository through Tabularium. A GitHub release does not imply registry authorization, moderation approval, theme-kind enablement or successful ingestion.\n\nFull guide: https://github.com/TabularisDB/tabularis/blob/main/packages/create-plugin/THEMES.md\n`);
   put("LICENSE.txt", "UNLICENSED — choose a license and obtain redistribution rights before publishing.\n");
   put(".gitignore", "*.zip\nnode_modules/\n.DS_Store\n");
   put("package.json", JSON.stringify({ name, version: "1.0.0", private: true, scripts: { validate: "node tools/theme.mjs validate .", package: "node tools/theme.mjs package . --output theme-universal.zip" } }, null, 2) + "\n");
   put(".github/workflows/release.yml", themeReleaseWorkflow());
+  put(".github/workflows/validate.yml", themeValidationWorkflow());
+  put(".vscode/settings.json", JSON.stringify({ "files.associations": { ".tabularium": "json" } }, null, 2) + "\n");
   put("tools/THIRD-PARTY-LICENSES.txt", licenses.map((entry) => `${entry.package}@${entry.version}\n${entry.license}`).join("\n\n"));
   copyFileSync(bundle, join(target, "tools/theme.mjs"), constants.COPYFILE_EXCL);
   chmodSync(join(target, "tools/theme.mjs"), 0o755);

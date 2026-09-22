@@ -71,7 +71,9 @@ LICENSE.txt                  # replace UNLICENSED before redistribution
 .gitignore
 package.json                 # convenience commands; no dependencies to install
 tools/theme.mjs               # bundled offline validator/scaffolder/packager
+.github/workflows/validate.yml # read-only branch/PR validation and packaging
 .github/workflows/release.yml # tag-only, pinned actions, draft release
+.vscode/settings.json        # recognize .tabularium as JSON
 ```
 
 Run everything below from the generated repository. Node 22 is used in CI:
@@ -92,6 +94,7 @@ The root manifest names every variant and its relative JSON path:
 
 ```json
 {
+  "$schema": "https://registry.tabularis.dev/manifest.schema.json?kind=theme",
   "name": "my-theme",
   "version": "1.0.0",
   "kind": "theme",
@@ -113,6 +116,7 @@ A small definition is enough; missing values use permanent host-owned bases:
 
 ```json
 {
+  "$schema": "https://raw.githubusercontent.com/TabularisDB/tabularis/main/src/schemas/theme-definition-v1.json",
   "schemaVersion": 1,
   "mode": "dark",
   "attribution": "Your name; license and upstream credits",
@@ -129,8 +133,19 @@ A small definition is enough; missing values use permanent host-owned bases:
 Modes are `light`, `dark`, and `high-contrast`. Supported application leaves,
 local font-family lists, radii, registered editor color keys and SQL token rules
 are defined in `src/schemas/theme-definition-v1.json` in Tabularis. Unknown
-fields fail validation. The tool bundles these schemas and never fetches their
-`$id` URLs; deployment of public schema URLs is a separate release operation.
+fields fail validation. The optional `$schema` property enables completion in external authoring projects.
+The manifest hint points to Tabularium's existing kind-scoped schema; the theme
+hint points directly to the host's versioned definition on GitHub (raw JSON).
+Targeting a custom registry requires adjusting the manifest hint only.
+
+The host and offline tool always use their bundled schemas, never schemas selected
+by an author's `$schema` URL. The package manifest schema in this checkout is an
+internal host contract, not a second public registry manifest schema. Monaco
+settings remain under `editor`; no `monaco` alias is introduced.
+
+The definition is served directly from the Tabularis GitHub repository. No schema
+mirror, synchronization script or Tabularium deployment is needed. Merge and ship
+support for `$schema` before declaring compatibility with a released client.
 
 Limits include 8 MiB archive / 16 MiB expansion / 128 entries / 32 variants,
 64 KiB manifest / 256 KiB definition, 16 JSON levels / 32,768 nodes / 1,024 token
@@ -178,6 +193,19 @@ used while unavailable, and reinstall/enable restores availability. Refresh and
 same-ID updates do not silently repair preferences.
 
 ## 6. Publish a release, then submit through Tabularium
+
+Generated repositories validate both variants and construct the ZIP on branch
+pushes and pull requests, with read-only permissions. Tag releases validate the
+exact manifest/tag match separately. No dependency install or remote schema
+fetch is needed for these host-contract checks.
+
+For an additional live registry check, POST `{ "text": "<raw .tabularium JSON>",
+"kind": "theme" }` to `https://registry.tabularis.dev/api/manifest/validate`.
+Fail CI unless the HTTP request succeeds **and** the response has `ok: true`:
+validation errors are returned as HTTP 200 with `ok: false`. This request needs
+no credentials and does not submit, approve or publish a package. It checks the
+manifest only; keep the offline variant/archive checks. A registry outage fails
+this additional check rather than silently skipping it.
 
 1. Replace the placeholder license, keep required attribution, review both
    variants and take screenshots. Host screenshots in the repository and use

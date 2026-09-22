@@ -15,6 +15,8 @@ type SupportedColors = Omit<ThemeColors, "semantic"> & {
 };
 
 export interface ThemeDefinitionV1 {
+  /** Editor hint only; never used to select or fetch the validation schema. */
+  $schema?: string;
   schemaVersion: 1;
   mode: ThemePackageMode;
   attribution?: string;
@@ -28,6 +30,8 @@ export interface ThemeDefinitionV1 {
 }
 
 export interface ThemePackageManifestV1 {
+  /** Editor hint only; never used to select or fetch the validation schema. */
+  $schema?: string;
   name: string;
   version: string;
   kind: "theme";
