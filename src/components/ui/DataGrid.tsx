@@ -1419,8 +1419,6 @@ export const DataGrid = React.memo(
         colIndex: number,
         colName: string,
       ) => {
-        if (!tableName && !readonlyProp) return;
-
         e.preventDefault();
         // Find the merged row corresponding to this DOM element
         const mergedRow = mergedRows.find((mr) => mr.rowData === row);
@@ -1434,7 +1432,7 @@ export const DataGrid = React.memo(
           mergedRow,
         });
       },
-      [tableName, readonlyProp, mergedRows],
+      [mergedRows],
     );
 
     const revertSelectedRow = useCallback(() => {
@@ -2626,11 +2624,14 @@ export const DataGrid = React.memo(
               const isNullable = nullableColumns?.includes(colName);
               const hasDefault = defaultValueColumns?.includes(colName);
               const colDataType = columnTypeMap?.get(colName) ?? "";
+              const contextCellValue =
+                contextMenu.row[contextMenu.colIndex];
+              const isReadonlyGrid = Boolean(readonlyProp) || !tableName;
 
               // Build menu items dynamically
               const menuItems: ContextMenuItem[] = [];
 
-              if (!readonlyProp) {
+              if (!isReadonlyGrid) {
                 // Cell value manipulation options (shown first for cell context)
                 // SET GENERATED only for insertion rows, not for existing rows
                 if (isAutoIncrement && isInsertion) {
@@ -2673,7 +2674,7 @@ export const DataGrid = React.memo(
                 }
               }
 
-              if (isJsonColumn(colDataType)) {
+              if (isJsonCellTarget(colDataType, contextCellValue)) {
                 menuItems.push({
                   label: t("contextMenu.openJsonEditor"),
                   icon: Braces,
@@ -2686,11 +2687,9 @@ export const DataGrid = React.memo(
                 menuItems.push({ separator: true });
               }
 
-              const fkContextValue =
-                contextMenu.row[contextMenu.colIndex];
               const fkForContextPreview = getForeignKeyForPreview(
                 contextMenu.colName,
-                fkContextValue,
+                contextCellValue,
                 fksByColumn,
                 { isInsertion },
               );
@@ -2707,7 +2706,7 @@ export const DataGrid = React.memo(
                       updateSelection(new Set());
                       onForeignKeyShowPanel(
                         fkForContextPreview,
-                        fkContextValue,
+                        contextCellValue,
                       );
                       setContextMenu(null);
                     },
@@ -2722,7 +2721,7 @@ export const DataGrid = React.memo(
                     action: () => {
                       onForeignKeyNavigate(
                         fkForContextPreview,
-                        fkContextValue,
+                        contextCellValue,
                       );
                       setContextMenu(null);
                     },
@@ -2797,7 +2796,7 @@ export const DataGrid = React.memo(
                 },
               });
 
-              if (!readonlyProp) {
+              if (!isReadonlyGrid) {
                 menuItems.push({
                   label: t("dataGrid.pasteCells"),
                   icon: ClipboardPaste,
@@ -2825,7 +2824,7 @@ export const DataGrid = React.memo(
                 },
               });
 
-              if (!readonlyProp) {
+              if (!isReadonlyGrid) {
                 menuItems.push(
                   {
                     label: t("contextMenu.openSidebar"),

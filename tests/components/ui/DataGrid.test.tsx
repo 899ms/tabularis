@@ -1038,21 +1038,12 @@ describe("DataGrid JSON context menu", () => {
     vi.mocked(invoke).mockResolvedValue("json-viewer-session");
   });
 
-  it("opens JSON cells from read-only result menus", async () => {
+  it("opens value-detected JSON cells in read-only grids without metadata", async () => {
     const payload = { status: "ok" };
     const { container } = render(
       <DataGrid
         columns={["payload"]}
         data={[[payload]]}
-        columnMetadata={[
-          {
-            name: "payload",
-            data_type: "jsonb",
-            is_pk: false,
-            is_nullable: true,
-            is_auto_increment: false,
-          },
-        ]}
         tableName={null}
         pkColumns={null}
         selectedRows={new Set()}
@@ -1066,6 +1057,40 @@ describe("DataGrid JSON context menu", () => {
     );
     const openJsonItem = await screen.findByText("contextMenu.openJsonEditor");
     expect(screen.queryByText("dataGrid.setNull")).toBeNull();
+    expect(screen.queryByText("contextMenu.openSidebar")).toBeNull();
+    fireEvent.click(openJsonItem);
+
+    await waitFor(() =>
+      expect(invoke).toHaveBeenCalledWith("open_json_viewer_window", {
+        value: payload,
+        originalValue: payload,
+        colName: "payload",
+        rowLabel: "Row 1",
+        readOnly: true,
+        cellKey: null,
+      }),
+    );
+  });
+
+  it("opens value-detected JSON cells in tableless query results", async () => {
+    const payload = { status: "ok" };
+    const { container } = render(
+      <DataGrid
+        columns={["payload"]}
+        data={[[payload]]}
+        tableName={null}
+        pkColumns={null}
+        selectedRows={new Set()}
+        onSelectionChange={vi.fn()}
+      />,
+    );
+
+    fireEvent.contextMenu(
+      container.querySelector('td[data-col-index="0"]')!,
+    );
+    const openJsonItem = await screen.findByText("contextMenu.openJsonEditor");
+    expect(screen.queryByText("dataGrid.setNull")).toBeNull();
+    expect(screen.queryByText("dataGrid.pasteCells")).toBeNull();
     expect(screen.queryByText("contextMenu.openSidebar")).toBeNull();
     fireEvent.click(openJsonItem);
 
