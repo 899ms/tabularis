@@ -261,7 +261,7 @@ describe("ShortcutsTab", () => {
     expect(saveOverrideMock).not.toHaveBeenCalled();
   });
 
-  it("should allow identical shortcuts in separate execution categories", async () => {
+  it("should reject an editor shortcut that conflicts with a notebook shortcut", async () => {
     recordShortcut(
       { key: "Enter", code: "Enter", metaKey: true, shiftKey: true },
       "settings.shortcuts.runAllEditor",
@@ -269,13 +269,12 @@ describe("ShortcutsTab", () => {
     saveRecordedShortcut();
 
     await waitFor(() =>
-      expect(saveOverrideMock).toHaveBeenCalledWith(
-        "run_all_editor",
-        { key: "Enter", code: "Enter", metaKey: true, shiftKey: true },
-        { ctrlKey: true, shiftKey: true, key: "Enter" },
+      expect(showAlertMock).toHaveBeenCalledWith(
+        "settings.shortcuts.conflict: settings.shortcuts.notebookRunAll",
+        { title: "common.error", kind: "error" },
       ),
     );
-    expect(showAlertMock).not.toHaveBeenCalled();
+    expect(saveOverrideMock).not.toHaveBeenCalled();
   });
 
   it("should render notebook shortcuts in their own category", () => {

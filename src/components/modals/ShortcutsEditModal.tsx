@@ -7,6 +7,7 @@ import { formatEvent } from "../../utils/keybindings";
 import type { KeyMatch } from "../../utils/keybindings";
 
 interface ShortcutsEditModalProps {
+  isOpen: boolean;
   label: string;
   current: string;
   isMac: boolean;
@@ -27,6 +28,7 @@ const TEXT_COMPOSITION_KEYS = new Set([
 ]);
 
 export function ShortcutsEditModal({
+  isOpen,
   label,
   current,
   isMac,
@@ -90,6 +92,8 @@ export function ShortcutsEditModal({
       setSaving(false);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">

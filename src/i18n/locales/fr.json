@@ -839,7 +839,7 @@
         "editor": "Éditeur",
         "navigation": "Navigation",
         "data_grid": "Grille de données",
-        "notebook": "Carnet"
+        "notebook": "Notebook"
       },
       "runQuery": "Exécuter la requête",
       "runQueryEditor": "Exécuter la requête (dans l’éditeur)",

@@ -806,7 +806,7 @@
         "editor": "Editor",
         "navigation": "Navigation",
         "data_grid": "Datenraster",
-        "notebook": "Notizbuch"
+        "notebook": "Notebook"
       },
       "runQuery": "Abfrage ausführen",
       "runQueryEditor": "Abfrage ausführen (im Editor)",

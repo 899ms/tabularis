@@ -7,13 +7,10 @@ import {
   formatMatch,
   keyMatchesOverlap,
   matchesReservedShortcut,
-  shortcutCategoriesOverlap,
 } from "../../utils/keybindings";
 import type { KeyMatch } from "../../utils/keybindings";
-import { ShortcutsEditModal } from "./ShortcutsEditModal";
+import { ShortcutsEditModal } from "../modals/ShortcutsEditModal";
 import { SettingSection } from "./SettingControls";
-
-/* ── Edit modal ── */
 
 interface EditingShortcut {
   id: string;
@@ -65,10 +62,6 @@ export function ShortcutsTab() {
       const conflict = shortcuts.find(
         (shortcut) =>
           shortcut.id !== editingShortcut.id &&
-          shortcutCategoriesOverlap(
-            editedShortcut.category,
-            shortcut.category,
-          ) &&
           (keyMatchesOverlap(match, shortcut.match, isMac) ||
             matchesReservedShortcut(shortcut.id, match, isMac)),
       );
@@ -110,15 +103,15 @@ export function ShortcutsTab() {
 
   return (
     <>
-      {editingShortcut && (
-        <ShortcutsEditModal
-          label={editingShortcut.label}
-          current={editingShortcut.current}
-          onClose={() => setEditingShortcut(null)}
-          onSave={handleSave}
-          isMac={isMac}
-        />
-      )}
+      <ShortcutsEditModal
+        key={editingShortcut?.id ?? "closed"}
+        isOpen={editingShortcut !== null}
+        label={editingShortcut?.label ?? ""}
+        current={editingShortcut?.current ?? ""}
+        onClose={() => setEditingShortcut(null)}
+        onSave={handleSave}
+        isMac={isMac}
+      />
 
       <SettingSection
         title={t("settings.shortcuts.title")}

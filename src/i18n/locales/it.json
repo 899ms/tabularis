@@ -839,7 +839,7 @@
         "editor": "Editor",
         "navigation": "Navigazione",
         "data_grid": "Griglia dati",
-        "notebook": "Taccuino"
+        "notebook": "Notebook"
       },
       "runQuery": "Esegui query",
       "runQueryEditor": "Esegui query (nell'editor)",

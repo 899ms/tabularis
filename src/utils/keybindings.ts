@@ -290,19 +290,6 @@ export function keyMatchesOverlap(
 }
 
 /**
- * Navigation is global, editor and data-grid share one handler, and notebook is isolated.
- */
-export function shortcutCategoriesOverlap(
-  first: ShortcutCategory,
-  second: ShortcutCategory,
-): boolean {
-  if (first === "notebook" || second === "notebook") {
-    return first === second || first === "navigation" || second === "navigation";
-  }
-  return true;
-}
-
-/**
  * Merges default shortcut definitions with user overrides into a resolved list.
  * Non-overridable shortcuts always use their defaults.
  */

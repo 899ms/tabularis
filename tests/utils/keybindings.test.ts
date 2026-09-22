@@ -5,7 +5,6 @@ import {
   keyMatchesOverlap,
   connectionIndexFromShortcut,
   matchesReservedShortcut,
-  shortcutCategoriesOverlap,
   mergeShortcuts,
   parseCombo,
   formatEvent,
@@ -259,25 +258,6 @@ describe('keyMatchesOverlap', () => {
     const existing: KeyMatch = { metaKey: true, key: 'b' };
 
     expect(keyMatchesOverlap(recorded, existing)).toBe(false);
-  });
-});
-
-describe('shortcutCategoriesOverlap', () => {
-  it('treats navigation shortcuts as global', () => {
-    expect(shortcutCategoriesOverlap('navigation', 'notebook')).toBe(true);
-  });
-
-  it('allows the same key in separate local contexts', () => {
-    expect(shortcutCategoriesOverlap('editor', 'notebook')).toBe(false);
-  });
-
-  it('detects collisions inside one context', () => {
-    expect(shortcutCategoriesOverlap('data_grid', 'data_grid')).toBe(true);
-  });
-
-  it('detects editor and data-grid collisions', () => {
-    expect(shortcutCategoriesOverlap('editor', 'data_grid')).toBe(true);
-    expect(shortcutCategoriesOverlap('data_grid', 'editor')).toBe(true);
   });
 });
 
