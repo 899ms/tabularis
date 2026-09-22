@@ -3,7 +3,9 @@ name: Packages
 # Tests, builds and checks the workspace packages under packages/*. Each
 # package owns its vitest (node environment); the root vitest (jsdom) only
 # covers the host app. Runs only when a package, or a host file a package
-# imports, changes.
+# imports, changes, and only for the packages actually affected: a `changes`
+# job maps changed paths to packages and builds the matrix from that. The
+# lockfile and this workflow count as shared and re-run every package.
 
 concurrency:
   group: packages-${{ github.ref }}
@@ -35,19 +37,76 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Detect changed packages
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      any: ${{ steps.matrix.outputs.any }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Filters mirror the `on.paths` list above, split per package. A path
+      # that a package imports from the host belongs to that package's filter.
+      - name: Map changed paths to packages
+        id: filter
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          filters: |
+            shared:
+              - 'pnpm-lock.yaml'
+              - '.github/workflows/packages.yml'
+            plugin-api:
+              - 'packages/plugin-api/**'
+              - 'src/pluginApi.ts'
+            explain:
+              - 'packages/explain/**'
+            create-plugin:
+              - 'packages/create-plugin/**'
+              - 'src/schemas/theme*'
+              - 'src/types/theme*'
+              - 'src/utils/theme*'
+
+      - name: Build the package matrix
+        id: matrix
+        shell: bash
+        env:
+          SHARED: ${{ steps.filter.outputs.shared }}
+          PLUGIN_API: ${{ steps.filter.outputs.plugin-api }}
+          EXPLAIN: ${{ steps.filter.outputs.explain }}
+          CREATE_PLUGIN: ${{ steps.filter.outputs.create-plugin }}
+        run: |
+          set -euo pipefail
+          matrix=$(jq -cn \
+            --arg shared "$SHARED" --arg api "$PLUGIN_API" \
+            --arg explain "$EXPLAIN" --arg create "$CREATE_PLUGIN" '
+            [
+              { name: "@tabularis/plugin-api", steps: "build check:sync", changed: ($api == "true") },
+              { name: "@tabularis/explain", steps: "typecheck test build", changed: ($explain == "true") },
+              { name: "@tabularis/create-plugin", steps: "test build smoke smoke:theme", changed: ($create == "true") }
+            ]
+            | map(select($shared == "true" or .changed) | del(.changed))')
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "any=$(jq -r 'length > 0' <<<"$matrix")" >> "$GITHUB_OUTPUT"
+          {
+            echo '| Package | Run |'
+            echo '| --- | --- |'
+            jq -r '.[] | "| \(.name) | \(.steps) |"' <<<"$matrix"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   packages:
     name: ${{ matrix.package.name }}
+    needs: changes
+    if: needs.changes.outputs.any == 'true'
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        package:
-          - name: '@tabularis/plugin-api'
-            steps: build check:sync
-          - name: '@tabularis/explain'
-            steps: typecheck test build
-          - name: '@tabularis/create-plugin'
-            steps: test build smoke smoke:theme
+        package: ${{ fromJSON(needs.changes.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
