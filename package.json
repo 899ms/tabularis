@@ -16,6 +16,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint . && node scripts/check-theme-tokens.mjs",
     "lint:theme": "node scripts/check-theme-tokens.mjs",
+    "test:contrast": "vitest run tests/utils/themeContrast.test.ts",
     "preview": "vite preview",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
