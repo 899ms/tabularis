@@ -4,9 +4,9 @@ import clsx from "clsx";
 export type InlineBannerTone = "amber" | "red" | "green" | "neutral";
 
 const TONE_CLASS: Record<InlineBannerTone, string> = {
-  amber: "bg-amber-900/20 border-amber-700/40 text-amber-300",
-  red: "bg-red-900/20 border-red-700/40 text-red-300",
-  green: "bg-emerald-900/20 border-emerald-700/40 text-emerald-300",
+  amber: "bg-accent-warning/10 border-accent-warning/20 text-accent-warning",
+  red: "bg-accent-error/10 border-accent-error/20 text-accent-error",
+  green: "bg-accent-success/10 border-accent-success/20 text-accent-success",
   neutral: "bg-base border-default text-secondary",
 };
 

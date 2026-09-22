@@ -151,7 +151,7 @@ const SidebarTableItemImpl = ({
           const ghost = document.createElement('div');
           ghost.id = '__drag-ghost__';
           ghost.textContent = table.name;
-          ghost.style.cssText = 'position:fixed;pointer-events:none;background:#1e40af;color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:500;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.5);';
+          ghost.style.cssText = 'position:fixed;pointer-events:none;background:var(--accent-primary);color:var(--text-inverse);padding:4px 10px;border-radius:var(--radius-base);font-size:12px;font-weight:500;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.5);';
           ghost.style.left = e.clientX + 12 + 'px';
           ghost.style.top = e.clientY + 12 + 'px';
           document.body.appendChild(ghost);
@@ -221,7 +221,7 @@ const SidebarTableItemImpl = ({
                     e.preventDefault();
                   }}
                 >
-                  <Folder size={12} className="text-blue-400/70" />
+                  <Folder size={12} className="text-accent-primary/70" />
                   <span>{t("sidebar.columns")}</span>
                   <span className="ml-auto text-[10px] opacity-50">
                     {columns.length}
@@ -258,7 +258,7 @@ const SidebarTableItemImpl = ({
                       setExpandKeys(!expandKeys);
                     }}
                   >
-                    <Folder size={12} className="text-yellow-500/70" />
+                    <Folder size={12} className="text-accent-warning/70" />
                     <span>{t("sidebar.keys")}</span>
                     <span className="ml-auto text-[10px] opacity-50">
                       {keys.length}
@@ -278,7 +278,7 @@ const SidebarTableItemImpl = ({
                           <Key
                             size={12}
                             className={
-                              k.is_primary ? "text-yellow-500" : "text-secondary"
+                              k.is_primary ? "text-semantic-pk" : "text-semantic-index"
                             }
                           />
                           <span className="truncate flex-1 min-w-0">{k.name}</span>
@@ -300,7 +300,7 @@ const SidebarTableItemImpl = ({
                     handleContextMenu(e, "folder_fks", "foreign keys")
                   : undefined}
                 >
-                  <Folder size={12} className="text-purple-400/70" />
+                  <Folder size={12} className="text-accent-secondary/70" />
                   <span>{t("sidebar.foreignKeys")}</span>
                   <span className="ml-auto text-[10px] opacity-50">
                     {foreignKeys.length}
@@ -316,7 +316,7 @@ const SidebarTableItemImpl = ({
                         handleContextMenu(e, "foreign_key", fk.name)
                       : undefined}
                     >
-                      <LinkIcon size={12} className="text-purple-400 shrink-0" />
+                      <LinkIcon size={12} className="text-accent-secondary shrink-0" />
                       <span className="truncate flex-1 min-w-0">{fk.name}</span>
                     </div>
                   ))}

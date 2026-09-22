@@ -199,13 +199,13 @@ export const OpenConnectionItem = ({
           {/* AWS SSM badge */}
           {connection.ssmEnabled && !connection.k8sEnabled && !showShortcutHint && (
             <div className="absolute top-1 right-1">
-              <Shield size={9} className="text-orange-400 fill-orange-400/20" />
+              <Shield size={9} className="text-accent-warning fill-accent-warning/20" />
             </div>
           )}
 
           {/* Shortcut hint badge */}
           {showShortcutHint && shortcutIndex !== undefined && (
-            <div className="absolute -top-1 -left-1 w-4 h-4 bg-accent-primary rounded-full flex items-center justify-center text-white text-[9px] font-bold z-20 shadow-sm">
+            <div className="absolute -top-1 -left-1 w-4 h-4 bg-accent-primary rounded-full flex items-center justify-center text-inverse text-[9px] font-bold z-20 shadow-sm">
               {shortcutIndex}
             </div>
           )}

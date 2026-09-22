@@ -181,7 +181,7 @@ export function LogsTab() {
         <div className="flex gap-2 py-3">
           <button
             onClick={handleClearLogs}
-            className="flex items-center gap-2 px-4 py-2 bg-surface-secondary hover:bg-red-900/20 text-secondary hover:text-red-400 border border-strong hover:border-red-900/30 rounded-lg text-sm font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-surface-secondary hover:bg-accent-error/10 text-secondary hover:text-accent-error border border-strong hover:border-accent-error/15 rounded-lg text-sm font-medium transition-colors"
           >
             <Trash2 size={16} />
             {t("settings.clearLogs")}

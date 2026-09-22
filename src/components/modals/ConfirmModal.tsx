@@ -71,18 +71,18 @@ export const ConfirmModal = ({
 
   const variantStyles = {
     danger: {
-      icon: <AlertTriangle size={20} className="text-red-400" />,
-      iconBg: "bg-red-900/30",
-      button: "bg-red-600 hover:bg-red-500 text-white",
+      icon: <AlertTriangle size={20} className="text-accent-error" />,
+      iconBg: "bg-accent-error/15",
+      button: "bg-accent-error hover:bg-accent-error/90 text-inverse",
     },
     warning: {
-      icon: <AlertTriangle size={20} className="text-amber-400" />,
-      iconBg: "bg-amber-900/30",
-      button: "bg-amber-600 hover:bg-amber-500 text-white",
+      icon: <AlertTriangle size={20} className="text-accent-warning" />,
+      iconBg: "bg-accent-warning/15",
+      button: "bg-accent-warning hover:bg-accent-warning/90 text-inverse",
     },
     info: {
-      icon: <AlertTriangle size={20} className="text-blue-400" />,
-      iconBg: "bg-blue-900/30",
+      icon: <AlertTriangle size={20} className="text-accent-primary" />,
+      iconBg: "bg-accent-primary/15",
       button: "bg-accent-primary hover:bg-accent-primary/90 text-inverse",
     },
   };

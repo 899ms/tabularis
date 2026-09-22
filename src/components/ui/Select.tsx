@@ -202,17 +202,17 @@ export const Select = ({
           disabled
             ? "opacity-50 cursor-not-allowed border-default"
             : hasError
-              ? "border-red-500 hover:border-red-400"
+              ? "border-accent-error hover:border-accent-error"
               : "border-strong hover:border-accent-primary cursor-pointer",
           isOpen && !disabled && !hasError ? "border-accent-primary ring-1 ring-accent-primary" : ""
         )}
       >
-        <span className={clsx("truncate", !value && "text-muted", hasError && "text-red-400")}>
+        <span className={clsx("truncate", !value && "text-muted", hasError && "text-accent-error")}>
           {value ? getLabel(value) : placeholder}
         </span>
         <ChevronDown
           size={16}
-          className={clsx("shrink-0 ml-2", hasError ? "text-red-400" : "text-secondary")}
+          className={clsx("shrink-0 ml-2", hasError ? "text-accent-error" : "text-secondary")}
         />
       </button>
 

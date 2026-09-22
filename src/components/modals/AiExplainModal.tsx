@@ -79,7 +79,7 @@ export const AiExplainModal = ({ isOpen, onClose, query }: AiExplainModalProps) 
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-default">
           <div className="flex items-center gap-2 text-primary font-medium">
-            <BookOpen size={18} className="text-blue-400" />
+            <BookOpen size={18} className="text-accent-primary" />
             <span>AI Query Explanation</span>
           </div>
           <button onClick={onClose} className="text-secondary hover:text-primary transition-colors">

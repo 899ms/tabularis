@@ -2,6 +2,7 @@ import type { Theme, MonacoThemeDefinition } from "../types/theme";
 import type * as monaco from "monaco-editor";
 import { lighten } from "./colorUtils";
 import { getResolvedEditorTheme, getMonacoThemeId } from "./themeRuntime";
+import { saveThemeBootCache } from "../utils/themeBoot";
 
 // Static imports for monaco-themes (copied locally for Vite compatibility)
 import MonokaiTheme from "./monaco/Monokai.json";
@@ -139,6 +140,9 @@ export function applyThemeToCSS(theme: Theme): void {
   // Color scheme
   const colorScheme = theme.monacoTheme.base === "vs" ? "light" : "dark";
   root.style.setProperty("color-scheme", colorScheme);
+
+  // Let the next startup paint this theme before React mounts (see index.html).
+  saveThemeBootCache({ bg: theme.colors.bg.base, fg: theme.colors.text.primary, scheme: colorScheme });
 }
 
 export function generateMonacoTheme(theme: Theme): MonacoThemeDefinition {

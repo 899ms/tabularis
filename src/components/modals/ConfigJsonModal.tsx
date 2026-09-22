@@ -69,8 +69,8 @@ export const ConfigJsonModal = ({ isOpen, onClose }: ConfigJsonModalProps) => {
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-default bg-base">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-900/30 rounded-lg">
-                <FileJson size={20} className="text-blue-400" />
+              <div className="p-2 bg-accent-primary/15 rounded-lg">
+                <FileJson size={20} className="text-accent-primary" />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-primary">
@@ -123,7 +123,7 @@ export const ConfigJsonModal = ({ isOpen, onClose }: ConfigJsonModalProps) => {
             )}
 
             {error && (
-              <div className="px-4 py-2 bg-red-900/20 border-t border-red-900/40 text-sm text-red-400">
+              <div className="px-4 py-2 bg-accent-error/10 border-t border-accent-error/20 text-sm text-accent-error">
                 {error}
               </div>
             )}

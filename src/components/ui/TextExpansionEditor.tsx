@@ -64,7 +64,7 @@ export const TextExpansionEditor = ({
               disabled={!hasDiff}
               className={`px-2 py-1 rounded border transition-colors flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed ${
                 showDiff
-                  ? "bg-blue-600/30 text-blue-100 border-blue-500/50"
+                  ? "bg-accent-primary/30 text-accent-primary border-accent-primary/50"
                   : "bg-surface-secondary text-secondary border-default hover:bg-surface-tertiary"
               }`}
               title={t("textInput.diff", { defaultValue: "Diff" })}
@@ -74,7 +74,7 @@ export const TextExpansionEditor = ({
               {hasDiff && (
                 <span
                   aria-hidden
-                  className="ml-0.5 inline-block w-1.5 h-1.5 rounded-full bg-amber-400"
+                  className="ml-0.5 inline-block w-1.5 h-1.5 rounded-full bg-accent-warning"
                 />
               )}
             </button>
@@ -85,7 +85,7 @@ export const TextExpansionEditor = ({
                 aria-pressed={sideBySide}
                 className={`px-2 py-1 rounded border transition-colors flex items-center gap-1 ${
                   sideBySide
-                    ? "bg-blue-600/30 text-blue-100 border-blue-500/50"
+                    ? "bg-accent-primary/30 text-accent-primary border-accent-primary/50"
                     : "bg-surface-secondary text-secondary border-default hover:bg-surface-tertiary"
                 }`}
                 title={t("textInput.sideBySide", { defaultValue: "Side by side" })}

@@ -275,7 +275,7 @@ export function AiTab() {
                       size={14}
                       className={clsx(
                         "shrink-0 ml-auto",
-                        isSelected ? "text-accent-primary" : "text-green-400",
+                        isSelected ? "text-accent-primary" : "text-accent-success",
                       )}
                     />
                   )}
@@ -294,13 +294,13 @@ export function AiTab() {
             <div className="flex items-center gap-2 py-3">
               {aiKeyStatus[settings.aiProvider]?.configured ? (
                 <>
-                  <span className="text-green-400 flex items-center gap-1 text-xs bg-green-900/10 px-2 py-0.5 rounded-full border border-green-900/20">
+                  <span className="text-accent-success flex items-center gap-1 text-xs bg-accent-success/5 px-2 py-0.5 rounded-full border border-accent-success/10">
                     <CheckCircle2 size={12} />{" "}
                     {t("settings.ai.configured")}
                   </span>
                   {aiKeyStatus[settings.aiProvider]?.fromEnv && (
                     <span
-                      className="text-blue-400 flex items-center gap-1 text-xs bg-blue-900/10 px-2 py-0.5 rounded-full border border-blue-900/20"
+                      className="text-accent-primary flex items-center gap-1 text-xs bg-accent-primary/5 px-2 py-0.5 rounded-full border border-accent-primary/10"
                       title={t("settings.ai.fromEnvTooltip")}
                     >
                       <Code2 size={12} /> {t("settings.ai.fromEnv")}
@@ -331,7 +331,7 @@ export function AiTab() {
                     <div className="flex items-center gap-3 bg-base border border-default rounded-lg px-4 py-3">
                       <Lock
                         size={14}
-                        className="text-green-400 shrink-0"
+                        className="text-accent-success shrink-0"
                       />
                       <span className="flex-1 text-sm text-primary font-mono tracking-widest">
                         ••••••••••••••••
@@ -369,7 +369,7 @@ export function AiTab() {
                                   });
                                 }
                               }}
-                              className="px-3 py-1 text-xs font-medium text-secondary hover:text-red-400 bg-surface-secondary hover:bg-red-900/20 border border-strong hover:border-red-900/30 rounded-md transition-colors"
+                              className="px-3 py-1 text-xs font-medium text-secondary hover:text-accent-error bg-surface-secondary hover:bg-accent-error/10 border border-strong hover:border-accent-error/15 rounded-md transition-colors"
                               title={t("settings.ai.resetKey")}
                             >
                               {t("settings.ai.reset")}
@@ -379,7 +379,7 @@ export function AiTab() {
                       </div>
                     </div>
                     {aiKeyStatus[settings.aiProvider]?.fromEnv && (
-                      <p className="text-xs text-blue-400 flex items-center gap-1.5">
+                      <p className="text-xs text-accent-primary flex items-center gap-1.5">
                         <Info size={12} />
                         {t("settings.ai.envVariableDetected")}
                       </p>
@@ -469,8 +469,8 @@ export function AiTab() {
                       availableModels["ollama"] ||
                       []
                     ).length > 0
-                      ? "bg-green-900/10 border-green-900/20 text-green-400"
-                      : "bg-red-900/10 border-red-900/20 text-red-400",
+                      ? "bg-accent-success/5 border-accent-success/10 text-accent-success"
+                      : "bg-accent-error/5 border-accent-error/10 text-accent-error",
                   )}
                 >
                   {(
@@ -603,7 +603,7 @@ export function AiTab() {
                       </button>
                     </div>
                     {!isModelValid && settings.aiModel && (
-                      <div className="flex items-center gap-1.5 mt-2 text-xs text-red-400 bg-red-900/10 p-2 rounded-lg border border-red-900/20">
+                      <div className="flex items-center gap-1.5 mt-2 text-xs text-accent-error bg-accent-error/5 p-2 rounded-lg border border-accent-error/10">
                         <AlertTriangle
                           size={12}
                           className="shrink-0"

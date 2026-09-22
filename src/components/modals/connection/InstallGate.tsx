@@ -65,7 +65,7 @@ export function InstallGate({ driver, status, error, onInstall, onBack }: Instal
 
       {unsupported ? (
         <div className="flex max-w-sm flex-col items-center gap-2">
-          <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-400">
+          <div className="flex items-center gap-2 rounded-lg border border-accent-warning/30 bg-accent-warning/10 px-3 py-2 text-sm text-accent-warning">
             <AlertTriangle size={15} className="shrink-0" />
             <span>
               {t("connectionCatalogue.noReleaseTitle", {
@@ -88,7 +88,7 @@ export function InstallGate({ driver, status, error, onInstall, onBack }: Instal
             })}
           </p>
           {status === "error" && error && (
-            <p className="max-w-sm break-words text-xs text-red-400">{error}</p>
+            <p className="max-w-sm break-words text-xs text-accent-error">{error}</p>
           )}
           <button
             type="button"
@@ -116,7 +116,7 @@ export function InstallGate({ driver, status, error, onInstall, onBack }: Instal
         <button
           type="button"
           onClick={() => setShowReadme(true)}
-          className="inline-flex cursor-pointer items-center gap-1.5 text-xs text-blue-400 transition-colors hover:text-blue-300"
+          className="inline-flex cursor-pointer items-center gap-1.5 text-xs text-accent-primary transition-colors hover:text-accent-primary"
         >
           <BookOpen size={13} />
           {t("connectionCatalogue.viewDetails", { defaultValue: "More details" })}

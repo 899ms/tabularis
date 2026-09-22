@@ -57,7 +57,7 @@ export function AddCellButton({ onAddSql, onAddMarkdown }: AddCellButtonProps) {
             }}
             className="flex items-center gap-2 px-3 py-1.5 text-xs text-secondary hover:bg-surface-secondary w-full text-left"
           >
-            <span className="text-[10px] font-semibold px-1 py-0.5 rounded bg-green-500/15 text-green-400">
+            <span className="text-[10px] font-semibold px-1 py-0.5 rounded bg-accent-success/15 text-accent-success">
               SQL
             </span>
             {t("editor.notebook.addSqlCell")}
@@ -70,7 +70,7 @@ export function AddCellButton({ onAddSql, onAddMarkdown }: AddCellButtonProps) {
             }}
             className="flex items-center gap-2 px-3 py-1.5 text-xs text-secondary hover:bg-surface-secondary w-full text-left"
           >
-            <span className="text-[10px] font-semibold px-1 py-0.5 rounded bg-blue-500/15 text-blue-400">
+            <span className="text-[10px] font-semibold px-1 py-0.5 rounded bg-accent-primary/15 text-accent-primary">
               MD
             </span>
             {t("editor.notebook.addMarkdownCell")}

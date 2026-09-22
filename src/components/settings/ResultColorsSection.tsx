@@ -91,7 +91,7 @@ export function ResultColorsSection() {
                     className="flex items-center gap-2.5 min-w-0"
                   >
                     <span
-                      className="w-5 h-5 rounded-md ring-1 ring-white/10 shrink-0"
+                      className="w-5 h-5 rounded-md ring-1 ring-primary/10 shrink-0"
                       style={{ background: color }}
                     />
                     <span className="text-sm text-primary">

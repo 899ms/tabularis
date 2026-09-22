@@ -367,7 +367,7 @@ function PluginSettingsForm({ pluginId, manifest }: PluginSettingsFormProps) {
                 {renderField(def)}
               </SettingRow>
               {errors[def.key] && (
-                <p className="text-xs text-red-400 -mt-2 mb-2 pl-0.5">
+                <p className="text-xs text-accent-error -mt-2 mb-2 pl-0.5">
                   {errors[def.key]}
                 </p>
               )}
@@ -385,7 +385,7 @@ function PluginSettingsForm({ pluginId, manifest }: PluginSettingsFormProps) {
           {t("common.save")}
         </button>
         {saved && (
-          <span className="text-xs text-green-400 flex items-center gap-1">
+          <span className="text-xs text-accent-success flex items-center gap-1">
             <Check size={12} />
             {t("settings.plugins.pluginSettings.saved")}
           </span>

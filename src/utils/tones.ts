@@ -92,5 +92,13 @@ export function toneStyle(tone: Tone, options: TintOptions = {}): CSSProperties 
   };
 }
 
+/**
+ * `color` at `percent` opacity over transparent. Built with `color-mix` so the
+ * input may be a theme variable (`var(--accent-primary)`) as well as a hex.
+ */
+export function tint(color: string, percent: number): string {
+  return `color-mix(in srgb, ${color} ${percent}%, transparent)`;
+}
+
 /** Classes for neutral chips, the only tone that does not need inline colours. */
 export const NEUTRAL_CHIP_CLASS = "bg-surface-secondary text-secondary border-strong/40";

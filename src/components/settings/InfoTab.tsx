@@ -72,7 +72,7 @@ export function InfoTab() {
   return (
     <div>
       {/* Hero */}
-      <div className="bg-gradient-to-br from-blue-900/20 to-elevated border border-blue-500/20 rounded-2xl p-8 text-center relative overflow-hidden mb-8">
+      <div className="bg-gradient-to-br from-accent-primary/10 to-elevated border border-accent-primary/20 rounded-2xl p-8 text-center relative overflow-hidden mb-8">
         <div className="absolute top-0 right-0 p-4 opacity-10">
           <Code2 size={120} />
         </div>
@@ -81,7 +81,7 @@ export function InfoTab() {
           <img
             src="/logo.png"
             alt="tabularis"
-            className="w-16 h-16 rounded-2xl mx-auto mb-4 shadow-lg shadow-blue-500/30"
+            className="w-16 h-16 rounded-2xl mx-auto mb-4 shadow-lg shadow-accent-primary/30"
             style={{
               backgroundColor: !currentTheme?.id?.includes("-light")
                 ? currentTheme?.colors?.surface?.secondary || "#334155"
@@ -115,7 +115,7 @@ export function InfoTab() {
           </div>
           <button
             onClick={() => setIsWhatsNewOpen(true)}
-            className="flex items-center gap-2 bg-purple-900/20 hover:bg-purple-900/30 text-purple-400 px-4 py-2 rounded-lg font-medium transition-colors border border-purple-500/30"
+            className="flex items-center gap-2 bg-accent-secondary/10 hover:bg-accent-secondary/15 text-accent-secondary px-4 py-2 rounded-lg font-medium transition-colors border border-accent-secondary/30"
           >
             <Sparkles size={18} />
             {t("whatsNew.title")}
@@ -194,7 +194,7 @@ export function InfoTab() {
                       type="button"
                       onClick={() => downloadAndInstall()}
                       disabled={isDownloading}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent-primary text-white text-xs font-semibold shadow-sm hover:bg-accent-primary/90 disabled:opacity-60 transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent-primary text-inverse text-xs font-semibold shadow-sm hover:bg-accent-primary/90 disabled:opacity-60 transition-colors"
                     >
                       {isDownloading ? (
                         <>
@@ -283,7 +283,7 @@ export function InfoTab() {
                   {item.done ? (
                     <CheckCircle2
                       size={18}
-                      className="text-green-500 shrink-0"
+                      className="text-accent-success shrink-0"
                     />
                   ) : (
                     <Circle

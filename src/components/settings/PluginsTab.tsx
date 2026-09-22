@@ -478,9 +478,9 @@ function PluginToggle({
     >
       <span
         className={clsx(
-          "pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow",
+          "pointer-events-none inline-block h-4 w-4 rounded-full shadow",
           "transition duration-200 ease-in-out",
-          enabled ? "translate-x-4" : "translate-x-0",
+          enabled ? "translate-x-4 bg-inverse" : "translate-x-0 bg-primary",
         )}
       />
     </button>

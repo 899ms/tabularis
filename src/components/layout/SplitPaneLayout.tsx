@@ -173,7 +173,7 @@ export const SplitPaneLayout = ({ layout, connectionIds }: SplitView) => {
             {isDropCandidate && dropTarget?.connId === connId && (
               <div
                 className={clsx(
-                  'absolute z-20 pointer-events-none bg-blue-500/20 border-2 border-blue-400/60 rounded-sm',
+                  'absolute z-20 pointer-events-none bg-accent-primary/20 border-2 border-accent-primary/60 rounded-sm',
                   EDGE_OVERLAY_CLASS[dropTarget.edge],
                 )}
               />
@@ -232,7 +232,7 @@ export const SplitPaneLayout = ({ layout, connectionIds }: SplitView) => {
           key={`${divider.path.join('.')}:${divider.index}`}
           onMouseDown={(e) => startDividerResize(divider, e)}
           className={clsx(
-            'absolute bg-default hover:bg-blue-500/50 transition-colors z-10',
+            'absolute bg-default hover:bg-accent-primary/50 transition-colors z-10',
             divider.mode === 'vertical' ? 'cursor-col-resize' : 'cursor-row-resize',
           )}
           style={

@@ -81,7 +81,7 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-base border border-strong rounded px-3 py-2 text-primary focus:outline-none focus:border-blue-500"
+              className="w-full bg-base border border-strong rounded px-3 py-2 text-primary focus:outline-none focus:border-accent-primary"
               placeholder="My Query"
               autoFocus
             />
@@ -123,7 +123,7 @@ export const QueryModal = ({ isOpen, onClose, onSave, initialName = '', initialS
             </div>
           </div>
 
-          {error && <div className="text-red-400 text-sm">{error}</div>}
+          {error && <div className="text-accent-error text-sm">{error}</div>}
 
           <div className="flex justify-end gap-2 pt-2">
             <button

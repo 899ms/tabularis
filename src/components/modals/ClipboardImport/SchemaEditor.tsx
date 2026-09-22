@@ -103,13 +103,13 @@ export function SchemaEditor({
       <div className="bg-elevated/80 px-3 py-2 border-b border-strong flex items-center justify-between shrink-0">
         {selected.size > 0 ? (
           <>
-            <span className="text-xs font-semibold text-blue-400">
+            <span className="text-xs font-semibold text-accent-primary">
               {t('clipboardImport.nSelected', { count: selected.size })}
             </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleBulkDelete}
-                className="flex items-center gap-1.5 px-2 py-1 text-xs bg-red-900/30 hover:bg-red-900/50 border border-red-800/40 text-red-300 rounded transition-colors"
+                className="flex items-center gap-1.5 px-2 py-1 text-xs bg-accent-error/15 hover:bg-accent-error/25 border border-accent-error/20 text-accent-error rounded transition-colors"
               >
                 <Trash2 size={12} />
                 {t('clipboardImport.deleteSelected')}
@@ -154,19 +154,19 @@ export function SchemaEditor({
                   checked={allSelected}
                   ref={(el) => { if (el) el.indeterminate = someSelected; }}
                   onChange={toggleAll}
-                  className="accent-blue-500"
+                  className="accent-accent-primary"
                   disabled={columns.length === 0}
                 />
                 <div
                   onMouseDown={(e) => startResize(0, e)}
-                  className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-blue-500/60 active:bg-blue-500 select-none"
+                  className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-accent-primary/60 active:bg-accent-primary select-none"
                 />
               </th>
               <th className="relative p-2 text-[10px] text-muted font-semibold">
                 {isAppend ? t('clipboardImport.sourceColumn') : t('createTable.colName')}
                 <div
                   onMouseDown={(e) => startResize(1, e)}
-                  className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-blue-500/60 active:bg-blue-500 select-none"
+                  className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-accent-primary/60 active:bg-accent-primary select-none"
                 />
               </th>
               {isAppend ? (
@@ -174,7 +174,7 @@ export function SchemaEditor({
                   {t('clipboardImport.targetColumn')}
                   <div
                     onMouseDown={(e) => startResize(2, e)}
-                    className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-blue-500/60 active:bg-blue-500 select-none"
+                    className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-accent-primary/60 active:bg-accent-primary select-none"
                   />
                 </th>
               ) : (
@@ -183,14 +183,14 @@ export function SchemaEditor({
                     {t('createTable.colType')}
                     <div
                       onMouseDown={(e) => startResize(2, e)}
-                      className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-blue-500/60 active:bg-blue-500 select-none"
+                      className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-accent-primary/60 active:bg-accent-primary select-none"
                     />
                   </th>
                   <th className="relative p-2 text-[10px] text-muted font-semibold text-center">
                     NULL
                     <div
                       onMouseDown={(e) => startResize(3, e)}
-                      className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-blue-500/60 active:bg-blue-500 select-none"
+                      className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-accent-primary/60 active:bg-accent-primary select-none"
                     />
                   </th>
                 </>
@@ -199,7 +199,7 @@ export function SchemaEditor({
                 {t('clipboardImport.sample')}
                 <div
                   onMouseDown={(e) => startResize(isAppend ? 3 : 4, e)}
-                  className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-blue-500/60 active:bg-blue-500 select-none"
+                  className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-accent-primary/60 active:bg-accent-primary select-none"
                 />
               </th>
               <th className="p-2" />
@@ -212,7 +212,7 @@ export function SchemaEditor({
                 <tr
                   key={i}
                   className={`group border-b border-strong/30 transition-colors ${
-                    isRowSelected ? 'bg-blue-600/10' : 'hover:bg-surface-secondary/30'
+                    isRowSelected ? 'bg-accent-primary/10' : 'hover:bg-surface-secondary/30'
                   }`}
                 >
                   <td className="p-2 text-center">
@@ -220,7 +220,7 @@ export function SchemaEditor({
                       type="checkbox"
                       checked={isRowSelected}
                       onChange={() => toggleRow(i)}
-                      className="accent-blue-500"
+                      className="accent-accent-primary"
                     />
                   </td>
                   <td className="p-2">
@@ -231,12 +231,12 @@ export function SchemaEditor({
                         <input autoCorrect="off" autoCapitalize="off" autoComplete="off" spellCheck={false}
                           value={col.name}
                           onChange={(e) => onColumnChange(i, { name: e.target.value })}
-                          className="w-full bg-transparent text-sm text-primary focus:outline-none border-b border-transparent focus:border-blue-500 font-mono"
+                          className="w-full bg-transparent text-sm text-primary focus:outline-none border-b border-transparent focus:border-accent-primary font-mono"
                         />
                       )}
                       {col.confidence === 'low' && (
                         <span title={t('clipboardImport.lowConfidence')} className="shrink-0 flex">
-                          <AlertTriangle size={12} className="text-yellow-400" />
+                          <AlertTriangle size={12} className="text-accent-warning" />
                         </span>
                       )}
                     </div>
@@ -280,7 +280,7 @@ export function SchemaEditor({
                                 type="checkbox"
                                 checked={col.nullable}
                                 onChange={(e) => onColumnChange(i, { nullable: e.target.checked })}
-                                className="accent-blue-500"
+                                className="accent-accent-primary"
                               />
                               NULL
                             </label>
@@ -305,7 +305,7 @@ export function SchemaEditor({
                           type="checkbox"
                           checked={col.nullable}
                           onChange={(e) => onColumnChange(i, { nullable: e.target.checked })}
-                          className="accent-blue-500"
+                          className="accent-accent-primary"
                         />
                       </td>
                     </>
@@ -318,7 +318,7 @@ export function SchemaEditor({
                   <td className="p-2 text-center">
                     <button
                       onClick={() => handleSingleDelete(i)}
-                      className="opacity-0 group-hover:opacity-100 text-muted hover:text-red-400 transition-all"
+                      className="opacity-0 group-hover:opacity-100 text-muted hover:text-accent-error transition-all"
                       title={t('clipboardImport.deleteColumn')}
                     >
                       <Trash2 size={13} />

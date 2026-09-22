@@ -87,7 +87,7 @@ export function MiniResultGrid({ columns, rows, loading, message }: MiniResultGr
                 title={col}
               >
                 <span className="truncate flex-1 min-w-0">{col}</span>
-                <ArrowUpDown size={12} className={sortCol === col ? 'text-blue-400 flex-shrink-0' : 'text-muted opacity-50 flex-shrink-0'} />
+                <ArrowUpDown size={12} className={sortCol === col ? 'text-accent-primary flex-shrink-0' : 'text-muted opacity-50 flex-shrink-0'} />
               </div>
             ))}
           </div>

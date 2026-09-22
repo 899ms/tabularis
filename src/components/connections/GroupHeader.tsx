@@ -41,7 +41,7 @@ export const GroupHeader = ({
   <div
     className={clsx(
       "flex items-center gap-2 group cursor-pointer rounded-lg",
-      isDragOver && "ring-1 ring-blue-400 bg-blue-500/5"
+      isDragOver && "ring-1 ring-accent-primary bg-accent-primary/5"
     )}
     style={{ paddingLeft: depth > 0 ? Math.min(depth, 6) * 20 : 0 }}
     onClick={onToggleCollapse}
@@ -64,9 +64,9 @@ export const GroupHeader = ({
       className={clsx('text-muted transition-transform', !isCollapsed && 'rotate-90')}
     />
     {isCollapsed ? (
-      <Folder size={16} className="text-amber-400/70" />
+      <Folder size={16} className="text-accent-warning/70" />
     ) : (
-      <FolderOpen size={16} className="text-amber-400" />
+      <FolderOpen size={16} className="text-accent-warning" />
     )}
     {editingGroupId === group.id ? (
       <input autoCorrect="off" autoCapitalize="off" autoComplete="off" spellCheck={false}
@@ -86,7 +86,7 @@ export const GroupHeader = ({
         }}
         onClick={(e) => e.stopPropagation()}
         autoFocus
-        className="px-2 py-0.5 bg-elevated border border-strong rounded text-sm text-primary focus:border-amber-500/70 focus:outline-none"
+        className="px-2 py-0.5 bg-elevated border border-strong rounded text-sm text-primary focus:border-accent-warning/70 focus:outline-none"
       />
     ) : (
       <span className="text-sm font-semibold text-primary">{group.name}</span>
@@ -101,7 +101,7 @@ export const GroupHeader = ({
         title="Add subfolder"
         className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-surface-secondary transition-all"
       >
-        <Plus size={12} className="text-amber-400" />
+        <Plus size={12} className="text-accent-warning" />
       </button>
     )}
     <button

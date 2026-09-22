@@ -113,7 +113,7 @@ export const TextInput: React.FC<TextInputProps> = ({
             {hasDiff && (
               <span
                 aria-hidden
-                className="ml-0.5 inline-block w-1.5 h-1.5 rounded-full bg-amber-400"
+                className="ml-0.5 inline-block w-1.5 h-1.5 rounded-full bg-accent-warning"
               />
             )}
           </button>

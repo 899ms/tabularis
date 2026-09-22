@@ -308,7 +308,7 @@ export const Sidebar = () => {
           <div className="relative mb-2">
             <button
               onClick={() => openUrl(DISCORD_URL)}
-              className="flex items-center justify-center w-12 h-12 rounded-lg transition-colors relative group text-secondary hover:bg-surface-secondary hover:text-indigo-400"
+              className="flex items-center justify-center w-12 h-12 rounded-lg transition-colors relative group text-secondary hover:bg-surface-secondary hover:text-accent-primary"
             >
               <RailIndicator isActive={false} className="-left-2" />
               <div className="relative">

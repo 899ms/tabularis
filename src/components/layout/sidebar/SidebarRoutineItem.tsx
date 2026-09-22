@@ -103,7 +103,7 @@ export const SidebarRoutineItem = ({
         <button className="p-0.5 rounded hover:bg-surface-secondary text-muted hover:text-primary transition-colors">
           {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         </button>
-        <Code2 size={14} className="text-muted group-hover:text-yellow-400" />
+        <Code2 size={14} className="text-muted group-hover:text-accent-warning" />
         <span className="truncate flex-1">{routine.name}</span>
       </div>
       {isExpanded && (
@@ -118,7 +118,7 @@ export const SidebarRoutineItem = ({
               {parameters.length > 0 ? (
                 <>
                   <div className="flex items-center gap-2 px-2 py-1 text-xs text-muted select-none">
-                    <Folder size={12} className="text-blue-400/70" />
+                    <Folder size={12} className="text-accent-primary/70" />
                     <span>{t("sidebar.parameters")}</span>
                     {/* mr-3.5 lines the count up with the group counts of
                         Functions / Procedures (px-2 + mr-3.5 = same edge). */}

@@ -40,10 +40,10 @@ const ICONS: Record<PaletteIcon, ComponentType<LucideProps>> = {
 };
 
 const ICON_COLORS: Partial<Record<PaletteIcon, string>> = {
-  routine: "text-green-500",
-  table: "text-blue-400",
-  trigger: "text-orange-400",
-  view: "text-purple-400",
+  routine: "text-accent-success",
+  table: "text-accent-primary",
+  trigger: "text-accent-warning",
+  view: "text-accent-secondary",
 };
 
 function PaletteItemIcon({
@@ -57,7 +57,7 @@ function PaletteItemIcon({
   return (
     <Icon
       size={size}
-      className={`shrink-0 ${ICON_COLORS[icon] ?? "text-blue-400"}`}
+      className={`shrink-0 ${ICON_COLORS[icon] ?? "text-accent-primary"}`}
     />
   );
 }
@@ -93,7 +93,7 @@ export const PaletteResults = ({
       {executionError && (
         <div
           role="alert"
-          className="shrink-0 border-b border-default px-4 py-2 text-sm text-red-400"
+          className="shrink-0 border-b border-default px-4 py-2 text-sm text-accent-error"
         >
           {executionError}
         </div>
@@ -189,7 +189,7 @@ export const PaletteResults = ({
               aria-label={action.label}
               title={action.label}
               onClick={() => onExecute(action)}
-              className="rounded p-1.5 text-muted transition-colors hover:bg-surface-tertiary hover:text-primary focus-visible:bg-surface-tertiary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="rounded p-1.5 text-muted transition-colors hover:bg-surface-tertiary hover:text-primary focus-visible:bg-surface-tertiary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary"
             >
               <PaletteItemIcon
                 icon={action.icon ?? "command"}
