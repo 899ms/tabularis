@@ -455,7 +455,7 @@ export function getCellStateClass(params: CellClassParams): string {
     if (isPlaceholder) return "text-muted italic select-none";
     if (isModified)
       return isJsonCell
-        ? "bg-semantic-modified/40 border-l-2 border-l-semantic-modified"
+        ? "bg-semantic-modified/25 border-l-2 border-l-semantic-modified"
         : "bg-semantic-modified/20 text-semantic-modified italic font-medium";
     return isJsonCell ? "bg-accent-primary/10" : "bg-accent-primary/10 text-secondary italic";
   }
@@ -464,14 +464,14 @@ export function getCellStateClass(params: CellClassParams): string {
     if (isPlaceholder) return "text-muted italic select-none";
     if (isModified)
       return isJsonCell
-        ? "bg-semantic-new/40 border-l-2 border-l-semantic-new"
+        ? "bg-semantic-new/25 border-l-2 border-l-semantic-new"
         : "bg-semantic-new/15 text-semantic-new italic";
     return isJsonCell ? "bg-semantic-new/5" : "bg-semantic-new/5 text-secondary italic";
   }
 
   if (isModified) {
     return isJsonCell
-      ? "bg-semantic-modified/40 border-l-2 border-l-semantic-modified"
+      ? "bg-semantic-modified/25 border-l-2 border-l-semantic-modified"
       : "bg-semantic-modified/30 text-semantic-modified italic font-medium";
   }
 
