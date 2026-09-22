@@ -32,12 +32,17 @@ export interface ThemeDefinitionV1 {
 export interface ThemePackageManifestV1 {
   /** Editor hint only; never used to select or fetch the validation schema. */
   $schema?: string;
+  /** Stable package identifier (slug). Without it, `name` is the identifier. */
+  id?: string;
+  /** Display name; free-form only when `id` is declared. */
   name: string;
   version: string;
   kind: "theme";
   min_runtime_version: string;
   theme_schema_version: 1;
   theme_variants: Array<{ id: string; name: string; file: string }>;
+  /* Catalog metadata below is owned and validated by the Tabularium registry;
+   * the host tolerates it without inspecting it. */
   description?: string;
   category?: string;
   tags?: string[];

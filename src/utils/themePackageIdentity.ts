@@ -1,4 +1,4 @@
-import type { InstalledThemeIdentity } from "../types/themePackage";
+import type { InstalledThemeIdentity, ThemePackageManifestV1 } from "../types/themePackage";
 
 const MONACO_NAME_PREFIX = "tabularis-renderer-";
 const MONACO_BASE_NAMES = new Set(["vs", "vs-dark", "hc-black", "hc-light"]);
@@ -32,6 +32,19 @@ const WINDOWS_DEVICE = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i;
 /** Stricter than the registry slug rule for portable native storage. */
 export function isThemePackageSlug(value: unknown): value is string {
   return typeof value === "string" && SLUG.test(value) && !WINDOWS_DEVICE.test(value);
+}
+
+/**
+ * Stable package identity: `id` when declared, otherwise the legacy slug `name`.
+ * Only a manifest that declares `id` may use a free-form display `name`.
+ */
+export function themePackageId(manifest: Pick<ThemePackageManifestV1, "id" | "name">): string {
+  if (manifest.id !== undefined) {
+    if (!isThemePackageSlug(manifest.id)) throw new Error("Invalid theme package id");
+    return manifest.id;
+  }
+  if (!isThemePackageSlug(manifest.name)) throw new Error("Invalid theme package name");
+  return manifest.name;
 }
 
 /**

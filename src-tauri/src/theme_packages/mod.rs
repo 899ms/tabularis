@@ -29,8 +29,8 @@ pub use archive::{validate_theme_archive, ValidatedThemePackage};
 pub use storage::{install_validated_theme, recover_theme_transactions, ThemeCommit};
 
 pub use validation::{
-    is_registry_namespace, is_safe_relative_path, registry_key, validate_definition_json, validate_manifest_json,
-    validate_runtime_version,
+    is_package_slug, is_registry_namespace, is_safe_relative_path, package_id, registry_key,
+    validate_definition_json, validate_manifest_json, validate_runtime_version,
 };
 
 #[cfg(test)]

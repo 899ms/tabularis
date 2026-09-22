@@ -165,7 +165,7 @@ fn package_entries(
     let source = files::read_budgeted_file(&folder.join(".tabularium"), 64 * 1024, read_budget)?;
     let manifest = validate_manifest_json(source.as_bytes())?;
     validate_runtime_version(&manifest, host_version)?;
-    let package = label(&manifest, "name")?;
+    let package = super::package_id(&manifest)?;
     if folder.file_name().and_then(|s| s.to_str()) != Some(package) {
         return Err("Installed package identity mismatch".into());
     }

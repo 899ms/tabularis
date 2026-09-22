@@ -83,8 +83,22 @@ describe("theme package manifest v1", () => {
     const value = { ...manifest, version: "1.0.0-beta.1+build.42" };
     expect(parseThemePackageManifest(JSON.stringify(value)).version).toBe(value.version);
   });
+  it("tolerates registry-owned metadata it does not validate", () => {
+    const value = { ...manifest, description: 42, unknown_registry_field: { nested: true } };
+    expect(parseThemePackageManifest(JSON.stringify(value))).toEqual(value);
+  });
+  it("prefers id as identity and frees the display name", () => {
+    const value = { ...manifest, id: "fixture-theme", name: "Fixture Theme for Tabularis" };
+    expect(parseThemePackageManifest(JSON.stringify(value))).toEqual(value);
+  });
   it.each([
-    { kind: "driver" }, { kind: undefined }, { name: "con" }, { executable: "theme.sh" },
+    { name: "Fixture Theme" }, { id: "Fixture", name: "x" }, { id: "con", name: "x" },
+    { id: "", name: "x" }, { id: 7, name: "x" }, { id: "a".repeat(65), name: "x" },
+  ])("rejects invalid identities: %j", (override) => {
+    expect(() => parseThemePackageManifest(JSON.stringify({ ...manifest, ...override }))).toThrow();
+  });
+  it.each([
+    { kind: "driver" }, { kind: undefined }, { name: "con" },
     { min_runtime_version: "^0.99.0" }, { version: "01.0.0" }, { version: "1.0.0-01" },
     { theme_variants: [] }, { theme_variants: Array(33).fill(manifest.theme_variants[0]) },
     { theme_variants: [manifest.theme_variants[0], manifest.theme_variants[0]] },

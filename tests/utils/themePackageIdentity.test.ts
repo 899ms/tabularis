@@ -3,6 +3,7 @@ import {
   createInstalledThemeId,
   isThemePackagePath,
   isThemePackageSlug,
+  themePackageId,
   parseInstalledThemeId,
 } from "../../src/utils/themePackageIdentity";
 
@@ -58,6 +59,18 @@ describe("theme package identities", () => {
     for (const value of ["", "../escape", "other:dark", "CON", "nul", "a".repeat(65), "dark\n"]) {
       expect(() => createInstalledThemeId({ ...identity, [key]: value })).toThrow();
     }
+  });
+});
+
+describe("theme package identity", () => {
+  it("uses id when declared and the legacy slug name otherwise", () => {
+    expect(themePackageId({ id: "ember-theme", name: "Ember Theme for Tabularis" })).toBe("ember-theme");
+    expect(themePackageId({ name: "ember-theme" })).toBe("ember-theme");
+  });
+  it.each([
+    { name: "Ember Theme" }, { id: "Ember", name: "x" }, { id: "con", name: "x" }, { id: "", name: "x" },
+  ])("rejects %j", (manifest) => {
+    expect(() => themePackageId(manifest)).toThrow();
   });
 });
 
