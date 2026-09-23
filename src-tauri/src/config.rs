@@ -58,6 +58,8 @@ pub struct AppConfig {
     pub check_for_updates: Option<bool>,
     pub auto_check_updates_on_startup: Option<bool>,
     pub last_dismissed_version: Option<String>,
+    /// Last plugin release shown in a startup notification, keyed by plugin id.
+    pub notified_plugin_versions: Option<HashMap<String, String>>,
     pub er_diagram_default_layout: Option<String>,
     pub schema_preferences: Option<HashMap<String, String>>,
     pub selected_schemas: Option<HashMap<String, Vec<String>>>,
@@ -83,6 +85,8 @@ pub struct AppConfig {
     pub release_channel: Option<String>,
     pub plugins: Option<HashMap<String, PluginConfig>>,
     pub editor_theme: Option<String>,
+    /// Font for query result cells ("inherit" follows the interface font). Default: JetBrains Mono.
+    pub result_font_family: Option<String>,
     pub editor_font_family: Option<String>,
     pub editor_font_size: Option<u32>,
     pub editor_line_height: Option<f32>,
@@ -128,6 +132,11 @@ pub struct AppConfig {
     /// Inactivity gap (in minutes) after which a new MCP session id is minted.
     /// Default: 10.
     pub ai_session_gap_minutes: Option<u32>,
+
+    // ----- MCP Tool Output -----
+    /// Default text encoding for MCP tool results: `"json"` or `"toon"`.
+    /// Per-call `output_format` arguments override this preference. Default: `"json"`.
+    pub mcp_output_format: Option<String>,
 
     // ----- MCP Read-only Mode -----
     /// Default behaviour for MCP `run_query`: when true, every connection is
@@ -206,6 +215,15 @@ pub struct AppConfig {
     /// gated on adoption signal — never enabled by this field's existence.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub migration_mode_by_driver: Option<HashMap<String, MigrationMode>>,
+
+    // ----- Network / Proxy -----
+    /// Global HTTP/SOCKS5 proxy and opt-in traffic scopes.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub proxy: Option<crate::proxy::GlobalProxySettings>,
+    /// Per AI-provider proxy overrides (`openai`, `anthropic`, …).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ai_provider_proxies:
+        Option<HashMap<String, crate::proxy::ProxyOverride>>,
 }
 
 /// One entry in the append-only driver-migration history.
@@ -259,6 +277,7 @@ pub fn get_cached_config() -> AppConfig {
 pub const DEFAULT_AI_AUDIT_ENABLED: bool = true;
 pub const DEFAULT_AI_AUDIT_MAX_ENTRIES: u32 = 5000;
 pub const DEFAULT_AI_SESSION_GAP_MINUTES: u32 = 10;
+pub const DEFAULT_MCP_OUTPUT_FORMAT: &str = "json";
 pub const DEFAULT_MCP_READONLY_DEFAULT: bool = false;
 pub const DEFAULT_MCP_APPROVAL_MODE: &str = "writes_only";
 pub const DEFAULT_MCP_APPROVAL_TIMEOUT_SECONDS: u32 = 120;
@@ -398,6 +417,9 @@ pub fn save_config(app: AppHandle, config: AppConfig) -> Result<(), String> {
         if config.last_dismissed_version.is_some() {
             existing_config.last_dismissed_version = config.last_dismissed_version;
         }
+        if config.notified_plugin_versions.is_some() {
+            existing_config.notified_plugin_versions = config.notified_plugin_versions;
+        }
         if config.er_diagram_default_layout.is_some() {
             existing_config.er_diagram_default_layout = config.er_diagram_default_layout;
         }
@@ -433,6 +455,9 @@ pub fn save_config(app: AppHandle, config: AppConfig) -> Result<(), String> {
         }
         if config.editor_theme.is_some() {
             existing_config.editor_theme = config.editor_theme;
+        }
+        if config.result_font_family.is_some() {
+            existing_config.result_font_family = config.result_font_family;
         }
         if config.editor_font_family.is_some() {
             existing_config.editor_font_family = config.editor_font_family;
@@ -502,6 +527,9 @@ pub fn save_config(app: AppHandle, config: AppConfig) -> Result<(), String> {
         }
         if config.ai_session_gap_minutes.is_some() {
             existing_config.ai_session_gap_minutes = config.ai_session_gap_minutes;
+        }
+        if config.mcp_output_format.is_some() {
+            existing_config.mcp_output_format = config.mcp_output_format;
         }
         if config.mcp_readonly_default.is_some() {
             existing_config.mcp_readonly_default = config.mcp_readonly_default;
@@ -573,6 +601,16 @@ pub fn save_config(app: AppHandle, config: AppConfig) -> Result<(), String> {
         }
         if config.migration_mode_by_driver.is_some() {
             existing_config.migration_mode_by_driver = config.migration_mode_by_driver;
+        }
+        if config.proxy.is_some() {
+            existing_config.proxy = config.proxy;
+            // Drop cached TCP forwards / SSH tunnels that may have been built
+            // with the previous proxy (password rotation, protocol switch, …).
+            crate::proxy::stop_all_forwards();
+            crate::ssh_tunnel::stop_all_tunnels();
+        }
+        if config.ai_provider_proxies.is_some() {
+            existing_config.ai_provider_proxies = config.ai_provider_proxies;
         }
 
         let content = serde_json::to_string_pretty(&existing_config).map_err(|e| e.to_string())?;
@@ -972,6 +1010,10 @@ pub fn save_config_json(app: AppHandle, json: String) -> Result<(), String> {
 }
 
 #[cfg(test)]
+#[path = "config/plugin_notification_tests.rs"]
+mod plugin_notification_tests;
+
+#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -1064,6 +1106,7 @@ mod tests {
         let config = AppConfig::default();
         assert!(config.safety_confirmation_delay_enabled.is_none());
         assert!(config.editor_theme.is_none());
+        assert!(config.result_font_family.is_none());
         assert!(config.editor_font_family.is_none());
         assert!(config.editor_font_size.is_none());
         assert!(config.editor_line_height.is_none());
@@ -1077,6 +1120,7 @@ mod tests {
     fn editor_fields_serialize_with_camel_case() {
         let mut config = AppConfig::default();
         config.editor_font_family = Some("JetBrains Mono".to_string());
+        config.result_font_family = Some("inherit".to_string());
         config.editor_font_size = Some(16);
         config.editor_line_height = Some(1.5);
         config.editor_tab_size = Some(4);
@@ -1088,6 +1132,7 @@ mod tests {
 
         let json = serde_json::to_string(&config).unwrap();
         assert!(json.contains("editorFontFamily"));
+        assert!(json.contains("resultFontFamily"));
         assert!(json.contains("editorFontSize"));
         assert!(json.contains("editorLineHeight"));
         assert!(json.contains("editorTabSize"));
@@ -1098,6 +1143,7 @@ mod tests {
         assert!(json.contains("safetyConfirmationDelayEnabled"));
         // snake_case must not appear
         assert!(!json.contains("editor_font_family"));
+        assert!(!json.contains("result_font_family"));
         assert!(!json.contains("editor_accept_suggestion_on_enter"));
         assert!(!json.contains("safety_confirmation_delay_enabled"));
     }
@@ -1106,6 +1152,7 @@ mod tests {
     fn editor_fields_round_trip() {
         let json = r#"{
             "editorFontFamily": "Hack",
+            "resultFontFamily": "Open Sans",
             "editorFontSize": 14,
             "editorLineHeight": 1.8,
             "editorTabSize": 2,
@@ -1118,6 +1165,7 @@ mod tests {
 
         let config: AppConfig = serde_json::from_str(json).unwrap();
         assert_eq!(config.editor_font_family.as_deref(), Some("Hack"));
+        assert_eq!(config.result_font_family.as_deref(), Some("Open Sans"));
         assert_eq!(config.editor_font_size, Some(14));
         assert_eq!(config.editor_tab_size, Some(2));
         assert_eq!(config.editor_word_wrap, Some(true));
@@ -1141,6 +1189,7 @@ mod tests {
         assert!(config.ai_audit_enabled.is_none());
         assert!(config.ai_audit_max_entries.is_none());
         assert!(config.ai_session_gap_minutes.is_none());
+        assert!(config.mcp_output_format.is_none());
         assert!(config.mcp_readonly_default.is_none());
         assert!(config.mcp_readonly_connections.is_none());
         assert!(config.mcp_approval_mode.is_none());
@@ -1156,6 +1205,7 @@ mod tests {
         config.ai_audit_enabled = Some(true);
         config.ai_audit_max_entries = Some(1000);
         config.ai_session_gap_minutes = Some(5);
+        config.mcp_output_format = Some("toon".into());
         config.mcp_readonly_default = Some(true);
         config.mcp_readonly_connections = Some(vec!["c1".into()]);
         config.mcp_approval_mode = Some("all".into());
@@ -1168,6 +1218,7 @@ mod tests {
         assert!(json.contains("aiAuditEnabled"));
         assert!(json.contains("aiAuditMaxEntries"));
         assert!(json.contains("aiSessionGapMinutes"));
+        assert!(json.contains("mcpOutputFormat"));
         assert!(json.contains("mcpReadonlyDefault"));
         assert!(json.contains("mcpReadonlyConnections"));
         assert!(json.contains("mcpApprovalMode"));
@@ -1183,6 +1234,7 @@ mod tests {
             "aiAuditEnabled": false,
             "aiAuditMaxEntries": 2000,
             "aiSessionGapMinutes": 30,
+            "mcpOutputFormat": "toon",
             "mcpReadonlyDefault": true,
             "mcpReadonlyConnections": ["a", "b"],
             "mcpApprovalMode": "writes_only",
@@ -1195,6 +1247,7 @@ mod tests {
         assert_eq!(config.ai_audit_enabled, Some(false));
         assert_eq!(config.ai_audit_max_entries, Some(2000));
         assert_eq!(config.ai_session_gap_minutes, Some(30));
+        assert_eq!(config.mcp_output_format.as_deref(), Some("toon"));
         assert_eq!(config.mcp_readonly_default, Some(true));
         assert_eq!(
             config.mcp_readonly_connections.as_deref(),

@@ -92,6 +92,12 @@ export function NotebookView({
   const { t } = useTranslation();
   const { activeSchema, activeCapabilities, selectedDatabases, activeDriver } =
     useDatabase();
+  const variableOptions = useMemo(
+    () => ({
+      escapeBackslashes: activeDriver === "mysql" || activeDriver === "mariadb",
+    }),
+    [activeDriver],
+  );
   const isMultiDb = usesMultiDatabaseLayout(activeCapabilities, selectedDatabases);
   const effectiveSchema =
     tab.schema || activeSchema || (isMultiDb ? selectedDatabases[0] : null);
@@ -328,7 +334,7 @@ export function NotebookView({
     [updateNotebook],
   );
 
-  const runCell = useCallback(
+  const runCellInner = useCallback(
     async (cellId: string) => {
       const cell = cellsRef.current.find((c) => c.id === cellId);
       if (!cell || cell.type !== "sql" || !cell.content.trim()) return;
@@ -377,7 +383,7 @@ export function NotebookView({
       const { sql: resolvedSql, unresolvedRefs } = resolveQueryVariables(
         sql,
         cellsRef.current,
-        { escapeBackslashes: activeDriver === "mysql" },
+        variableOptions,
       );
 
       if (unresolvedRefs.length > 0) {
@@ -451,9 +457,32 @@ export function NotebookView({
       settings.resultPageSize,
       updateCell,
       params,
-      activeDriver,
+      variableOptions,
       guardQueryExecution,
     ],
+  );
+
+  // Number of cells currently executing. The tab's `isLoading` flag drives the
+  // running indicator on the editor tab strip, so it must stay on while any
+  // cell is still running and go off only when the last one finishes.
+  const runningCellsRef = useRef(0);
+
+  const runCell = useCallback(
+    async (cellId: string) => {
+      runningCellsRef.current += 1;
+      if (runningCellsRef.current === 1) {
+        updateTab(tab.id, { isLoading: true });
+      }
+      try {
+        await runCellInner(cellId);
+      } finally {
+        runningCellsRef.current -= 1;
+        if (runningCellsRef.current === 0) {
+          updateTab(tab.id, { isLoading: false });
+        }
+      }
+    },
+    [runCellInner, tab.id, updateTab],
   );
 
   useEffect(() => {
@@ -818,8 +847,8 @@ export function NotebookView({
         placement === "top" ? "-top-1.5" : "-bottom-1.5"
       } left-0 right-0 z-10 flex items-center gap-1`}
     >
-      <span className="h-2 w-2 shrink-0 rounded-full bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.7)]" />
-      <span className="h-0.5 flex-1 rounded-full bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.7)]" />
+      <span className="h-2 w-2 shrink-0 rounded-full bg-accent-primary shadow-[0_0_6px_var(--accent-primary)]" />
+      <span className="h-0.5 flex-1 rounded-full bg-accent-primary shadow-[0_0_6px_var(--accent-primary)]" />
     </div>
   );
 
@@ -881,7 +910,7 @@ export function NotebookView({
         />
         {cells.map((cell, index) => (
           <div
-            key={`${cell.id}-${index}`}
+            key={cell.id}
             ref={(el) => {
               if (el) cellRefsMap.current.set(cell.id, el);
               else cellRefsMap.current.delete(cell.id);
@@ -911,6 +940,15 @@ export function NotebookView({
               }}
               onRun={() => runCell(cell.id)}
               connectionId={connectionId}
+              explainQuery={
+                cell.type === "sql" && cell.isQueryPlanVisible
+                  ? resolveQueryVariables(
+                      resolveParams(cell.content.trim(), params).sql,
+                      cells,
+                      variableOptions,
+                    )
+                  : undefined
+              }
               activeSchema={cell.schema || effectiveSchema || undefined}
               selectedDatabases={isMultiDb ? selectedDatabases : undefined}
               onSchemaChange={

@@ -4,7 +4,11 @@ import { Monitor, Code2 } from "lucide-react";
 import clsx from "clsx";
 import { useSettings } from "../../hooks/useSettings";
 import { useTheme } from "../../hooks/useTheme";
-import { getFontCSS } from "../../utils/settings";
+import {
+  DEFAULT_RESULT_FONT_FAMILY,
+  RESULT_FONT_INHERIT,
+  getFontCSS,
+} from "../../utils/settings";
 import {
   SettingSection,
   SettingRow,
@@ -15,19 +19,13 @@ import {
 } from "./SettingControls";
 import { FontPicker } from "./FontPicker";
 import { ThemePicker } from "./ThemePicker";
+import { ThemeManager } from "./ThemeManager";
 import { ResultColorsSection } from "./ResultColorsSection";
-import { themeRegistry } from "../../themes/themeRegistry";
 
 export function AppearanceTab() {
   const { t } = useTranslation();
   const { settings, updateSetting } = useSettings();
-  const {
-    currentTheme,
-    allThemes,
-    setTheme,
-    settings: themeSettings,
-    updateSettings,
-  } = useTheme();
+  const { allThemes } = useTheme();
   const [subTab, setSubTab] = useState<"general" | "editor">("general");
 
   return (
@@ -63,60 +61,7 @@ export function AppearanceTab() {
       {/* General sub-tab */}
       {subTab === "general" && (
         <>
-          <SettingSection title={t("settings.themeSelection")}>
-            <SettingRow
-              label={t("settings.themeMode")}
-              description={t("settings.themeModeDesc")}
-            >
-              <SettingButtonGroup
-                value={themeSettings.followSystemTheme ? "system" : "static"}
-                onChange={(mode) =>
-                  updateSettings({ followSystemTheme: mode === "system" })
-                }
-                options={[
-                  { value: "static", label: t("settings.themeModeStatic") },
-                  { value: "system", label: t("settings.themeModeSystem") },
-                ]}
-              />
-            </SettingRow>
-
-            {themeSettings.followSystemTheme ? (
-              <>
-                <div className="py-3">
-                  <p className="text-sm text-muted mb-2">
-                    {t("settings.lightTheme")}
-                  </p>
-                  <ThemePicker
-                    value={themeSettings.lightThemeId}
-                    onChange={(id) => updateSettings({ lightThemeId: id })}
-                    themes={allThemes.filter((theme) =>
-                      themeRegistry.isLightTheme(theme),
-                    )}
-                  />
-                </div>
-                <div className="py-3">
-                  <p className="text-sm text-muted mb-2">
-                    {t("settings.darkTheme")}
-                  </p>
-                  <ThemePicker
-                    value={themeSettings.darkThemeId}
-                    onChange={(id) => updateSettings({ darkThemeId: id })}
-                    themes={allThemes.filter((theme) =>
-                      themeRegistry.isDarkTheme(theme),
-                    )}
-                  />
-                </div>
-              </>
-            ) : (
-              <div className="py-3">
-                <ThemePicker
-                  value={currentTheme.id}
-                  onChange={setTheme}
-                  themes={allThemes}
-                />
-              </div>
-            )}
-          </SettingSection>
+          <ThemeManager />
 
           <SettingSection title={t("settings.fontFamily")}>
             <div className="py-3">
@@ -125,7 +70,7 @@ export function AppearanceTab() {
                 onChange={(f) => updateSetting("fontFamily", f)}
                 getPreviewCSS={(name) =>
                   name === "System"
-                    ? "system-ui, -apple-system, sans-serif"
+                    ? "var(--font-base)"
                     : `"${name}", ${name}`
                 }
                 inputId="custom-font-input"
@@ -170,6 +115,25 @@ export function AppearanceTab() {
                 onChange={(v) => updateSetting("stickyColumnHeaders", v)}
               />
             </SettingRow>
+            <div className="py-3">
+              <p className="text-sm text-primary">
+                {t("settings.dataGrid.fontFamily")}
+              </p>
+              <p className="text-xs text-muted mb-3">
+                {t("settings.dataGrid.fontFamilyDesc")}
+              </p>
+              <FontPicker
+                value={settings.resultFontFamily ?? DEFAULT_RESULT_FONT_FAMILY}
+                onChange={(f) => updateSetting("resultFontFamily", f)}
+                getPreviewCSS={getFontCSS}
+                inputId="custom-result-font-input"
+                inheritOption={{
+                  value: RESULT_FONT_INHERIT,
+                  label: t("settings.dataGrid.fontSameAsInterface"),
+                  previewCSS: "var(--font-base)",
+                }}
+              />
+            </div>
           </SettingSection>
 
           <ResultColorsSection />

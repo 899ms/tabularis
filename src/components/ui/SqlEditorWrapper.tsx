@@ -1,8 +1,10 @@
 import React, { useRef, useCallback, useContext, useEffect } from "react";
-import MonacoEditor, { type OnMount, type BeforeMount } from "@monaco-editor/react";
+import type { OnMount, BeforeMount } from "@monaco-editor/react";
+import { MonacoEditor } from "./LazyMonaco";
 import type * as Monaco from "monaco-editor";
 import { useEditorTheme } from "../../hooks/useEditorTheme";
 import { loadMonacoTheme } from "../../themes/themeUtils";
+import { getMonacoThemeId } from "../../themes/themeRuntime";
 import { readText, writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { useSettings } from "../../hooks/useSettings";
 import { useKeybindings } from "../../hooks/useKeybindings";
@@ -549,7 +551,7 @@ const SqlEditorInternal = ({
       <MonacoEditor
         height={height}
         defaultLanguage="sql"
-        theme={editorTheme.id}
+        theme={getMonacoThemeId(editorTheme.id)}
         defaultValue={initialValue}
         onChange={handleChange}
         beforeMount={handleBeforeMount}

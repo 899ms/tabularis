@@ -55,7 +55,12 @@ pub mod heartbeat;
 pub mod heartbeat_tests;
 pub mod json_viewer;
 pub mod keychain_utils;
+#[cfg(test)]
+pub mod keychain_utils_tests;
 pub mod results_window;
+pub mod sandbox;
+#[cfg(test)]
+pub mod sandbox_tests;
 pub mod k8s_tunnel;
 pub mod log_commands;
 pub mod logger;
@@ -78,6 +83,7 @@ pub mod pool_manager;
 #[cfg(test)]
 pub mod pool_manager_tests;
 pub mod preferences;
+pub mod proxy;
 pub mod query_history;
 #[cfg(test)]
 pub mod query_history_tests;
@@ -89,12 +95,15 @@ pub mod saved_queries;
 #[cfg(test)]
 pub mod saved_queries_tests;
 pub mod ssh_tunnel;
+pub mod ssm_tunnel;
 pub mod sqlite_database;
 #[cfg(test)]
 pub mod sqlite_database_tests;
+mod system_theme;
 pub mod task_manager;
 pub mod theme_commands;
 pub mod theme_models;
+pub mod theme_packages;
 pub mod updater;
 pub mod window_decorations;
 pub mod drivers {
@@ -260,6 +269,8 @@ pub fn run() {
         .manage(results_window::ResultsWindowStore::default())
         .manage(query_history::QueryHistoryState::default())
         .setup(move |app| {
+            #[cfg(target_os = "linux")]
+            system_theme::watch(app.handle().clone());
             // The asset protocol scope in tauri.conf.json only covers the
             // default data directory; when the user moved the storage folder
             // the connection icons live there instead.
@@ -289,8 +300,7 @@ pub fn run() {
 
             // Read persisted config to know which external plugins are enabled.
             // `None` means no preference has been saved yet → load all installed plugins.
-            let active_ext_drivers =
-                crate::config::load_config_internal(&app.handle()).active_external_drivers;
+            let active_ext_drivers = startup_config.active_external_drivers.as_deref();
 
             // Register built-in drivers
             tauri::async_runtime::block_on(async {
@@ -299,8 +309,11 @@ pub fn run() {
                 drivers::registry::register_driver(drivers::sqlite::SqliteDriver::new()).await;
 
                 // Load only enabled external plugins (or all if no preference saved).
-                crate::plugins::manager::load_plugins(&app.handle(), active_ext_drivers.as_deref())
-                    .await;
+                crate::plugins::manager::load_plugins_with_configs(
+                    startup_config.plugins.clone().unwrap_or_default(),
+                    active_ext_drivers,
+                )
+                .await;
             });
 
             // Ensure replacement plugins are installed for any built-in
@@ -325,8 +338,7 @@ pub fn run() {
 
             // Start connection health-check ping loop.
             {
-                let config = crate::config::load_config_internal(&app.handle());
-                let interval = config
+                let interval = startup_config
                     .ping_interval
                     .unwrap_or(health_check::DEFAULT_PING_INTERVAL);
                 let handle = app.handle().clone();
@@ -347,13 +359,26 @@ pub fn run() {
             // entry pointing at the current binary so Firefox & friends can
             // route `tabularis://...` to us. The call is a no-op on macOS
             // (handled by Info.plist) and idempotent across restarts.
+            //
+            // Inside Snap/Flatpak the exported `.desktop` entry already
+            // carries `MimeType=x-scheme-handler/tabularis`, and the sandbox
+            // has neither `xdg-mime` nor write access to the host's
+            // mimeapps.list — so skip the call instead of logging a failure.
             {
                 use tauri_plugin_deep_link::DeepLinkExt;
                 let handle = app.handle().clone();
                 let deep_link = app.deep_link();
                 #[cfg(any(target_os = "linux", all(debug_assertions, target_os = "windows")))]
-                if let Err(e) = deep_link.register("tabularis") {
-                    log::warn!("Failed to register tabularis:// scheme: {}", e);
+                match crate::sandbox::current() {
+                    Some(sandbox) => log::info!(
+                        "Skipping tabularis:// scheme registration: handled by the {} desktop entry",
+                        sandbox.name()
+                    ),
+                    None => {
+                        if let Err(e) = deep_link.register("tabularis") {
+                            log::warn!("Failed to register tabularis:// scheme: {}", e);
+                        }
+                    }
                 }
                 deep_link.on_open_url({
                     let handle = handle.clone();
@@ -386,7 +411,7 @@ pub fn run() {
             heartbeat::spawn();
 
             // Maximize the window on startup if the user enabled it.
-            if crate::config::load_config_internal(&app.handle())
+            if startup_config
                 .start_maximized
                 .unwrap_or(false)
             {
@@ -426,11 +451,13 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            system_theme::get_linux_system_theme,
             is_debug_mode,
             open_devtools,
             close_devtools,
             commands::get_registered_drivers,
             commands::get_driver_manifest,
+            commands::get_connection_metadata,
             commands::get_keybindings,
             commands::save_keybindings,
             commands::test_connection,
@@ -466,6 +493,8 @@ pub fn run() {
             commands::get_k8s_resources_cmd,
             commands::get_k8s_resource_ports_cmd,
             commands::validate_k8s_path_cmd,
+            // AWS SSM
+            commands::test_ssm_connection_cmd,
             // Connection Groups
             commands::get_connection_groups,
             commands::get_connections_with_groups,
@@ -569,6 +598,9 @@ pub fn run() {
             config::delete_ai_key,
             config::check_ai_key,
             config::check_ai_key_status,
+            proxy::set_proxy_password,
+            proxy::proxy_password_is_set,
+            proxy::delete_proxy_password,
             config::get_system_prompt,
             config::save_system_prompt,
             config::reset_system_prompt,
@@ -640,6 +672,22 @@ pub fn run() {
             ai_commands::list_pending_approvals,
             ai_commands::decide_pending_approval,
             // Themes
+            theme_packages::commands::preview_theme_document,
+            theme_packages::commands::preview_local_theme_package,
+            theme_packages::commands::install_local_theme_package,
+            theme_packages::commands::fetch_theme_registry,
+            theme_packages::commands::fetch_theme_package_detail,
+            theme_packages::commands::install_registry_theme,
+            theme_packages::commands::cancel_theme_install,
+            theme_packages::commands::set_theme_package_enabled,
+            theme_packages::commands::uninstall_theme_package,
+            theme_packages::commands::recover_theme_packages,
+            theme_commands::get_theme_catalog,
+            theme_commands::create_personal_theme,
+            theme_commands::create_personal_snapshot,
+            theme_commands::update_personal_theme,
+            theme_commands::update_personal_snapshot,
+            theme_commands::duplicate_personal_theme,
             theme_commands::get_all_themes,
             theme_commands::get_theme,
             theme_commands::save_custom_theme,
@@ -721,8 +769,10 @@ pub fn run() {
                 // Back up the freshest state before the process ends (no-op
                 // unless backups are enabled and due).
                 backup::run_exit_backup(app_handle);
-                log::info!("Application exiting, stopping all active SSH tunnels...");
+                log::info!("Application exiting, stopping all active tunnels...");
                 crate::ssh_tunnel::stop_all_tunnels();
+                crate::proxy::stop_all_forwards();
+                crate::ssm_tunnel::stop_all_tunnels();
             }
         });
 }

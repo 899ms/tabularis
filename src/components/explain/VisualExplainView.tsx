@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
-import MonacoEditor from "@monaco-editor/react";
+import { MonacoEditor } from "../ui/LazyMonaco";
 import type * as monaco from "monaco-editor";
 import type { ExplainPlan } from "@tabularis/explain";
 import {
@@ -21,6 +21,7 @@ import {
 } from "@tabularis/explain/react";
 import { useEditorTheme } from "../../hooks/useEditorTheme";
 import { loadMonacoTheme } from "../../themes/themeUtils";
+import { getMonacoThemeId } from "../../themes/themeRuntime";
 import {
   detectRawExplainLanguage,
   formatRawExplainOutput,
@@ -124,7 +125,7 @@ export const VisualExplainView = ({
             <MonacoEditor
               height="100%"
               language={rawLanguage}
-              theme={editorTheme.id}
+              theme={getMonacoThemeId(editorTheme.id)}
               value={rawValue}
               beforeMount={handleBeforeMount}
               options={{

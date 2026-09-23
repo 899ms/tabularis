@@ -124,6 +124,7 @@ vi.mock("lucide-react", () => ({
   Edit: () => null,
   Edit2: () => null,
   ArrowUp: () => null,
+  ArrowUpCircle: () => null,
   ArrowDown: () => null,
   ArrowUpDown: () => null,
   Filter: () => null,

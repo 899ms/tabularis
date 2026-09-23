@@ -381,6 +381,12 @@ export const DataGrid = React.memo(
       return new Map(columnMetadata.map((col) => [col.name, col.data_type]));
     }, [columnMetadata]);
 
+    // Create column comment map for O(1) lookup in header tooltips.
+    const columnCommentMap = useMemo(() => {
+      if (!columnMetadata) return null;
+      return new Map(columnMetadata.map((col) => [col.name, col.comment]));
+    }, [columnMetadata]);
+
     // Create column length map for O(1) lookup during blob rendering decisions
     const columnLengthMap = useMemo(() => {
       if (!columnMetadata) return null;
@@ -889,10 +895,39 @@ export const DataGrid = React.memo(
 
     const handleCellDoubleClick = useCallback(
       (rowIndex: number, colIndex: number, value: unknown) => {
-      if (!tableName || readonlyProp) return;
-
       const mergedRow = mergedRows[rowIndex];
       if (!mergedRow) return;
+
+      const colName = columns[colIndex];
+      const isGeneratedColumn =
+        generatedColumns?.has(colName.toLowerCase()) ?? false;
+
+      const colType = columnTypeMap?.get(colName);
+
+      // Open the dedicated viewer for structured cells before checking whether
+      // the grid is editable, so query and notebook results remain inspectable.
+      const rawCellValue = mergedRow.rowData[colIndex];
+      if (isJsonCellTarget(colType, rawCellValue) || Array.isArray(rawCellValue)) {
+        const isInsertion = mergedRow.type === "insertion";
+        openJsonViewerWindow(
+          value,
+          rawCellValue,
+          colName,
+          mergedRow.rowData,
+          rowIndex,
+          isInsertion,
+          mergedRow.tempId,
+          (readonlyProp ?? false) || isGeneratedColumn,
+        );
+        return;
+      }
+
+      if (isGeneratedColumn) {
+        return;
+      }
+
+      if (!tableName || readonlyProp) return;
+
       // No usable row identity (no primary key and no safe all-columns
       // fallback, see resolveRowIdentity) → explain instead of silently
       // ignoring the double-click (#598).
@@ -908,12 +943,6 @@ export const DataGrid = React.memo(
           }),
           { title: t("common.error"), kind: "warning" },
         );
-        return;
-      }
-
-      const colName = columns[colIndex];
-
-      if (generatedColumns?.has(colName.toLowerCase())) {
         return;
       }
 
@@ -961,34 +990,12 @@ export const DataGrid = React.memo(
         }
       }
 
-      const colType = columnTypeMap?.get(colName);
-
       if (
         colType &&
         (isBlobColumn(colType, columnLengthMap?.get(colName)) ||
           isBlobWireFormat(value))
       ) {
         openInSidebar(rowIndex, colName);
-        return;
-      }
-
-      // Open the dedicated viewer for structured cells instead of the inline
-      // textarea, which would stringify an array into a cramped, comma-joined
-      // box. Array values always qualify (like json/jsonb columns); JSON found
-      // inside text columns still follows the detect-json-in-text setting.
-      const rawCellValue = mergedRow.rowData[colIndex];
-      if (isJsonCellTarget(colType, rawCellValue) || Array.isArray(rawCellValue)) {
-        const isInsertion = mergedRow.type === "insertion";
-        openJsonViewerWindow(
-          value,
-          rawCellValue,
-          colName,
-          mergedRow.rowData,
-          rowIndex,
-          isInsertion,
-          mergedRow.tempId,
-          readonlyProp ?? false,
-        );
         return;
       }
 
@@ -1246,6 +1253,8 @@ export const DataGrid = React.memo(
               // Only populated when column metadata is present (i.e. table
               // browse), not for arbitrary query results.
               const colType = columnTypeMap?.get(colName);
+              const colComment = columnCommentMap?.get(colName);
+              const hasMetadataTooltip = Boolean(colType || colComment);
               const tooltipAlignment =
                 index === columns.length - 1 ? "right-0" : "left-0";
 
@@ -1271,7 +1280,7 @@ export const DataGrid = React.memo(
                       );
                     }
                   }}
-                  title={colType ? undefined : t("dataGrid.selectColumn")}
+                  title={hasMetadataTooltip ? undefined : t("dataGrid.selectColumn")}
                 >
                   <span>{colName}</span>
                   {onSort && (
@@ -1288,7 +1297,7 @@ export const DataGrid = React.memo(
                       title={
                         // Suppress the native sort-hint title while the type
                         // tooltip is shown, to avoid two overlapping tooltips.
-                        colType
+                        hasMetadataTooltip
                           ? undefined
                           : displaySortState === "none"
                             ? t("dataGrid.sortByAsc", { col: colName })
@@ -1303,10 +1312,10 @@ export const DataGrid = React.memo(
                       }}
                     >
                       {displaySortState === "asc" && (
-                        <ArrowUp size={14} className="text-blue-400" />
+                        <ArrowUp size={14} className="text-accent" />
                       )}
                       {displaySortState === "desc" && (
-                        <ArrowDown size={14} className="text-blue-400" />
+                        <ArrowDown size={14} className="text-accent" />
                       )}
                       {displaySortState === "none" && (
                         <ArrowUpDown
@@ -1316,12 +1325,21 @@ export const DataGrid = React.memo(
                       )}
                     </button>
                   )}
-                  {colType && (
+                  {hasMetadataTooltip && (
                     <span
                       role="tooltip"
-                      className={`pointer-events-none absolute ${tooltipAlignment} top-full z-20 mt-1 hidden whitespace-nowrap rounded-lg border border-strong bg-tooltip px-2 py-1 text-xs font-normal normal-case tracking-normal text-secondary shadow-xl group-hover/header:block`}
+                      className={`pointer-events-none absolute ${tooltipAlignment} top-full z-20 mt-1 hidden max-w-sm whitespace-normal rounded-lg border border-strong bg-tooltip px-2 py-1 text-left text-xs font-normal normal-case tracking-normal text-secondary shadow-xl group-hover/header:block group-focus-within/header:block`}
                     >
-                      <span className="text-primary">{colName}</span>: {colType}
+                      {colType && (
+                        <span className="block whitespace-nowrap">
+                          <span className="text-primary">{colName}</span>: {colType}
+                        </span>
+                      )}
+                      {colComment && (
+                        <span className="mt-1 block whitespace-pre-wrap text-secondary">
+                          {colComment}
+                        </span>
+                      )}
                     </span>
                   )}
                 </div>
@@ -1336,6 +1354,7 @@ export const DataGrid = React.memo(
         sortClause,
         onSort,
         columnTypeMap,
+        columnCommentMap,
       ],
     );
 
@@ -1400,22 +1419,20 @@ export const DataGrid = React.memo(
         colIndex: number,
         colName: string,
       ) => {
-        if (tableName) {
-          e.preventDefault();
-          // Find the merged row corresponding to this DOM element
-          const mergedRow = mergedRows.find((mr) => mr.rowData === row);
-          setContextMenu({
-            x: e.clientX,
-            y: e.clientY,
-            row,
-            rowIndex,
-            colIndex,
-            colName,
-            mergedRow,
-          });
-        }
+        e.preventDefault();
+        // Find the merged row corresponding to this DOM element
+        const mergedRow = mergedRows.find((mr) => mr.rowData === row);
+        setContextMenu({
+          x: e.clientX,
+          y: e.clientY,
+          row,
+          rowIndex,
+          colIndex,
+          colName,
+          mergedRow,
+        });
       },
-      [tableName, mergedRows],
+      [mergedRows],
     );
 
     const revertSelectedRow = useCallback(() => {
@@ -2439,11 +2456,13 @@ export const DataGrid = React.memo(
 
     return (
       <>
+        {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- focus host for the spreadsheet keyboard model (arrows, ranges, copy); a full ARIA grid needs per-cell roles and activedescendant */}
         <div
           ref={parentRef}
+          // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- same focus host: must be reachable with Tab to use the keyboard model
           tabIndex={0}
           onKeyDown={handleGridKeyDown}
-          className="h-full overflow-auto border border-default rounded bg-elevated relative focus:outline-none"
+          className="h-full overflow-auto border border-default rounded bg-elevated relative focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus"
         >
           <table className="w-full text-left border-collapse">
             <thead
@@ -2467,7 +2486,7 @@ export const DataGrid = React.memo(
                       key={header.id}
                       className={`px-4 py-2 text-xs font-semibold tracking-wider border-b border-r border-default last:border-r-0 whitespace-nowrap ${
                         selectedColIndices.has(headerColIndex)
-                          ? "text-primary bg-blue-500/20"
+                          ? "text-primary bg-accent-primary/20"
                           : "text-secondary"
                       }`}
                       onContextMenu={(e) => {
@@ -2606,11 +2625,15 @@ export const DataGrid = React.memo(
               const isAutoIncrement = autoIncrementColumns?.includes(colName);
               const isNullable = nullableColumns?.includes(colName);
               const hasDefault = defaultValueColumns?.includes(colName);
+              const colDataType = columnTypeMap?.get(colName) ?? "";
+              const contextCellValue =
+                contextMenu.row[contextMenu.colIndex];
+              const isReadonlyGrid = Boolean(readonlyProp) || !tableName;
 
               // Build menu items dynamically
               const menuItems: ContextMenuItem[] = [];
 
-              if (!readonlyProp) {
+              if (!isReadonlyGrid) {
                 // Cell value manipulation options (shown first for cell context)
                 // SET GENERATED only for insertion rows, not for existing rows
                 if (isAutoIncrement && isInsertion) {
@@ -2637,7 +2660,6 @@ export const DataGrid = React.memo(
                 // Empty string ("") is only a valid value for textual columns.
                 // Strongly-typed columns (uuid, numeric, temporal, …) reject it,
                 // so offer "Set Empty" only where an empty string is assignable.
-                const colDataType = columnTypeMap?.get(colName) ?? "";
                 if (supportsEmptyString(colDataType)) {
                   menuItems.push({
                     label: t("dataGrid.setEmpty"),
@@ -2652,25 +2674,24 @@ export const DataGrid = React.memo(
                     action: setCellServerNow,
                   });
                 }
-                if (isJsonColumn(colDataType)) {
-                  menuItems.push({
-                    label: t("contextMenu.openJsonEditor"),
-                    icon: Braces,
-                    action: openJsonEditor,
-                  });
-                }
-
-                // Separator before row actions
-                if (menuItems.length > 0) {
-                  menuItems.push({ separator: true });
-                }
               }
 
-              const fkContextValue =
-                contextMenu.row[contextMenu.colIndex];
+              if (isJsonCellTarget(colDataType, contextCellValue)) {
+                menuItems.push({
+                  label: t("contextMenu.openJsonEditor"),
+                  icon: Braces,
+                  action: openJsonEditor,
+                });
+              }
+
+              // Separator before row actions
+              if (menuItems.length > 0) {
+                menuItems.push({ separator: true });
+              }
+
               const fkForContextPreview = getForeignKeyForPreview(
                 contextMenu.colName,
-                fkContextValue,
+                contextCellValue,
                 fksByColumn,
                 { isInsertion },
               );
@@ -2687,7 +2708,7 @@ export const DataGrid = React.memo(
                       updateSelection(new Set());
                       onForeignKeyShowPanel(
                         fkForContextPreview,
-                        fkContextValue,
+                        contextCellValue,
                       );
                       setContextMenu(null);
                     },
@@ -2702,7 +2723,7 @@ export const DataGrid = React.memo(
                     action: () => {
                       onForeignKeyNavigate(
                         fkForContextPreview,
-                        fkContextValue,
+                        contextCellValue,
                       );
                       setContextMenu(null);
                     },
@@ -2777,7 +2798,7 @@ export const DataGrid = React.memo(
                 },
               });
 
-              if (!readonlyProp) {
+              if (!isReadonlyGrid) {
                 menuItems.push({
                   label: t("dataGrid.pasteCells"),
                   icon: ClipboardPaste,
@@ -2805,7 +2826,7 @@ export const DataGrid = React.memo(
                 },
               });
 
-              if (!readonlyProp) {
+              if (!isReadonlyGrid) {
                 menuItems.push(
                   {
                     label: t("contextMenu.openSidebar"),
