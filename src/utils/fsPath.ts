@@ -4,25 +4,22 @@
  * Single cleanup entry for SQLite / DuckDB / CSV / Excel / Parquet (and other
  * file/folder) connection paths:
  * 1. Remove BOM / zero-width characters
- * 2. Trim surrounding whitespace
- * 3. Strip a `file:` URI prefix when present
- * 4. Peel matching outer quotes (`"…"`, `'…'`, `` `…` ``, curly/fullwidth pairs)
+ * 2. Trim surrounding whitespace and peel matching outer quotes
+ *    (`"…"`, `'…'`, `` `…` ``, curly/fullwidth pairs)
+ * 3. Convert a `file:` URI into a local path (authority and percent-encoding
+ *    are handled by the WHATWG `URL` parser)
  *
  * Does **not** delete characters from the middle of the path (e.g. Windows-illegal
  * `<>:|?*` inside a name) — that would silently corrupt paths; the OS/driver reports those.
+ * Mirrors `sanitize_local_file_path` in `src-tauri/src/fs_path.rs`.
  */
 export function sanitizeLocalFilePath(raw: string): string {
   const withoutInvisible = Array.from(raw)
     .filter((c) => !isInvisiblePathNoise(c))
     .join("");
-  let current = withoutInvisible.trim();
-  current = stripFileUriPrefix(current).trim();
-  return peelOuterQuotes(current);
-}
-
-/** @deprecated Prefer {@link sanitizeLocalFilePath}; kept as an alias. */
-export function unwrapQuotedPath(raw: string): string {
-  return sanitizeLocalFilePath(raw);
+  const unquoted = peelOuterQuotes(withoutInvisible);
+  const fromUri = fileUriToPath(unquoted);
+  return fromUri === null ? unquoted : peelOuterQuotes(fromUri);
 }
 
 /** Normalize a connection database field when it stores a local file/folder path. */
@@ -45,18 +42,28 @@ function isInvisiblePathNoise(c: string): boolean {
   );
 }
 
-function stripFileUriPrefix(value: string): string {
-  if (!value.toLowerCase().startsWith("file:")) return value;
-  const afterScheme = value.slice(5);
-  const rest = afterScheme.replace(/^\/+/, "");
-  if (rest.length >= 2) {
-    const drive = rest[0];
-    const sep = rest[1];
-    if (/[a-zA-Z]/.test(drive) && (sep === ":" || sep === "|")) {
-      return rest.replace("|", ":");
-    }
+/**
+ * Convert a `file:` URI into a local path, or `null` when `value` is not one.
+ * Handles `file://localhost/p`, UNC-style `file://server/share/p`
+ * (→ `//server/share/p`), Windows drive letters and percent-encoding.
+ */
+export function fileUriToPath(value: string): string | null {
+  if (!value.toLowerCase().startsWith("file:")) return null;
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return null;
   }
-  return `/${rest.replace(/^\/+/, "")}`;
+  let path: string;
+  try {
+    path = decodeURIComponent(url.pathname);
+  } catch {
+    path = url.pathname;
+  }
+  const drive = /^\/([a-zA-Z])[:|](.*)$/.exec(path);
+  if (drive) return `${drive[1]}:${drive[2]}`;
+  return url.hostname ? `//${url.hostname}${path}` : path;
 }
 
 function matchingQuoteClose(open: string): string | undefined {

@@ -66,6 +66,7 @@ import { K8sAdvancedSettings } from "../ui/K8sAdvancedSettings";
 import { isMultiDatabaseCapable } from "../../utils/database";
 import { updateExtraField } from "../../utils/connections";
 import { normalizeLocalDatabasePath, sanitizeLocalFilePath } from "../../utils/fsPath";
+import { isLocalDriver } from "../../utils/driverCapabilities";
 import { toErrorMessage } from "../../utils/errors";
 import {
   classifyConnectionError,
@@ -281,6 +282,7 @@ export const NewConnectionModal = ({
   // ── form state ──
   const [driver, setDriver] = useState<string>("mysql");
   const activeDriver = drivers.find((d) => d.id === driver) ?? drivers[0];
+  const isLocalPathDriver = isLocalDriver(activeDriver?.capabilities);
   // Capability-driven, not driver-id-driven: a driver whose manifest EXPLICITLY
   // declares the postgres SQL dialect (builtin "postgres" or a plugin like
   // "postgresql") gets Postgres-style SSL mode options. Deliberately requires
@@ -2089,9 +2091,6 @@ export const NewConnectionModal = ({
             setTestLog((previous) => [...previous, entry]);
           },
         );
-        const isLocalPathDriver =
-          activeDriver?.capabilities?.file_based === true ||
-          activeDriver?.capabilities?.folder_based === true;
         const testParamsBase: Partial<ConnectionParams> = {
           driver,
           ...formData,
@@ -2307,9 +2306,6 @@ export const NewConnectionModal = ({
       if (!validateInlineSshSelection()) return;
       if (!validateInlineSsmSelection()) return;
 
-      const isLocalPathDriver =
-        activeDriver?.capabilities?.file_based === true ||
-        activeDriver?.capabilities?.folder_based === true;
       const paramsBase: Partial<ConnectionParams> = {
         driver,
         ...formData,

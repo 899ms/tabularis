@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { sanitizeLocalFilePath, unwrapQuotedPath } from "../../src/utils/fsPath";
+import {
+  fileUriToPath,
+  normalizeLocalDatabasePath,
+  sanitizeLocalFilePath,
+} from "../../src/utils/fsPath";
 
 describe("sanitizeLocalFilePath", () => {
   it("leaves plain paths alone", () => {
@@ -9,6 +13,10 @@ describe("sanitizeLocalFilePath", () => {
       ),
     ).toBe(String.raw`C:\Users\Administrator\Downloads\companies.db`);
     expect(sanitizeLocalFilePath("  /tmp/data.db  ")).toBe("/tmp/data.db");
+    expect(sanitizeLocalFilePath("/home/u/my%20db.db")).toBe(
+      "/home/u/my%20db.db",
+    );
+    expect(sanitizeLocalFilePath("filedata.db")).toBe("filedata.db");
   });
 
   it("strips ascii and curly quotes", () => {
@@ -30,13 +38,45 @@ describe("sanitizeLocalFilePath", () => {
     expect(sanitizeLocalFilePath(`'"/tmp/a.csv"'`)).toBe("/tmp/a.csv");
   });
 
-  it("strips file URIs and invisible noise", () => {
+  it("strips invisible noise", () => {
+    expect(sanitizeLocalFilePath('\uFEFF\u200B"/tmp/a.db"')).toBe("/tmp/a.db");
+  });
+
+  it("converts file URIs", () => {
     expect(sanitizeLocalFilePath("file:///C:/Users/a/companies.db")).toBe(
       "C:/Users/a/companies.db",
     );
+    expect(sanitizeLocalFilePath("file:///C|/Users/a/companies.db")).toBe(
+      "C:/Users/a/companies.db",
+    );
     expect(sanitizeLocalFilePath("file:///home/u/a.db")).toBe("/home/u/a.db");
-    expect(sanitizeLocalFilePath("\uFEFF\u200B\"/tmp/a.db\"")).toBe(
-      "/tmp/a.db",
+    expect(sanitizeLocalFilePath("FILE:/home/u/a.db")).toBe("/home/u/a.db");
+    expect(sanitizeLocalFilePath('"file:///home/u/a.db"')).toBe(
+      "/home/u/a.db",
+    );
+  });
+
+  it("drops the localhost authority", () => {
+    expect(sanitizeLocalFilePath("file://localhost/home/u/a.db")).toBe(
+      "/home/u/a.db",
+    );
+    expect(sanitizeLocalFilePath("file://localhost/C:/data/a.db")).toBe(
+      "C:/data/a.db",
+    );
+  });
+
+  it("keeps a remote authority as a UNC path", () => {
+    expect(sanitizeLocalFilePath("file://server/share/a.db")).toBe(
+      "//server/share/a.db",
+    );
+  });
+
+  it("decodes percent-encoding", () => {
+    expect(sanitizeLocalFilePath("file:///home/u/my%20db.db")).toBe(
+      "/home/u/my db.db",
+    );
+    expect(sanitizeLocalFilePath("file:///C:/Users/J%C3%BCrgen/a.db")).toBe(
+      "C:/Users/Jürgen/a.db",
     );
   });
 
@@ -44,8 +84,22 @@ describe("sanitizeLocalFilePath", () => {
     expect(sanitizeLocalFilePath(`"/tmp/a.csv`)).toBe(`"/tmp/a.csv`);
     expect(sanitizeLocalFilePath("")).toBe("");
   });
+});
 
-  it("keeps unwrapQuotedPath as an alias", () => {
-    expect(unwrapQuotedPath('"a.db"')).toBe("a.db");
+describe("fileUriToPath", () => {
+  it("returns null for non-file values", () => {
+    expect(fileUriToPath("/tmp/a.db")).toBeNull();
+    expect(fileUriToPath("file")).toBeNull();
+    expect(fileUriToPath("sqlite:///tmp/a.db")).toBeNull();
+  });
+});
+
+describe("normalizeLocalDatabasePath", () => {
+  it("sanitizes single and multiple entries", () => {
+    expect(normalizeLocalDatabasePath("'/tmp/a.db'")).toBe("/tmp/a.db");
+    expect(normalizeLocalDatabasePath(['"/tmp/a.csv"', "`/tmp/b.parquet`"])).toEqual(
+      ["/tmp/a.csv", "/tmp/b.parquet"],
+    );
+    expect(normalizeLocalDatabasePath(undefined)).toBeUndefined();
   });
 });
