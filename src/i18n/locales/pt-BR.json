@@ -26,6 +26,7 @@
   "common": {
     "save": "Salvar",
     "close": "Fechar",
+    "resizeColumn": "Redimensionar coluna",
     "cancel": "Cancelar",
     "delete": "Excluir",
     "edit": "Editar",
@@ -83,6 +84,8 @@
     "noTables": "Nenhuma tabela encontrada",
     "expandTable": "Expandir tabela {{name}}",
     "collapseTable": "Recolher tabela {{name}}",
+    "expandView": "Expandir view {{name}}",
+    "collapseView": "Recolher view {{name}}",
     "columns": "colunas",
     "parameters": "parâmetros",
     "noParameters": "Nenhum parâmetro",
@@ -164,6 +167,7 @@
     "splitHorizontal": "Dividir Horizontalmente",
     "separateConnections": "Conexões Separadas",
     "splitGroup": "Dividir Grupo",
+    "resizePanels": "Redimensionar painéis",
     "filterTables": "Filtrar tabelas...",
     "noTablesMatch": "Nenhuma tabela corresponde",
     "filterDatabases": "Filtrar bancos de dados...",
@@ -488,7 +492,7 @@
     "darkTheme": "Tema escuro",
     "fontFamily": "Família de Fonte",
     "fonts": {
-      "system": "Padrão do Sistema",
+      "system": "Padrão do tema",
       "systemDesc": "Usa a fonte padrão do seu sistema operacional",
       "custom": "Fonte Personalizada",
       "customPlaceholder": "ex.: Comic Sans MS",
@@ -833,7 +837,8 @@
       "categories": {
         "editor": "Editor",
         "navigation": "Navegação",
-        "data_grid": "Grade de Dados"
+        "data_grid": "Grade de Dados",
+        "notebook": "Caderno"
       },
       "runQuery": "Executar consulta",
       "runQueryEditor": "Executar consulta (no editor)",
@@ -845,6 +850,9 @@
       "toggleRightSidebar": "Alternar barra lateral direita",
       "focusTableFilter": "Focar filtro de tabela",
       "openConnections": "Abrir conexões",
+      "openSettings": "Abrir configurações",
+      "conflict": "Este atalho entra em conflito com “{{shortcut}}”.",
+      "needsModifier": "Adicione uma tecla modificadora, como Ctrl ou Alt.",
       "newConnection": "Nova conexão",
       "newTab": "Nova aba",
       "closeTab": "Fechar aba",
@@ -1166,6 +1174,7 @@
   },
   "dataGrid": {
     "noRowIdentity": "Não é possível editar as linhas: \"{{table}}\" não tem chave primária, então a edição exige que o resultado inclua todas as colunas da tabela. Selecione todas as colunas (ex.: SELECT *) ou adicione uma chave primária.",
+    "resizeRelatedPanel": "Arraste para redimensionar o painel",
     "keylessRowNotFound": "Nenhuma linha correspondeu aos valores originais ao atualizar \"{{column}}\". A tabela não tem chave primária e os dados podem ter mudado: atualize e tente novamente.",
     "keylessDeleteNotFound": "Nenhuma linha correspondeu aos valores originais ao excluir. A tabela não tem chave primária e os dados podem ter mudado: atualize e tente novamente.",
     "newRow": "NOVO",
@@ -1501,6 +1510,7 @@
       "addSqlCell": "Adicionar Célula SQL",
       "addMarkdownCell": "Adicionar Célula Markdown",
       "addCell": "Adicionar",
+      "resizeResult": "Redimensionar resultado",
       "runAll": "Executar Tudo",
       "runAllTooltip": "Executar todas as células SQL de cima para baixo",
       "runCell": "Executar Célula",

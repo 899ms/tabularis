@@ -50,9 +50,9 @@ const ClientIcon = ({
     case "claude_code":
       return <AnthropicIcon size={size} />;
     case "cursor":
-      return <CursorIcon size={size} className="text-white" />;
+      return <CursorIcon size={size} className="text-primary" />;
     case "windsurf":
-      return <WindsurfIcon size={size} className="text-white" />;
+      return <WindsurfIcon size={size} className="text-primary" />;
     case "antigravity":
       return <AntigravityIcon size={size} />;
     case "codex":
@@ -81,7 +81,7 @@ export function McpPage() {
       <div className="mx-auto flex max-w-6xl flex-col gap-6 p-8">
         <header className="flex flex-col gap-3 border-b border-default pb-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-900/30 text-purple-400">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-secondary/15 text-accent-secondary">
               <Cpu size={20} />
             </div>
             <div className="min-w-0">
@@ -104,7 +104,7 @@ export function McpPage() {
               className={clsx(
                 "-mb-px flex items-center gap-2 border-b-2 px-4 py-2 text-sm font-medium transition-colors",
                 tab === id
-                  ? "border-blue-500 text-primary"
+                  ? "border-accent-primary text-primary"
                   : "border-transparent text-muted hover:text-primary",
               )}
             >
@@ -226,7 +226,7 @@ function McpSetupPanel() {
               className={clsx(
                 "flex w-full items-center justify-between rounded-lg border p-3 text-left transition-colors",
                 selectedClient?.client_id === client.client_id
-                  ? "border-purple-500/50 bg-purple-900/10"
+                  ? "border-accent-secondary/50 bg-accent-secondary/5"
                   : "border-default bg-base hover:border-strong",
               )}
             >
@@ -247,7 +247,7 @@ function McpSetupPanel() {
                 </div>
               </div>
               {client.installed ? (
-                <div className="ml-3 flex shrink-0 items-center gap-2 rounded-full border border-green-900/50 bg-green-900/20 px-3 py-1 text-xs font-medium text-green-400">
+                <div className="ml-3 flex shrink-0 items-center gap-2 rounded-full border border-accent-success/25 bg-accent-success/10 px-3 py-1 text-xs font-medium text-accent-success">
                   <Check size={12} />
                   <span>{t("mcp.installed")}</span>
                 </div>
@@ -285,7 +285,7 @@ function McpSetupPanel() {
                   className="absolute right-2 top-2 rounded bg-surface-secondary p-1.5 text-secondary opacity-0 transition-all hover:text-primary group-hover:opacity-100"
                 >
                   {copiedCmd ? (
-                    <Check size={13} className="text-green-400" />
+                    <Check size={13} className="text-accent-success" />
                   ) : (
                     <Copy size={13} />
                   )}
@@ -317,7 +317,7 @@ function McpSetupPanel() {
                   className="absolute right-2 top-2 z-10 rounded bg-surface-secondary p-2 text-secondary opacity-0 transition-all hover:text-primary group-hover:opacity-100"
                 >
                   {copiedJson ? (
-                    <Check size={14} className="text-green-400" />
+                    <Check size={14} className="text-accent-success" />
                   ) : (
                     <Copy size={14} />
                   )}

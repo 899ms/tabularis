@@ -17,7 +17,7 @@ import { UpdateTooltip } from "../ui/UpdateTooltip";
 
 /** Footer icon buttons mirror the connection card's action row. */
 export const PLUGIN_ICON_BUTTON_CLASS =
-  "p-1.5 rounded-lg text-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:text-accent-primary hover:bg-accent-primary/10";
+  "p-1.5 rounded-lg text-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:text-accent hover:bg-accent-primary/10";
 
 interface PluginCardProps {
   /** Driver (executable) or theme (declarative); drives the icon tile and the kind chip. */
@@ -83,7 +83,7 @@ export function PluginCard({
               type="button"
               onClick={() => openUrl(primaryHref)}
               aria-label={`${name} — ${primaryHref}`}
-              className="inline-flex min-w-0 items-center gap-1.5 text-left font-bold text-sm text-primary leading-snug hover:text-accent-primary"
+              className="inline-flex min-w-0 items-center gap-1.5 text-left font-bold text-sm text-primary leading-snug hover:text-accent"
             >
               <span className="truncate">{name}</span>
               <ExternalLink size={12} className="shrink-0 text-muted" />
@@ -106,9 +106,8 @@ export function PluginCard({
               <UpdateTooltip label={updateLabel}>
                 <span
                   role="img"
-                  tabIndex={0}
                   aria-label={updateLabel}
-                  className="inline-flex rounded-full focus-visible:outline focus-visible:outline-accent-primary"
+                  className="inline-flex rounded-full"
                 >
                   <PluginUpdateIndicator version={updateVersion} />
                 </span>

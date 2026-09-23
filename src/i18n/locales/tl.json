@@ -49,6 +49,7 @@
   "common": {
     "save": "I-save",
     "close": "Isara",
+    "resizeColumn": "Baguhin ang laki ng column",
     "cancel": "Kanselahin",
     "delete": "Burahin",
     "edit": "I-edit",
@@ -106,6 +107,8 @@
     "noTables": "Walang nahanap na table",
     "expandTable": "I-expand ang table na {{name}}",
     "collapseTable": "I-collapse ang table na {{name}}",
+    "expandView": "I-expand ang view na {{name}}",
+    "collapseView": "I-collapse ang view na {{name}}",
     "columns": "mga column",
     "parameters": "mga parameter",
     "noParameters": "Walang parameter",
@@ -187,6 +190,7 @@
     "splitHorizontal": "Hatiin nang Pahiga",
     "separateConnections": "Paghiwalayin ang mga Koneksyon",
     "splitGroup": "Hatiin ang Grupo",
+    "resizePanels": "Baguhin ang laki ng mga panel",
     "filterTables": "I-filter ang mga table...",
     "noTablesMatch": "Walang table na tumugma",
     "filterDatabases": "I-filter ang mga database...",
@@ -517,7 +521,7 @@
     "darkTheme": "Dark na Theme",
     "fontFamily": "Font Family",
     "fonts": {
-      "system": "System Default",
+      "system": "Default ng tema",
       "systemDesc": "Ginagamit ang default font ng iyong OS",
       "custom": "Custom Font",
       "customPlaceholder": "hal., Comic Sans MS",
@@ -849,7 +853,8 @@
       "categories": {
         "editor": "Editor",
         "navigation": "Navigation",
-        "data_grid": "Data Grid"
+        "data_grid": "Data Grid",
+        "notebook": "Kuwaderno"
       },
       "runQuery": "Patakbuhin ang query",
       "runQueryEditor": "Patakbuhin ang query (sa editor)",
@@ -861,6 +866,9 @@
       "toggleRightSidebar": "I-toggle ang kanang sidebar",
       "focusTableFilter": "Tumuon sa table filter",
       "openConnections": "Buksan ang mga koneksyon",
+      "openSettings": "Buksan ang settings",
+      "conflict": "Sumasalungat ang shortcut na ito sa “{{shortcut}}”.",
+      "needsModifier": "Magdagdag ng modifier key, gaya ng Ctrl o Alt.",
       "newConnection": "Bagong koneksyon",
       "newTab": "Bagong tab",
       "closeTab": "Isara ang tab",
@@ -1177,6 +1185,7 @@
   },
   "dataGrid": {
     "noRowIdentity": "Hindi ma-edit ang mga row: walang primary key ang \"{{table}}\", kaya kailangang kasama sa resulta ang lahat ng column ng table. Piliin ang lahat ng column (hal. SELECT *) o magdagdag ng primary key.",
+    "resizeRelatedPanel": "I-drag para baguhin ang laki ng panel",
     "keylessRowNotFound": "Walang row na tumugma sa mga orihinal na value habang ina-update ang \"{{column}}\". Walang primary key ang table at maaaring nagbago ang data — i-refresh at subukang muli.",
     "keylessDeleteNotFound": "Walang row na tumugma sa mga orihinal na value habang nagde-delete. Walang primary key ang table at maaaring nagbago ang data — i-refresh at subukang muli.",
     "newRow": "BAGO",
@@ -1511,6 +1520,7 @@
       "addSqlCell": "Magdagdag ng SQL Cell",
       "addMarkdownCell": "Magdagdag ng Markdown Cell",
       "addCell": "Magdagdag",
+      "resizeResult": "Baguhin ang laki ng resulta",
       "runAll": "Patakbuhin Lahat",
       "runAllTooltip": "I-execute ang lahat ng SQL cell mula taas hanggang baba",
       "runCell": "Patakbuhin ang Cell",

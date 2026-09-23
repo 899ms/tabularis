@@ -207,7 +207,7 @@ export const EnumSetInput = ({
         .map((v) => (
           <span
             key={v}
-            className="inline-flex items-center px-1.5 py-0.5 rounded bg-accent-primary/15 text-accent-primary text-xs leading-tight"
+            className="inline-flex items-center px-1.5 py-0.5 rounded bg-accent-primary/15 text-accent text-xs leading-tight"
           >
             {v}
           </span>
@@ -233,7 +233,7 @@ export const EnumSetInput = ({
           className={clsx(
             "w-full flex items-center gap-2 px-3 py-2 text-left text-sm rounded transition-colors",
             isNull
-              ? "bg-accent-primary/10 text-accent-primary font-medium"
+              ? "bg-accent-primary/10 text-accent font-medium"
               : "text-muted hover:bg-surface-secondary",
           )}
         >
@@ -253,7 +253,7 @@ export const EnumSetInput = ({
             className={clsx(
               "w-full flex items-center gap-2 px-3 py-2 text-left text-sm rounded transition-colors font-mono",
               checked && !multiple
-                ? "bg-accent-primary/10 text-accent-primary font-medium"
+                ? "bg-accent-primary/10 text-accent font-medium"
                 : "text-primary hover:bg-surface-secondary",
             )}
             title={member}
@@ -278,8 +278,11 @@ export const EnumSetInput = ({
   );
 
   return (
+    // Layout wrapper that catches Escape/Enter bubbling from the trigger and
+    // the portalled options; the controls themselves carry the semantics.
     <div
       ref={setRootEl}
+      role="presentation"
       tabIndex={-1}
       onKeyDown={handleKeyDown}
       className={clsx(

@@ -49,6 +49,7 @@
   "common": {
     "save": "保存",
     "close": "閉じる",
+    "resizeColumn": "列のサイズを変更",
     "cancel": "キャンセル",
     "delete": "削除",
     "edit": "編集",
@@ -106,6 +107,8 @@
     "noTables": "テーブルが見つかりません",
     "expandTable": "テーブル {{name}} を展開",
     "collapseTable": "テーブル {{name}} を折りたたむ",
+    "expandView": "ビュー {{name}} を展開",
+    "collapseView": "ビュー {{name}} を折りたたむ",
     "columns": "カラム",
     "parameters": "パラメータ",
     "noParameters": "パラメータなし",
@@ -187,6 +190,7 @@
     "splitHorizontal": "水平分割",
     "separateConnections": "接続を分離",
     "splitGroup": "グループを分割",
+    "resizePanels": "パネルのサイズを変更",
     "filterTables": "テーブルをフィルター...",
     "noTablesMatch": "一致するテーブルがありません",
     "filterDatabases": "データベースをフィルター...",
@@ -510,7 +514,7 @@
     "darkTheme": "ダークテーマ",
     "fontFamily": "フォントファミリー",
     "fonts": {
-      "system": "システム既定",
+      "system": "テーマの既定",
       "systemDesc": "OS の既定フォントを使用します",
       "custom": "カスタムフォント",
       "customPlaceholder": "例: Comic Sans MS",
@@ -832,7 +836,8 @@
       "categories": {
         "editor": "エディタ",
         "navigation": "ナビゲーション",
-        "data_grid": "データグリッド"
+        "data_grid": "データグリッド",
+        "notebook": "ノートブック"
       },
       "runQuery": "クエリを実行",
       "runQueryEditor": "クエリを実行 (エディタ内)",
@@ -844,6 +849,9 @@
       "toggleRightSidebar": "右サイドバーの切り替え",
       "focusTableFilter": "テーブルフィルターにフォーカス",
       "openConnections": "接続を開く",
+      "openSettings": "設定を開く",
+      "conflict": "このショートカットは「{{shortcut}}」と競合しています。",
+      "needsModifier": "Ctrl や Alt などの修飾キーを追加してください。",
       "newConnection": "新規接続",
       "newTab": "新規タブ",
       "closeTab": "タブを閉じる",
@@ -1161,6 +1169,7 @@
   },
   "dataGrid": {
     "noRowIdentity": "行を編集できません: \"{{table}}\" には主キーがないため、編集には結果にテーブルの全列が含まれている必要があります。すべての列を選択する(例: SELECT *)か、主キーを追加してください。",
+    "resizeRelatedPanel": "ドラッグしてパネルのサイズを変更",
     "keylessRowNotFound": "\"{{column}}\" の更新時に元の値に一致する行が見つかりませんでした。テーブルに主キーがなく、データが変更された可能性があります。再読み込みして再試行してください。",
     "keylessDeleteNotFound": "削除時に元の値に一致する行が見つかりませんでした。テーブルに主キーがなく、データが変更された可能性があります。再読み込みして再試行してください。",
     "noData": "表示するデータがありません",
@@ -1491,6 +1500,7 @@
       "addSqlCell": "SQL セルを追加",
       "addMarkdownCell": "Markdown セルを追加",
       "addCell": "追加",
+      "resizeResult": "結果のサイズを変更",
       "runAll": "すべて実行",
       "runAllTooltip": "上から下へすべての SQL セルを実行",
       "runCell": "セルを実行",

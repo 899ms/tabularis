@@ -189,7 +189,7 @@ function ThemeActionDialog({ isOpen, action, onClose }: { isOpen: boolean; actio
       {action.kind === "package" && action.theme.entry.origin.kind === "installed" && <p className="mt-2 font-mono break-all">{action.theme.entry.origin.identity.packageName}</p>}
     </InlineBanner>
     {action.kind === "preview" && <ThemeSqlSample contribution={action.theme.entry} />}
-    {action.kind === "duplicate" && <label className="block space-y-1.5 text-xs font-medium text-secondary">{t("themePackages.name")}<input data-autofocus value={name} maxLength={128} disabled={busy} onChange={(event) => setName(event.target.value)} className="block w-full bg-base border border-strong rounded-lg px-3 py-2 text-sm font-normal text-primary focus:border-accent-primary focus:outline-none disabled:opacity-50" /></label>}
+    {action.kind === "duplicate" && <label className="block space-y-1.5 text-xs font-medium text-secondary">{t("themePackages.name")}<input data-autofocus value={name} maxLength={128} disabled={busy} onChange={(event) => setName(event.target.value)} className="block w-full bg-base border border-strong rounded-lg px-3 py-2 text-sm font-normal text-primary focus:border-focus focus:outline-none disabled:opacity-50" /></label>}
     {error && <InlineBanner tone="red" role="alert" icon={<AlertTriangle size={16} />}><p className="whitespace-pre-wrap break-words">{error}</p></InlineBanner>}
   </ThemeDialog>;
 }

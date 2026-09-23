@@ -49,6 +49,7 @@
   "common": {
     "save": "Save",
     "close": "Close",
+    "resizeColumn": "Resize column",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
@@ -106,6 +107,8 @@
     "noTables": "No tables found",
     "expandTable": "Expand table {{name}}",
     "collapseTable": "Collapse table {{name}}",
+    "expandView": "Expand view {{name}}",
+    "collapseView": "Collapse view {{name}}",
     "columns": "columns",
     "parameters": "parameters",
     "noParameters": "No parameters",
@@ -187,6 +190,7 @@
     "splitHorizontal": "Split Horizontal",
     "separateConnections": "Separate Connections",
     "splitGroup": "Split Group",
+    "resizePanels": "Resize panels",
     "filterTables": "Filter tables...",
     "noTablesMatch": "No tables match",
     "filterDatabases": "Filter databases...",
@@ -517,7 +521,7 @@
     "darkTheme": "Dark Theme",
     "fontFamily": "Font Family",
     "fonts": {
-      "system": "System Default",
+      "system": "Theme default",
       "systemDesc": "Uses your OS default font",
       "custom": "Custom Font",
       "customPlaceholder": "e.g., Comic Sans MS",
@@ -863,7 +867,8 @@
       "categories": {
         "editor": "Editor",
         "navigation": "Navigation",
-        "data_grid": "Data Grid"
+        "data_grid": "Data Grid",
+        "notebook": "Notebook"
       },
       "runQuery": "Run query",
       "runQueryEditor": "Run query (in editor)",
@@ -875,6 +880,9 @@
       "toggleRightSidebar": "Toggle right sidebar",
       "focusTableFilter": "Focus table filter",
       "openConnections": "Open connections",
+      "openSettings": "Open settings",
+      "conflict": "This shortcut conflicts with “{{shortcut}}”.",
+      "needsModifier": "Add a modifier key, such as Ctrl or Alt.",
       "newConnection": "New connection",
       "newTab": "New tab",
       "closeTab": "Close tab",
@@ -1195,6 +1203,7 @@
   },
   "dataGrid": {
     "noRowIdentity": "Rows can't be edited: \"{{table}}\" has no primary key, so editing requires the result to include all table columns. Select all columns (e.g. SELECT *) or add a primary key.",
+    "resizeRelatedPanel": "Drag to resize panel",
     "keylessRowNotFound": "No row matched the original values while updating \"{{column}}\". The table has no primary key and its data may have changed — refresh and retry.",
     "keylessDeleteNotFound": "No row matched the original values while deleting. The table has no primary key and its data may have changed — refresh and retry.",
     "newRow": "NEW",
@@ -1532,6 +1541,7 @@
       "addSqlCell": "Add SQL Cell",
       "addMarkdownCell": "Add Markdown Cell",
       "addCell": "Add",
+      "resizeResult": "Resize result",
       "runAll": "Run All",
       "runAllTooltip": "Execute all SQL cells top to bottom",
       "runCell": "Run Cell",

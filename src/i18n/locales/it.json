@@ -49,6 +49,7 @@
   "common": {
     "save": "Salva",
     "close": "Chiudi",
+    "resizeColumn": "Ridimensiona colonna",
     "cancel": "Annulla",
     "delete": "Elimina",
     "edit": "Modifica",
@@ -106,6 +107,8 @@
     "noTables": "Nessuna tabella trovata",
     "expandTable": "Espandi tabella {{name}}",
     "collapseTable": "Comprimi tabella {{name}}",
+    "expandView": "Espandi vista {{name}}",
+    "collapseView": "Comprimi vista {{name}}",
     "columns": "colonne",
     "parameters": "parametri",
     "noParameters": "Nessun parametro",
@@ -174,6 +177,7 @@
     "splitHorizontal": "Dividi Orizzontale",
     "separateConnections": "Separa Connessioni",
     "splitGroup": "Gruppo Diviso",
+    "resizePanels": "Ridimensiona pannelli",
     "filterTables": "Filtra tabelle...",
     "noTablesMatch": "Nessuna tabella trovata",
     "filterDatabases": "Filtra database...",
@@ -524,7 +528,7 @@
     "darkTheme": "Tema scuro",
     "fontFamily": "Famiglia Font",
     "fonts": {
-      "system": "Sistema",
+      "system": "Predefinito del tema",
       "systemDesc": "Usa il font di default del sistema",
       "custom": "Font Personalizzato",
       "customPlaceholder": "es. Comic Sans MS",
@@ -851,7 +855,8 @@
       "categories": {
         "editor": "Editor",
         "navigation": "Navigazione",
-        "data_grid": "Griglia dati"
+        "data_grid": "Griglia dati",
+        "notebook": "Notebook"
       },
       "runQuery": "Esegui query",
       "runQueryEditor": "Esegui query (nell'editor)",
@@ -863,6 +868,9 @@
       "toggleRightSidebar": "Attiva/disattiva barra laterale destra",
       "focusTableFilter": "Focalizza il filtro tabelle",
       "openConnections": "Apri connessioni",
+      "openSettings": "Apri impostazioni",
+      "conflict": "Questa scorciatoia è in conflitto con “{{shortcut}}”.",
+      "needsModifier": "Aggiungi un tasto modificatore, come Ctrl o Alt.",
       "newConnection": "Nuova connessione",
       "newTab": "Nuovo tab",
       "closeTab": "Chiudi tab",
@@ -1184,6 +1192,7 @@
   },
   "dataGrid": {
     "noRowIdentity": "Impossibile modificare le righe: \"{{table}}\" non ha una chiave primaria, quindi la modifica richiede che il risultato includa tutte le colonne della tabella. Seleziona tutte le colonne (es. SELECT *) o aggiungi una chiave primaria.",
+    "resizeRelatedPanel": "Trascina per ridimensionare il pannello",
     "keylessRowNotFound": "Nessuna riga corrisponde ai valori originali durante l'aggiornamento di \"{{column}}\". La tabella non ha una chiave primaria e i dati potrebbero essere cambiati: aggiorna e riprova.",
     "keylessDeleteNotFound": "Nessuna riga corrisponde ai valori originali durante l'eliminazione. La tabella non ha una chiave primaria e i dati potrebbero essere cambiati: aggiorna e riprova.",
     "newRow": "NUOVA",
@@ -1513,6 +1522,7 @@
       "addSqlCell": "Aggiungi Cella SQL",
       "addMarkdownCell": "Aggiungi Cella Markdown",
       "addCell": "Aggiungi",
+      "resizeResult": "Ridimensiona risultato",
       "runAll": "Esegui Tutto",
       "runAllTooltip": "Esegui tutte le celle SQL dall'alto in basso",
       "runCell": "Esegui Cella",
